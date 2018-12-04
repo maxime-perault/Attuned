@@ -1,0 +1,2 @@
+AttunedSoundBank	"Play_Sinus220"
+AttunedSoundBank	"Play_Sinus440"
