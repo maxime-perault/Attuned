@@ -14,10 +14,13 @@
 	"IsBetaVersion": false,
 	"Installed": false,
 	"Modules": [
-		{
-			"Name": "AttunedTool",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
-		}
+    {
+      "Name": "AttunedTool",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Attuned"
+      ]
+    }
 	]
 }

@@ -9,6 +9,8 @@
 #include "Widgets/Text/STextBlock.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 
+#include "Attuned/Public/APluginActor.h"
+
 static const FName AttunedToolTabName("AttunedTool");
 
 #define LOCTEXT_NAMESPACE "FAttunedToolModule"
