@@ -1,6 +1,5 @@
 ## Ignore UE4 files and VS / XCode solutions and projects
 
-*.sln
 *.vcxproj
 *.xcodeproj
 Binaries/
