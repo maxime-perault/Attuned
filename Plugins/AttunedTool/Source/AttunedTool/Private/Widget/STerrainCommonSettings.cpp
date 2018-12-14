@@ -14,7 +14,11 @@
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
-	// TODO
+	ChildSlot
+	[
+		SNew(STextBlock)
+		.Text(NSLOCTEXT("AttunedTool", "Common", "CommonSettings"))
+	];
 }
 
 #undef LOCTEXT_NAMESPACE

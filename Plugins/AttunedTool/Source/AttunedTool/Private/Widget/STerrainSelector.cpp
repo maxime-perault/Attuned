@@ -5,6 +5,10 @@
 /// \author     Vincent STEHLY--CALISTO
 
 #include "Widget/STerrainSelector.h"
+#include "Widget/Terrain/SRockTerrainSettings.h"
+#include "Widget/Terrain/SSandTerrainSettings.h"
+#include "Widget/Terrain/SWaterTerrainSettings.h"
+#include "Widget/Terrain/SNeutralTerrainSettings.h"
 
 #include <SButton.h>
 #include <STextBlock.h>
@@ -59,23 +63,19 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 			.WidgetIndex(this, &STerrainSelector::GetCurrentTabIndex)
 			+ SWidgetSwitcher::Slot()
 			[
-				SNew(STextBlock)
-				.Text(NSLOCTEXT("AttunedTool", "RockTerrain", "Rock"))
+				SNew(SRockTerrainSettings)
 			]
 			+ SWidgetSwitcher::Slot()
 			[
-				SNew(STextBlock)
-				.Text(NSLOCTEXT("AttunedTool", "SandTerrain", "Sand"))
+				SNew(SSandTerrainSettings)
 			]
 			+ SWidgetSwitcher::Slot()
 			[
-				SNew(STextBlock)
-				.Text(NSLOCTEXT("AttunedTool", "WaterTerrain", "Water"))
+				SNew(SWaterTerrainSettings)
 			]
 			+ SWidgetSwitcher::Slot()
 			[
-				SNew(STextBlock)
-				.Text(NSLOCTEXT("AttunedTool", "NeutralTerrain", "Neutral"))
+				SNew(SNeutralTerrainSettings)
 			]
 		]
 	];
