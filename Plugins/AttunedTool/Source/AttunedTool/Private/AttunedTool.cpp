@@ -1,5 +1,7 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
+
+
 #include "AttunedTool.h"
 #include "AttunedToolStyle.h"
 #include "AttunedToolCommands.h"
@@ -8,7 +10,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
-
+#include "Widget/STerrainSelector.h"
 #include "Attuned/Public/APluginActor.h"
 
 static const FName AttunedToolTabName("AttunedTool");
@@ -79,8 +81,7 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Center)
 			[
-				SNew(STextBlock)
-				.Text(WidgetText)
+				SNew(STerrainSelector)
 			]
 		];
 }

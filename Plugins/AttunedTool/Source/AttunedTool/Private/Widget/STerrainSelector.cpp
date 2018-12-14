@@ -7,6 +7,7 @@
 #include "Widget/STerrainSelector.h"
 
 #include <SButton.h>
+#include <STextBlock.h>
 #include <SWidgetSwitcher.h>
 
 #define LOCTEXT_NAMESPACE "STerrainSelector"
@@ -19,35 +20,63 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 	[
 		// The widget to switch between terrains
 		// Rock - Sand - Water - Neutral
-		SNew(SWidgetSwitcher)
-		.WidgetIndex(this, &STerrainSelector::GetCurrentTabIndex)
-		+ SWidgetSwitcher::Slot()
+		SNew(SVerticalBox) 
+		+ SVerticalBox::Slot()
 		[
-			SNew(SButton)
-			.Text(FText::FromString("Rock"))
-			.DesiredSizeScale(FVector2D(2.5, 2.5))
-			.OnClicked_Raw(this, &STerrainSelector::OnRockTerrainClick)
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Rock"))
+				.DesiredSizeScale(FVector2D(2.5, 2.5))
+				.OnClicked_Raw(this, &STerrainSelector::OnRockTerrainClick)
+			]
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Sand"))
+				.DesiredSizeScale(FVector2D(2.5, 2.5))
+				.OnClicked_Raw(this, &STerrainSelector::OnSandTerrainClick)
+			]
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Water"))
+				.DesiredSizeScale(FVector2D(2.5, 2.5))
+				.OnClicked_Raw(this, &STerrainSelector::OnWaterTerrainClick)
+			]
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SButton)
+				.Text(FText::FromString("Neutral"))
+				.DesiredSizeScale(FVector2D(2.5, 2.5))
+				.OnClicked_Raw(this, &STerrainSelector::OnNeutralTerrainClick)
+			]
 		]
-		+ SWidgetSwitcher::Slot()
+		+ SVerticalBox::Slot()
 		[
-			SNew(SButton)
-			.Text(FText::FromString("Sand"))
-			.DesiredSizeScale(FVector2D(2.5, 2.5))
-			.OnClicked_Raw(this, &STerrainSelector::OnSandTerrainClick)
-		]
-		+ SWidgetSwitcher::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Water"))
-			.DesiredSizeScale(FVector2D(2.5, 2.5))
-			.OnClicked_Raw(this, &STerrainSelector::OnWaterTerrainClick)
-		]
-		+ SWidgetSwitcher::Slot()
-		[
-			SNew(SButton)
-			.Text(FText::FromString("Neutral"))
-			.DesiredSizeScale(FVector2D(2.5, 2.5))
-			.OnClicked_Raw(this, &STerrainSelector::OnNeutralTerrainClick)
+			SNew(SWidgetSwitcher)
+			.WidgetIndex(this, &STerrainSelector::GetCurrentTabIndex)
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("AttunedTool", "RockTerrain", "Rock"))
+			]
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("AttunedTool", "SandTerrain", "Sand"))
+			]
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("AttunedTool", "WaterTerrain", "Water"))
+			]
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("AttunedTool", "NeutralTerrain", "Neutral"))
+			]
 		]
 	];
 }
