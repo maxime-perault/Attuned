@@ -20,7 +20,7 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 	[
 		// The widget to switch between terrains
 		// Rock - Sand - Water - Neutral
-		SNew(SVerticalBox) 
+		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
 		[
 			SNew(SHorizontalBox)

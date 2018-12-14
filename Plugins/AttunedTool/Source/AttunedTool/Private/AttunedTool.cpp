@@ -78,8 +78,8 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		[
 			// Put your tab content here!
 			SNew(SBox)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
+			//.HAlign(HAlign_Center)
+			//.VAlign(VAlign_Center)
 			[
 				SNew(STerrainSelector)
 			]
