@@ -36,6 +36,10 @@ private:
 	float m_fallingFriction      =  50.0f;
 	float m_airControl           =  50.0f;
 	float m_jumpZVelocity        = 600.0f;
+	float m_dashCooldown		 =   1.0f;
+	float m_acceleration		 = 100.0f;
+	float m_minSpeed		     = 400.0f;
+	float m_maxSpeed		     = 800.0f;
 };
 
 #endif // ATTUNED_TOOL_S_TERRAIN_COMMON_SETTINGS_H_

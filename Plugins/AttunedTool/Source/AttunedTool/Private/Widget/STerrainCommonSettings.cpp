@@ -125,7 +125,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
 						]
 					]
-					+ SVerticalBox::Slot() // m_jumpZVelocity
+					+ SVerticalBox::Slot() // m_dashCooldown
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -140,6 +140,78 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
 							.MinValue_Lambda([this](void)->float { return   10.0f; })
 							.OnValueChanged_Lambda([this](float v)->void { m_jumpZVelocity = v;      })
+							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
+						]
+					]
+					+ SVerticalBox::Slot() // m_dashCooldown
+					[
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						[
+							SNew(STextBlock)
+							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO6", "Dash Cooldown"))
+						]
+						+ SHorizontalBox::Slot()
+						[
+							SNew(SSpinBox<float>)
+							.Value_Lambda([this](void)->float { return   m_dashCooldown; })
+							.MaxValue_Lambda([this](void)->float { return   10.0f; })
+							.MinValue_Lambda([this](void)->float { return   0.0f; })
+							.OnValueChanged_Lambda([this](float v)->void { m_dashCooldown = v;      })
+							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
+						]
+					]
+					+ SVerticalBox::Slot() // m_dashCooldown
+					[
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						[
+							SNew(STextBlock)
+							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO7", "Acceleration"))
+						]
+						+ SHorizontalBox::Slot()
+						[
+							SNew(SSpinBox<float>)
+							.Value_Lambda([this](void)->float { return   m_acceleration; })
+							.MaxValue_Lambda([this](void)->float { return   10.0; })
+							.MinValue_Lambda([this](void)->float { return   1.0f; })
+							.OnValueChanged_Lambda([this](float v)->void { m_acceleration = v;      })
+							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
+						]
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						[
+							SNew(STextBlock)
+							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO8", "Min speed"))
+						]
+						+ SHorizontalBox::Slot()
+						[
+							SNew(SSpinBox<float>)
+							.Value_Lambda([this](void)->float { return   m_minSpeed; })
+							.MaxValue_Lambda([this](void)->float { return   100.0;   })
+							.MinValue_Lambda([this](void)->float { return   1000.0f; })
+							.OnValueChanged_Lambda([this](float v)->void { m_minSpeed = v;      })
+							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
+						]
+					]
+					+ SVerticalBox::Slot()
+					[
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						[
+							SNew(STextBlock)
+							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO9", "Max speed"))
+						]
+						+ SHorizontalBox::Slot()
+						[
+							SNew(SSpinBox<float>)
+							.Value_Lambda([this](void)->float { return   m_maxSpeed; })
+							.MaxValue_Lambda([this](void)->float { return   100.0;   })
+							.MinValue_Lambda([this](void)->float { return   1000.0f; })
+							.OnValueChanged_Lambda([this](float v)->void { m_maxSpeed = v;      })
 							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
 						]
 					]
