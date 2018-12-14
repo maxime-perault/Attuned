@@ -28,6 +28,14 @@ public:
 
 private:
 
+	// Camera
+	float m_maxArmLenght         = 250.0f;
+	float m_maxTimeFromLastInput =   2.0f;
+
+	// Movements
+	float m_fallingFriction      =  50.0f;
+	float m_airControl           =  50.0f;
+	float m_jumpZVelocity        = 600.0f;
 };
 
 #endif // ATTUNED_TOOL_S_TERRAIN_COMMON_SETTINGS_H_
