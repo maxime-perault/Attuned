@@ -1,17 +1,21 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
-
-
+/// \file       AttunedTool.h
+/// \date       14/12/2018
+/// \project    Attuned
+/// \package    AttunedTool
+/// \author     Vincent STEHLY--CALISTO
 
 #include "AttunedTool.h"
 #include "AttunedToolStyle.h"
 #include "AttunedToolCommands.h"
-#include "LevelEditor.h"
-#include "Widgets/Docking/SDockTab.h"
-#include "Widgets/Layout/SBox.h"
-#include "Widgets/Text/STextBlock.h"
-#include "Framework/MultiBox/MultiBoxBuilder.h"
+
+#include "Global/GAttunedTool.h"
 #include "Widget/STerrainSelector.h"
-#include "Attuned/Public/APluginActor.h"
+
+#include <LevelEditor.h>
+#include <Widgets/Layout/SBox.h>
+#include <Widgets/Text/STextBlock.h>
+#include <Widgets/Docking/SDockTab.h>
+#include <Framework/MultiBox/MultiBoxBuilder.h>
 
 static const FName AttunedToolTabName("AttunedTool");
 
@@ -19,36 +23,35 @@ static const FName AttunedToolTabName("AttunedTool");
 
 void FAttunedToolModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	
+	// Initializes the global tool class
+	GAttunedTool::Initialize();
+
+	// Loads styles
 	FAttunedToolStyle::Initialize();
 	FAttunedToolStyle::ReloadTextures();
 
+	// Creates the commands
 	FAttunedToolCommands::Register();
 	
 	PluginCommands = MakeShareable(new FUICommandList);
-
 	PluginCommands->MapAction(
 		FAttunedToolCommands::Get().OpenPluginWindow,
 		FExecuteAction::CreateRaw(this, &FAttunedToolModule::PluginButtonClicked),
 		FCanExecuteAction());
 		
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	
-	{
-		TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
-		MenuExtender->AddMenuExtension("WindowLayout", EExtensionHook::After, PluginCommands, FMenuExtensionDelegate::CreateRaw(this, &FAttunedToolModule::AddMenuExtension));
-
-		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
-	}
-	
 	{
 		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
-		ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::After, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FAttunedToolModule::AddToolbarExtension));
+
+		// Placing the plugin button right after the play button in the editor (Game hook)
+		ToolbarExtender->AddToolBarExtension("Game", EExtensionHook::After, PluginCommands, 
+			FToolBarExtensionDelegate::CreateRaw(this, &FAttunedToolModule::AddToolbarExtension));
 		
+		// Adds the plugin button
 		LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
 	}
 	
+	// Registers the window
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AttunedToolTabName, FOnSpawnTab::CreateRaw(this, &FAttunedToolModule::OnSpawnPluginTab))
 		.SetDisplayName(LOCTEXT("FAttunedToolTabTitle", "AttunedTool"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
@@ -56,10 +59,9 @@ void FAttunedToolModule::StartupModule()
 
 void FAttunedToolModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
-	FAttunedToolStyle::Shutdown();
+	GAttunedTool::Destroy();
 
+	FAttunedToolStyle::Shutdown();
 	FAttunedToolCommands::Unregister();
 
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(AttunedToolTabName);

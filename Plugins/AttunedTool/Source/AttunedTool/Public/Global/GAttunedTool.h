@@ -23,7 +23,7 @@ public:
 
 private:
 
-	friend class AttunedTool;
+	friend class FAttunedToolModule;
 
 	/// \brief Initialize the singleton
 	static void Initialize();

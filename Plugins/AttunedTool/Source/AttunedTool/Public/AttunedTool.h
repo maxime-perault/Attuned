@@ -1,31 +1,39 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+/// \file       AttunedTool.h
+/// \date       14/12/2018
+/// \project    Attuned
+/// \package    AttunedTool
+/// \author     Vincent STEHLY--CALISTO
 
-#pragma once
+#ifndef ATTUNED_TOOL_ATTUNED_TOOL_H
+#define ATTUNED_TOOL_ATTUNED_TOOL_H
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FToolBarBuilder;
 class FMenuBuilder;
+class FToolBarBuilder;
 
 class FAttunedToolModule : public IModuleInterface
 {
 public:
 
-	/** IModuleInterface implementation */
-	virtual void StartupModule() override;
+	/// \brief IModuleInterface implementation 
+	virtual void StartupModule () override;
 	virtual void ShutdownModule() override;
 	
-	/** This function will be bound to Command (by default it will bring up plugin window) */
+	/// \brief This function will be bound to the command that will bring up the plugin window
 	void PluginButtonClicked();
 	
 private:
 
+	void AddMenuExtension   (FMenuBuilder& Builder);
 	void AddToolbarExtension(FToolBarBuilder& Builder);
-	void AddMenuExtension(FMenuBuilder& Builder);
-
+	
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
 private:
+
 	TSharedPtr<class FUICommandList> PluginCommands;
 };
+
+#endif // ATTUNED_TOOL_ATTUNED_TOOL_H
