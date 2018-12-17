@@ -1,20 +1,25 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+/// \file       AttunedToolStyle.h
+/// \date       17/12/2018
+/// \project    Attuned
+/// \package    AttunedTool
+/// \author     Vincent STEHLY--CALISTO
 
-#pragma once
+#ifndef ATTUNED_ATTUNED_TOOL_STYLE_H
+#define ATTUNED_ATTUNED_TOOL_STYLE_H
 
 #include "CoreMinimal.h"
 #include "Styling/SlateStyle.h"
 
-/**  */
+/// \brief Manages the textures, fonts of the slate renderer
+/// \class FAttunedToolStyle
 class FAttunedToolStyle
 {
 public:
 
 	static void Initialize();
+	static void Shutdown  ();
 
-	static void Shutdown();
-
-	/** reloads textures used by slate renderer */
+	/// \brief Reloads textures used by slate renderer
 	static void ReloadTextures();
 
 	/** @return The Slate style set for the Shooter game */
@@ -30,3 +35,5 @@ private:
 
 	static TSharedPtr< class FSlateStyleSet > StyleInstance;
 };
+
+#endif // ATTUNED_ATTUNED_TOOL_STYLE_H
