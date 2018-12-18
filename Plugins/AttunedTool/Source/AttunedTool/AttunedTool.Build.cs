@@ -8,13 +8,15 @@ public class AttunedTool : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicIncludePaths.AddRange (new string[] {});
-		PrivateIncludePaths.AddRange(new string[] {});
+		PublicIncludePaths.AddRange (new string[] { "Slate" });
+		PrivateIncludePaths.AddRange(new string[] { "Slate" });
 			
 		PublicDependencyModuleNames.AddRange (
             new string[]
             {
                 "Core",
+                "Slate",
+                "SlateCore",
                 "Attuned"
             }
             );

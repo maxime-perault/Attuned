@@ -77,9 +77,13 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 		SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
-			SNew(SBox)
+			SNew(SOverlay)
+			+ SOverlay::Slot()
 			[
-				SNew(STerrainSelector)
+				SNew(SBox)
+				[
+					SNew(STerrainSelector)
+				]
 			]
 		];
 }

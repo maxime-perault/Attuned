@@ -40,7 +40,11 @@ private:
 	///  2 - Water   terrain tab
 	///  3 - Neutral terrain tab
 	/// \return The terrain tab index
-	int32 GetCurrentTabIndex() const;
+	int32        GetCurrentTabIndex() const;
+
+	/// \brief Returns the color associated to a terrain
+	FLinearColor GetTerrainColor   ()			 const;
+	FLinearColor GetButtonColor	   (int32 index) const;
 
 private:
 
