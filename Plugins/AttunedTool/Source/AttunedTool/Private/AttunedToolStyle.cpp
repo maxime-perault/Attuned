@@ -58,6 +58,8 @@ const FVector2D Icon500x500(500.0f, 500.0f);
 	Style->Set("AttunedTool.RockTerrain",    new IMAGE_BRUSH(TEXT("Icons/Rock_Icon"   ), Icon500x500));
 	Style->Set("AttunedTool.SandTerrain",    new IMAGE_BRUSH(TEXT("Icons/Sand_Icon"   ), Icon500x500));
 	Style->Set("AttunedTool.WaterTerrain",   new IMAGE_BRUSH(TEXT("Icons/Water_Icon"  ), Icon500x500));
+	Style->Set("AttunedTool.WaterTerrain",   new IMAGE_BRUSH(TEXT("Icons/Water_Icon"  ), Icon500x500));
+	Style->Set("AttunedTool.TabColor",		 new IMAGE_BRUSH(TEXT("Icons/Tab_Color"   ), Icon500x500));
 
 	return Style;
 }

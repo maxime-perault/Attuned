@@ -12,9 +12,12 @@
 #include "Widget/STerrainSelector.h"
 
 #include <LevelEditor.h>
-#include <Widgets/Layout/SBox.h>
-#include <Widgets/Text/STextBlock.h>
-#include <Widgets/Docking/SDockTab.h>
+
+#include <SBox.h>
+#include <SImage.h>
+#include <SDockTab.h>
+#include <STextBlock.h>
+
 #include <Framework/MultiBox/MultiBoxBuilder.h>
 
 static const FName AttunedToolTabName("AttunedTool");
@@ -80,12 +83,19 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 			SNew(SOverlay)
 			+ SOverlay::Slot()
 			[
+				TSharedRef<SWidget>(SNew(SImage)
+				.Image(FAttunedToolStyle::Get().GetBrush("AttunedTool.TabColor")))
+			]
+			+ SOverlay::Slot()
+			[
 				SNew(SBox)
 				[
 					SNew(STerrainSelector)
 				]
 			]
 		];
+
+	// ([this](void)->FLinearColor {return FLinearColor(0.243f, 0.243f, 0.243f, 1.0f); })
 }
 
 void FAttunedToolModule::PluginButtonClicked()

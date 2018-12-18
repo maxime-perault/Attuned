@@ -17,7 +17,7 @@
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
-	ChildSlot
+	ChildSlot //0.243
 	[
 		SNew(SScrollBox) 
 		+ SScrollBox::Slot()
@@ -26,11 +26,15 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			[
 				SNew(SExpandableArea)
+				.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.180f, 0.180f, 0.180f, 1.0f));  })
+				.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f));  })
 				.InitiallyCollapsed(false)
 				.HeaderContent()
 				[
 					SNew(STextBlock)
 					.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeader", "Camera"))
+
+					//.HighlightColor_Lambda([this](void)->FLinearColor {return FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);  })
 				]
 				.BodyContent()
 				[
@@ -80,6 +84,8 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			[
 				SNew(SExpandableArea)
+				.BorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.180f, 0.180f, 0.180f, 1.0f));  })
+				.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.3f, 0.0f, 0.0f, 1.0f));  })
 				.InitiallyCollapsed(false)
 				.HeaderContent()
 				[
