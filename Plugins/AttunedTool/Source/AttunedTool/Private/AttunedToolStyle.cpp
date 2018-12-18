@@ -1,4 +1,8 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+/// \file       AttunedToolStyle.cpp
+/// \date       17/12/2018
+/// \project    Attuned
+/// \package    AttunedTool
+/// \author     Vincent STEHLY--CALISTO
 
 #include "AttunedToolStyle.h"
 #include "Styling/SlateStyleRegistry.h"
@@ -6,9 +10,9 @@
 #include "Slate/SlateGameResources.h"
 #include "Interfaces/IPluginManager.h"
 
-TSharedPtr< FSlateStyleSet > FAttunedToolStyle::StyleInstance = NULL;
+/* static */ TSharedPtr< FSlateStyleSet > FAttunedToolStyle::StyleInstance = NULL;
 
-void FAttunedToolStyle::Initialize()
+/* static */ void FAttunedToolStyle::Initialize()
 {
 	if (!StyleInstance.IsValid())
 	{
@@ -17,14 +21,14 @@ void FAttunedToolStyle::Initialize()
 	}
 }
 
-void FAttunedToolStyle::Shutdown()
+/* static */ void FAttunedToolStyle::Shutdown()
 {
 	FSlateStyleRegistry::UnRegisterSlateStyle(*StyleInstance);
 	ensure(StyleInstance.IsUnique());
 	StyleInstance.Reset();
 }
 
-FName FAttunedToolStyle::GetStyleSetName()
+/* static */ FName FAttunedToolStyle::GetStyleSetName()
 {
 	static FName StyleSetName(TEXT("AttunedToolStyle"));
 	return StyleSetName;
@@ -40,11 +44,12 @@ const FVector2D Icon16x16(16.0f, 16.0f);
 const FVector2D Icon20x20(20.0f, 20.0f);
 const FVector2D Icon40x40(40.0f, 40.0f);
 
-TSharedRef< FSlateStyleSet > FAttunedToolStyle::Create()
+/* static */ TSharedRef< FSlateStyleSet > FAttunedToolStyle::Create()
 {
 	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("AttunedToolStyle"));
 	Style->SetContentRoot(IPluginManager::Get().FindPlugin("AttunedTool")->GetBaseDir() / TEXT("Resources"));
 
+	// Registering images and fonts
 	Style->Set("AttunedTool.OpenPluginWindow", new IMAGE_BRUSH(TEXT("ButtonIcon_40x"), Icon40x40));
 
 	return Style;
@@ -56,7 +61,7 @@ TSharedRef< FSlateStyleSet > FAttunedToolStyle::Create()
 #undef TTF_FONT
 #undef OTF_FONT
 
-void FAttunedToolStyle::ReloadTextures()
+/* static */ void FAttunedToolStyle::ReloadTextures()
 {
 	if (FSlateApplication::IsInitialized())
 	{
@@ -64,7 +69,7 @@ void FAttunedToolStyle::ReloadTextures()
 	}
 }
 
-const ISlateStyle& FAttunedToolStyle::Get()
+/* static */ const ISlateStyle& FAttunedToolStyle::Get()
 {
 	return *StyleInstance;
 }
