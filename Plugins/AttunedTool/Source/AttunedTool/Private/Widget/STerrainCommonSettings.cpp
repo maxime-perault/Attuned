@@ -6,6 +6,8 @@
 
 #include "Widget/STerrainCommonSettings.h"
 
+#include "Engine.h"
+
 #include <SButton.h>
 #include <STextBlock.h>
 #include <SExpandableArea.h>
@@ -17,6 +19,17 @@
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
+	// .Font_Lambda([this](void)->FSlateFontInfo {return FSlateFontInfo(TEXT("CompositeVerdana"), 8, EFontHinting::Auto, FFontOutlineSettings(1, FLinearColor(0.878f, 0.878f, 0.878f, 1.0f))); })
+
+	   // Font'/Game/Fonts/CompositeVerdana.CompositeVerdana'
+	UObject* obj_ptr = StaticLoadObject(UFont::StaticClass(), NULL, TEXT("/Engine/EngineFonts/Roboto"));
+	UFont*  font_ptr = Cast<UFont>(obj_ptr);
+
+	if (!font_ptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NULLFONT"));
+	}
+
 	ChildSlot //0.243
 	[
 		SNew(SScrollBox) 
@@ -33,6 +46,12 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeader", "Camera"))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+					/*.Font_Lambda([this](void)->FSlateFontInfo 
+					{
+						return FSlateFontInfo(StaticLoadObject(UFont::StaticClass(), NULL, TEXT("/Engine/EngineFonts/Roboto")),
+							8, TEXT("Bolds")); })*/
+		
 
 					//.HighlightColor_Lambda([this](void)->FLinearColor {return FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);  })
 				]
@@ -40,6 +59,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -58,6 +78,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -91,17 +112,22 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeaders", "Movements"))
+					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
 				]
 				.BodyContent()
 				[
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10.0f, 10.0f, 0.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
+	
+						//.Padding(FMargin(10.0f, 0.0f, 0.0f, 0.0f))
 						[
 							SNew(STextBlock)
 							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO3", "Falling Friction"))
+							
 						]
 						+ SHorizontalBox::Slot() // m_airControl
 						[
@@ -114,6 +140,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot() // m_jumpZVelocity
+				    .Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -132,6 +159,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot() // m_dashCooldown
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -150,6 +178,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot() // m_dashCooldown
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -168,6 +197,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot() // m_dashCooldown
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -186,6 +216,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
@@ -204,6 +235,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 						]
 					]
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 					[
 						SNew(SHorizontalBox)
 						+ SHorizontalBox::Slot()
