@@ -165,6 +165,8 @@ void AMyCharacter::BeginPlay()
 
 void AMyCharacter::Tick(float DeltaTime)
 {
+	//Super::Tick(DeltaTime);
+
 	mv_DeltaTime = DeltaTime;
 	mv_DebugFlushTime += DeltaTime;
 
@@ -183,7 +185,6 @@ void AMyCharacter::Tick(float DeltaTime)
 	//Update Debug 3D Text each frame
 	this->UpdateDebugTextLocation();
 
-	//Super::Tick(DeltaTime);
 	//if (GEngine)
 		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::SanitizeFloat(this->FollowCamera->GetComponentRotation().Yaw));
 }
