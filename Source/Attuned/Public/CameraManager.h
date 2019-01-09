@@ -44,6 +44,7 @@ private:
 	FCollisionQueryParams	mv_RV_TraceParams;
 
 	bool	mv_initialized;
+	bool	mv_debug;
 
 	float	mv_MaxArmLength;
 	float	mv_MaxArmLengthFromPitch;

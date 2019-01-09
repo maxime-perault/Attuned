@@ -17,6 +17,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathVectorCommon.h"
+#include "Math/UnrealMathUtility.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -182,6 +183,7 @@ void AMyCharacter::Tick(float DeltaTime)
 	{
 		this->Dash(false);
 	}
+
 	//Update Debug 3D Text each frame
 	this->UpdateDebugTextLocation();
 
@@ -280,16 +282,28 @@ void AMyCharacter::Jump()
 void AMyCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	if (!mv_LockControls)
+	{
+		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		{
+			AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		}
+	}
 }
 
 void AMyCharacter::LookUpAtRate(float Rate)
 {
 	// Pitch Locked between Min and Max Pitch
-	if (!(((mc_CameraManager->mv_CurrentPitch <= mc_CameraManager->mv_MinPitch) && Rate < 0.f) ||
-		((mc_CameraManager->mv_CurrentPitch >= mc_CameraManager->mv_MaxPitch) && Rate > 0.f)))
+	if (!mv_LockControls)
 	{
-		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		{
+			if (!(((mc_CameraManager->mv_CurrentPitch <= mc_CameraManager->mv_MinPitch) && Rate < 0.f) ||
+				((mc_CameraManager->mv_CurrentPitch >= mc_CameraManager->mv_MaxPitch) && Rate > 0.f)))
+			{
+				AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+			}
+		}
 	}
 }
 
@@ -303,7 +317,17 @@ void AMyCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+
+		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		{
+			AddMovementInput(Direction, Value);
+		}
+		else
+		{
+			const float	water_value(FMath::Clamp(Value, 0.f, 1.f));
+
+			AddMovementInput(Direction, water_value);
+		}
 	}
 }
 
@@ -317,8 +341,20 @@ void AMyCharacter::MoveRight(float Value)
 
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+
+		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		{
+			AddMovementInput(Direction, Value);
+		}
+		else
+		{
+			float	water_value(Value);
+
+			water_value *= 0.5;
+			FMath::Clamp(water_value, -0.2f, 0.2f);
+			AddMovementInput(Direction, water_value);
+			AddControllerYawInput(water_value);
+		}
 	}
 }
 
