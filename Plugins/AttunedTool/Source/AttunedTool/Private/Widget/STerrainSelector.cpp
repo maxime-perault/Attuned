@@ -29,98 +29,135 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 {
 	m_tabIndex = 0;
 
+	auto rockTerrainWidget    = SNew(SRockTerrainSettings);
+	auto sandTerrainWidget    = SNew(SSandTerrainSettings);
+	auto waterTerrainWidget   = SNew(SWaterTerrainSettings);
+	auto neutralTerrainWidget = SNew(SNeutralTerrainSettings);
+
+	m_widgets.Empty();
+	m_widgets.Add(rockTerrainWidget);
+	m_widgets.Add(sandTerrainWidget);
+	m_widgets.Add(waterTerrainWidget);
+	m_widgets.Add(neutralTerrainWidget);
+
 	ChildSlot
 	[
 		SNew(SBorder)
 		.BorderBackgroundColor_Lambda([this](void)->FSlateColor {return GetTerrainColor(); })
 		[
 			// The widget to switch between terrains
-			// Rock - Sand - Water - Neutral
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
 			.MaxHeight(80.0f)
 			[
 				SNew(SHorizontalBox)
+				// The Rock terrain
 				+ SHorizontalBox::Slot()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
 					SNew(SButton)
-					.ForegroundColor_Lambda([this](void)->FSlateColor {return GetButtonColor(0);  })
-					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor {return GetButtonColor(0);  })
-					.OnClicked_Raw(this, &STerrainSelector::OnRockTerrainClick)
-					.ToolTipText_Lambda([this](void)->FText {return FText::FromString(TEXT("ToolTip Rock")); })
+					.OnClicked_Raw               (this, &STerrainSelector::OnRockTerrainClick)
+					.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonColor(0); })
+					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonColor(0); })
+					.ToolTipText_Lambda          ([this](void)->FText       { return FText::FromString(TEXT(
+						"Click on this button to modify rock terrain related values.")); })
 					[
 						TSharedRef<SWidget>(SNew(SImage)
 						.Image(FAttunedToolStyle::Get().GetBrush("AttunedTool.RockTerrain")))
 					]
 				]
+				// The Sand terrain
 				+ SHorizontalBox::Slot()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
 					SNew(SButton)
-					.Text(FText::FromString("Sand"))
-					.ForegroundColor_Lambda([this](void)->FSlateColor {return GetButtonColor(1);  })
-					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor {return GetButtonColor(1);  })
-					.OnClicked_Raw(this, &STerrainSelector::OnSandTerrainClick)
-					.ToolTipText_Lambda([this](void)->FText {return FText::FromString(TEXT("ToolTip Sand")); })
+					.OnClicked_Raw               (this, &STerrainSelector::OnSandTerrainClick)
+					.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonColor(1); })
+					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonColor(1); })
+					.ToolTipText_Lambda          ([this](void)->FText       { return FText::FromString(TEXT(
+						"Click on this button to modify sand terrain related values.")); })
 					[
 						TSharedRef<SWidget>(SNew(SImage)
 						.Image(FAttunedToolStyle::Get().GetBrush("AttunedTool.SandTerrain")))
 					]
 				]
+				// The Water terrain
 				+ SHorizontalBox::Slot()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
 					SNew(SButton)
-					.Text(FText::FromString("Water"))
-					.ForegroundColor_Lambda([this](void)->FSlateColor {return GetButtonColor(2);  })
-					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor {return GetButtonColor(2);  })
-					.OnClicked_Raw(this, &STerrainSelector::OnWaterTerrainClick)
-					.ToolTipText_Lambda([this](void)->FText {return FText::FromString(TEXT("ToolTip Water")); })
+					.OnClicked_Raw               (this, &STerrainSelector::OnWaterTerrainClick)
+					.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonColor(2); })
+					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonColor(2); })
+					.ToolTipText_Lambda          ([this](void)->FText       { return FText::FromString(TEXT(
+						"Click on this button to modify water terrain related values.")); })
 					[
 						TSharedRef<SWidget>(SNew(SImage)
 						.Image(FAttunedToolStyle::Get().GetBrush("AttunedTool.WaterTerrain")))
 					]
 				]
+				// The Neutral terrain
 				+ SHorizontalBox::Slot()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
 					SNew(SButton)
-					.Text(FText::FromString("Neutral"))
-					.ForegroundColor_Lambda([this](void)->FSlateColor {return GetButtonColor(3);  })
-					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor {return GetButtonColor(3);  })
-					.OnClicked_Raw(this, &STerrainSelector::OnNeutralTerrainClick)
-					.ToolTipText_Lambda([this](void)->FText {return FText::FromString(TEXT("ToolTip Neutral")); })
+					.OnClicked_Raw               (this, &STerrainSelector::OnNeutralTerrainClick)
+					.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonColor(3); })
+					.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonColor(3); })
+					.ToolTipText_Lambda          ([this](void)->FText       { return FText::FromString(TEXT(
+						"Click on this button to modify neutral terrain related values.")); })
 					[
 						TSharedRef<SWidget>(SNew(SImage)
 						.Image(FAttunedToolStyle::Get().GetBrush("AttunedTool.NeutralTerrain")))
 					]
 				]
 			]
+			// Slot for the 'Apply' button
 			+ SVerticalBox::Slot()
+			.MaxHeight(40.0f)
+			.Padding(FMargin(0.0f, 30.0f, 0.0f, 0.0f))
+			[
+				SNew(SButton)
+				.VAlign(EVerticalAlignment  ::VAlign_Center)
+				.HAlign(EHorizontalAlignment::HAlign_Center)
+				.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonForegroundColor(); })
+				.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonBackgroundColor(); })
+				.OnClicked_Raw     (this, &STerrainSelector::ApplyChanges)
+				.Text_Lambda	   ([this](void)->FText { return FText::FromString(TEXT("Apply"));        })
+				.ToolTipText_Lambda([this](void)->FText { return FText::FromString(TEXT(
+					"Applies all current changes to the editor world.")); })
+				
+			]
+			// Slot for the 'Reset' button
+			+ SVerticalBox::Slot()
+			.MaxHeight(40.0f)
+			.Padding(FMargin(0.0f, 00.0f, 0.0f, 30.0f))
+			[
+				SNew(SButton)
+				.VAlign(EVerticalAlignment  ::VAlign_Center)
+				.HAlign(EHorizontalAlignment::HAlign_Center)
+				.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonForegroundColor(); })
+				.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonBackgroundColor(); })
+				.OnClicked_Raw     (this, &STerrainSelector::ResetChanges)
+				.Text_Lambda       ([this](void)->FText { return FText::FromString(TEXT("Reset"));        })
+				.ToolTipText_Lambda([this](void)->FText { return FText::FromString(TEXT(
+					"Resets all values to the values contained in the editor world.")); })
+			]
+			// All terrain widgets
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.MaxHeight(1000.0f)
 			[
 				SNew(SWidgetSwitcher)
 				.WidgetIndex(this, &STerrainSelector::GetCurrentTabIndex)
-				+ SWidgetSwitcher::Slot()
-				[
-					SNew(SRockTerrainSettings)
-				]
-				+ SWidgetSwitcher::Slot()
-				[
-					SNew(SSandTerrainSettings)
-				]
-				+ SWidgetSwitcher::Slot()
-				[
-					SNew(SWaterTerrainSettings)
-				]
-				+ SWidgetSwitcher::Slot()
-				[
-					SNew(SNeutralTerrainSettings)
-				]
+				+ SWidgetSwitcher::Slot()[rockTerrainWidget   ]
+				+ SWidgetSwitcher::Slot()[sandTerrainWidget   ]
+				+ SWidgetSwitcher::Slot()[waterTerrainWidget  ]
+				+ SWidgetSwitcher::Slot()[neutralTerrainWidget]
 			]
 		]
 	];
@@ -177,6 +214,34 @@ FLinearColor STerrainSelector::GetButtonColor(int32 index) const
 	}
 
 	return FLinearColor(0.086f, 0.086f, 0.086f, 1.0f);
+}
+
+FLinearColor STerrainSelector::GetButtonBackgroundColor() const
+{
+	return FLinearColor(0.243f, 0.243f, 0.243f, 1.0f);
+}
+
+FLinearColor STerrainSelector::GetButtonForegroundColor() const
+{
+	return FLinearColor(0.800f, 0.800f, 0.800f, 1.0f);
+}
+
+FReply STerrainSelector::ApplyChanges()
+{
+	for (auto& widget : m_widgets) {
+		widget.Get().ApplyChanges();
+	}
+
+	return FReply::Handled();
+}
+
+FReply STerrainSelector::ResetChanges()
+{
+	for (auto& widget : m_widgets) {
+		widget.Get().ResetChanges();
+	}
+
+	return FReply::Handled();
 }
 
 #undef LOCTEXT_NAMESPACE

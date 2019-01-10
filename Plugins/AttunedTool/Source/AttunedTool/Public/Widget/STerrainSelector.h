@@ -13,6 +13,8 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "Runtime/Engine/Classes/Engine/GameEngine.h"
 
+#include "Widget/ICustomWidget.h"
+
 /// \brief Allows the user to pick the terrain to modify
 /// \class STerrainSelector
 class STerrainSelector : public SCompoundWidget
@@ -43,12 +45,18 @@ private:
 	int32        GetCurrentTabIndex() const;
 
 	/// \brief Returns the color associated to a terrain
-	FLinearColor GetTerrainColor   ()			 const;
-	FLinearColor GetButtonColor	   (int32 index) const;
+	FLinearColor GetTerrainColor          ()				const;
+	FLinearColor GetButtonColor	          (int32 index)		const;
+	FLinearColor GetButtonBackgroundColor ()				const;
+	FLinearColor GetButtonForegroundColor ()				const;
+
+	FReply ApplyChanges();
+	FReply ResetChanges();
 
 private:
 
-	int32 m_tabIndex;
+	int32								m_tabIndex;
+	TArray<TSharedRef<ICustomWidget>>	m_widgets;
 };
 
 #endif // ATTUNED_TOOL_S_TERRAIN_SELECTOR_H_

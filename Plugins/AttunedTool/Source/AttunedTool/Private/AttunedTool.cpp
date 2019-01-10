@@ -57,7 +57,7 @@ void FAttunedToolModule::StartupModule()
 	// Registers the window
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AttunedToolTabName, 
 		FOnSpawnTab::CreateRaw(this, &FAttunedToolModule::OnSpawnPluginTab))
-		.SetDisplayName(LOCTEXT("FAttunedToolTabTitle", "AttunedTool"))
+		.SetDisplayName(LOCTEXT("FAttunedToolTabTitle", "Tweak Box"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 }
 
@@ -94,8 +94,6 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 				]
 			]
 		];
-
-	// ([this](void)->FLinearColor {return FLinearColor(0.243f, 0.243f, 0.243f, 1.0f); })
 }
 
 void FAttunedToolModule::PluginButtonClicked()

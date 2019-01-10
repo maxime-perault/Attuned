@@ -6,7 +6,7 @@
 
 void FAttunedToolCommands::RegisterCommands()
 {
-	UI_COMMAND(OpenPluginWindow, "AttunedTool", "Bring up AttunedTool window", EUserInterfaceActionType::Button, FInputGesture());
+	UI_COMMAND(OpenPluginWindow, "Tweak Box", "Bring up the attuned tool window", EUserInterfaceActionType::Button, FInputGesture());
 }
 
 #undef LOCTEXT_NAMESPACE

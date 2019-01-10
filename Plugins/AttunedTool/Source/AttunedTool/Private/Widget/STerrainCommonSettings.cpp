@@ -19,244 +19,207 @@
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
-	// .Font_Lambda([this](void)->FSlateFontInfo {return FSlateFontInfo(TEXT("CompositeVerdana"), 8, EFontHinting::Auto, FFontOutlineSettings(1, FLinearColor(0.878f, 0.878f, 0.878f, 1.0f))); })
-
-	   // Font'/Game/Fonts/CompositeVerdana.CompositeVerdana'
-	UObject* obj_ptr = StaticLoadObject(UFont::StaticClass(), NULL, TEXT("/Engine/EngineFonts/Roboto"));
-	UFont*  font_ptr = Cast<UFont>(obj_ptr);
-
-	if (!font_ptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NULLFONT"));
-	}
-
-	ChildSlot //0.243
+	ChildSlot
 	[
-		SNew(SScrollBox) 
-		+ SScrollBox::Slot()
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
+			SNew(SExpandableArea)
+			.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor { return GetExpandableBorderColor(); })
+			.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor { return GetExpandableBodyColor  (); })
+			.HeaderContent()
 			[
-				SNew(SExpandableArea)
-				.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.180f, 0.180f, 0.180f, 1.0f));  })
-				.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(1.0f, 0.0f, 0.0f, 1.0f));  })
-				.InitiallyCollapsed(false)
-				.HeaderContent()
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeader", "Camera"))
+				.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+			]
+			.BodyContent()
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 				[
-					SNew(STextBlock)
-					.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeader", "Camera"))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
-					/*.Font_Lambda([this](void)->FSlateFontInfo 
-					{
-						return FSlateFontInfo(StaticLoadObject(UFont::StaticClass(), NULL, TEXT("/Engine/EngineFonts/Roboto")),
-							8, TEXT("Bolds")); })*/
-		
-
-					//.HighlightColor_Lambda([this](void)->FLinearColor {return FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);  })
-				]
-				.BodyContent()
-				[
-					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO1", "Max Arm Lenght"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_maxArmLenght; })
-							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
-							.MinValue_Lambda([this](void)->float { return   10.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_maxArmLenght = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common1", "Max Arm Lenght"))
 					]
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[				
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO2", "Max Time From Last Input"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_maxTimeFromLastInput; })
-							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
-							.MinValue_Lambda([this](void)->float { return   10.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_maxTimeFromLastInput = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(SSpinBox<float>)
+						.Value_Lambda          ([this](void)->float   { return m_maxArmLenghtValue;        })
+						.MinValue_Lambda       ([this](void)->float   { return m_maxArmLenghtMinValue;     })
+						.MaxValue_Lambda       ([this](void)->float   { return m_maxArmLenghtMaxValue;     })
+						.OnValueChanged_Lambda ([this](float v)->void { m_maxArmLenghtValue = v;           })
+						.ToolTipText_Lambda    ([this](void)->FText   { return  FText::FromString("TODO"); })
+					]
+				]
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 10.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					[				
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common2", "Max Time From Last Input"))
+					]
+					+ SHorizontalBox::Slot()
+					[
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_maxTimeFromLastInputValue;    })
+						.MinValue_Lambda      ([this](void)->float   { return m_maxTimeFromLastInputMinValue; })
+						.MaxValue_Lambda      ([this](void)->float   { return m_maxTimeFromLastInputMaxValue; })
+						.OnValueChanged_Lambda([this](float v)->void { m_maxTimeFromLastInputValue = v;       })
+						.ToolTipText_Lambda   ([this](void)->FText   { return  FText::FromString("TODO");     })
 					]
 				]
 			]
 		]
-		+ SScrollBox::Slot()
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
+			SNew(SExpandableArea)
+			.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor { return GetExpandableBorderColor(); })
+			.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor { return GetExpandableBodyColor();   })
+			.InitiallyCollapsed(true)
+			.HeaderContent()
 			[
-				SNew(SExpandableArea)
-				.BorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.180f, 0.180f, 0.180f, 1.0f));  })
-				.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor {return FSlateColor(FLinearColor(0.3f, 0.0f, 0.0f, 1.0f));  })
-				.InitiallyCollapsed(false)
-				.HeaderContent()
+				SNew(STextBlock)
+				.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeaders", "Movements"))
+				.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+			]
+			.BodyContent()
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 				[
-					SNew(STextBlock)
-					.Text(NSLOCTEXT("STerrainCommonSettings", "CategoryHeaders", "Movements"))
-					.Font(FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Bold.ttf"), 10))
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common3", "Falling Friction"))
+					]
+					+ SHorizontalBox::Slot()
+					[
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_fallingFrictionValue;     })
+						.MinValue_Lambda      ([this](void)->float   { return m_fallingFrictionMinValue;  })
+						.MaxValue_Lambda      ([this](void)->float   { return m_fallingFrictionMaxValue;  })
+						.OnValueChanged_Lambda([this](float v)->void { m_fallingFrictionValue = v;        })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO");  })
+					]
 				]
-				.BodyContent()
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
 				[
-					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10.0f, 10.0f, 0.0f, 0.0f))
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-	
-						//.Padding(FMargin(10.0f, 0.0f, 0.0f, 0.0f))
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO3", "Falling Friction"))
-							
-						]
-						+ SHorizontalBox::Slot() // m_airControl
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_fallingFriction; })
-							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
-							.MinValue_Lambda([this](void)->float { return   10.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_fallingFriction = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common4", "Air Control"))
 					]
-					+ SVerticalBox::Slot() // m_jumpZVelocity
-				    .Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO4", "Air Control"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_airControl; })
-							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
-							.MinValue_Lambda([this](void)->float { return   10.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_airControl = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_airControlValue;         })
+						.MinValue_Lambda      ([this](void)->float   { return m_airControlMinValue;      })
+						.MaxValue_Lambda      ([this](void)->float   { return m_airControlMaxValue;      })
+						.OnValueChanged_Lambda([this](float v)->void { m_airControlValue = v;            })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
 					]
-					+ SVerticalBox::Slot() // m_dashCooldown
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				]
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO5", "Jump Z velocity"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_jumpZVelocity; })
-							.MaxValue_Lambda([this](void)->float { return   1000.0f; })
-							.MinValue_Lambda([this](void)->float { return   10.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_jumpZVelocity = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common5", "Jump Z velocity"))
 					]
-					+ SVerticalBox::Slot() // m_dashCooldown
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO6", "Dash Cooldown"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_dashCooldown; })
-							.MaxValue_Lambda([this](void)->float { return   10.0f; })
-							.MinValue_Lambda([this](void)->float { return   0.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_dashCooldown = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_jumpZVelocityValue;      })
+						.MinValue_Lambda      ([this](void)->float   { return m_jumpZVelocityMinValue;   })
+						.MaxValue_Lambda      ([this](void)->float   { return m_jumpZVelocityMaxValue;   })
+						.OnValueChanged_Lambda([this](float v)->void { m_jumpZVelocityValue = v;         })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
 					]
-					+ SVerticalBox::Slot() // m_dashCooldown
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				]
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO7", "Acceleration"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_acceleration; })
-							.MaxValue_Lambda([this](void)->float { return   10.0; })
-							.MinValue_Lambda([this](void)->float { return   1.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_acceleration = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common6", "Dash Cooldown"))
 					]
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO8", "Min speed"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_minSpeed; })
-							.MaxValue_Lambda([this](void)->float { return   100.0;   })
-							.MinValue_Lambda([this](void)->float { return   1000.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_minSpeed = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_dashCooldownValue;        })
+						.MinValue_Lambda      ([this](void)->float   { return m_dashCooldownMinValue;     })
+						.MaxValue_Lambda      ([this](void)->float   { return m_dashCooldownMaxValue;     })
+						.OnValueChanged_Lambda([this](float v)->void { m_dashCooldownValue = v;           })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO");  })
 					]
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				]
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						[
-							SNew(STextBlock)
-							.Text(NSLOCTEXT("STerrainCommonSettings", "TODO9", "Max speed"))
-						]
-						+ SHorizontalBox::Slot()
-						[
-							SNew(SSpinBox<float>)
-							.Value_Lambda([this](void)->float { return   m_maxSpeed; })
-							.MaxValue_Lambda([this](void)->float { return   100.0;   })
-							.MinValue_Lambda([this](void)->float { return   1000.0f; })
-							.OnValueChanged_Lambda([this](float v)->void { m_maxSpeed = v;      })
-							.ToolTipText_Lambda([this](void)->FText { return  FText::FromString("TODO"); })
-						]
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common7", "Acceleration"))
+					]
+					+ SHorizontalBox::Slot()
+					[
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_accelerationValue;       })
+						.MinValue_Lambda      ([this](void)->float   { return m_accelerationMinValue;    })
+						.MaxValue_Lambda      ([this](void)->float   { return m_accelerationMaxValue;    })
+						.OnValueChanged_Lambda([this](float v)->void { m_accelerationValue = v;          })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
+					]
+				]
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10.0f, 10.0f, 10.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("STerrainCommonSettings", "Common8", "Max speed"))
+					]
+					+ SHorizontalBox::Slot()
+					[
+						SNew(SSpinBox<float>)
+						.Value_Lambda         ([this](void)->float   { return m_maxSpeedValue;           })
+						.MinValue_Lambda      ([this](void)->float   { return m_maxSpeedMinValue;        })
+						.MaxValue_Lambda      ([this](void)->float   { return m_maxSpeedMaxValue;        })
+						.OnValueChanged_Lambda([this](float v)->void { m_maxSpeedValue = v;              })
+						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
 					]
 				]
 			]
 		]
 	];
+}
+
+FSlateColor STerrainCommonSettings::GetExpandableBodyColor  () const
+{
+	return FSlateColor(FLinearColor(1.00f, 0.00f, 0.00f, 1.00f));
+}
+
+FSlateColor STerrainCommonSettings::GetExpandableBorderColor() const
+{
+	return FSlateColor(FLinearColor(0.18f, 0.18f, 0.18f, 1.00f));
 }
 
 #undef LOCTEXT_NAMESPACE

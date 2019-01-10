@@ -13,9 +13,11 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "Runtime/Engine/Classes/Engine/GameEngine.h"
 
+#include "Widget/ICustomWidget.h"
+
 /// \brief Settings for the sand terrain
 /// \class SSandTerrainSettings
-class SSandTerrainSettings : public SCompoundWidget
+class SSandTerrainSettings : public ICustomWidget
 {
 public:
 

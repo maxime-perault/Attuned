@@ -13,9 +13,11 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "Runtime/Engine/Classes/Engine/GameEngine.h"
 
+#include "Widget/ICustomWidget.h"
+
 /// \brief Settings for the rock terrain
 /// \class SRockTerrainSettings
-class SRockTerrainSettings : public SCompoundWidget
+class SRockTerrainSettings : public ICustomWidget
 {
 public:
 

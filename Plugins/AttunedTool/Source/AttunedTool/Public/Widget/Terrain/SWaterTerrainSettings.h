@@ -13,9 +13,11 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "Runtime/Engine/Classes/Engine/GameEngine.h"
 
+#include "Widget/ICustomWidget.h"
+
 /// \brief Settings for the water terrain
 /// \class SWaterTerrainSettings
-class SWaterTerrainSettings : public SCompoundWidget
+class SWaterTerrainSettings : public ICustomWidget
 {
 public:
 

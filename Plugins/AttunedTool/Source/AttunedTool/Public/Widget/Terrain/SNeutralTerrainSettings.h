@@ -13,9 +13,11 @@
 #include "Runtime/Engine/Public/EngineUtils.h"
 #include "Runtime/Engine/Classes/Engine/GameEngine.h"
 
+#include "Widget/ICustomWidget.h"
+
 /// \brief Settings for the neutral terrain
 /// \class SNeutralTerrainSettings
-class SNeutralTerrainSettings : public SCompoundWidget
+class SNeutralTerrainSettings : public ICustomWidget
 {
 public:
 
