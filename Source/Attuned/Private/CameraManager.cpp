@@ -11,6 +11,7 @@ UCameraManager::UCameraManager()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	mv_initialized = false;
+	mv_debug = false;
 }
 
 void UCameraManager::Initialize(USpringArmComponent* CameraBoom, UCameraComponent* FollowCamera, USphereComponent* CameraCollision)
@@ -43,7 +44,6 @@ void UCameraManager::BeginPlay()
 	GetWorld()->DebugDrawTraceTag = TraceTag;
 	mv_RV_TraceParams.TraceTag = TraceTag;
 	*/
-	
 }
 
 //Get The current pitch between -1 and 1
@@ -155,32 +155,44 @@ void UCameraManager::ZoomOut(void)
 	static float		LastArmLength = 500.f;
 	static bool			IsZoomingOut = false;
 
-	if ((LastArmLength > GetArmLength(mv_NextArmLength))
+	if ((LastArmLength > mv_NextArmLength)
 		&& (mv_NextArmLength < mv_MaxArmLengthFromPitch))
 	{
 		IsZoomingOut = true;
-		ZoomOutCurrentDuration = mv_NextArmLength / mv_MaxArmLengthFromPitch * ZoomOutMaxDuration;
-		mc_CameraBoom->TargetArmLength = GetArmLength(mv_NextArmLength);
+		ZoomOutCurrentDuration = (mv_NextArmLength / mv_MaxArmLengthFromPitch) * ZoomOutMaxDuration;
+		mc_CameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
 		LastArmLength = mv_NextArmLength;
+		if (GEngine && mv_debug)
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString("INIT ZOOM Out : ") + FString::SanitizeFloat(mv_NextArmLength) + FString("; ") + FString::SanitizeFloat(mv_MaxArmLengthFromPitch));
 		return;
 	}
 
-	if (IsZoomingOut)
+	if (IsZoomingOut
+		&& (LastArmLength != mv_NextArmLength))
 	{
 		ZoomOutCurrentDuration += mv_DeltaTime;
 		if (ZoomOutCurrentDuration > ZoomOutMaxDuration)
 			ZoomOutCurrentDuration = ZoomOutMaxDuration;
 
-		mc_CameraBoom->TargetArmLength = GetArmLength(FMath::Lerp(0.f, 1.f, ZoomOutCurrentDuration / ZoomOutMaxDuration) * mv_MaxArmLengthFromPitch);
-		LastArmLength = mc_CameraBoom->TargetArmLength;
+		const float	ZoomingOutArmLength(FMath::Lerp(0.f, 1.f, ZoomOutCurrentDuration / ZoomOutMaxDuration) * mv_MaxArmLengthFromPitch);
+
+		mc_CameraBoom->TargetArmLength = this->GetArmLength(ZoomingOutArmLength);
+		LastArmLength = ZoomingOutArmLength;
 
 		if (ZoomOutCurrentDuration == ZoomOutMaxDuration)
+		{
+			if (GEngine && mv_debug)
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString("END Zooming Out"));
 			IsZoomingOut = false;
+		}
+
+		if (GEngine && mv_debug)
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString("Zooming Out: ") + FString::SanitizeFloat(ZoomOutCurrentDuration / ZoomOutMaxDuration));
 	}
 	else
 	{
-		mc_CameraBoom->TargetArmLength = GetArmLength(mv_NextArmLength);
-		LastArmLength = mc_CameraBoom->TargetArmLength;
+		mc_CameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
+		LastArmLength = mv_NextArmLength;
 	}
 }
 
