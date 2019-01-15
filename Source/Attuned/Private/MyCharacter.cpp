@@ -59,6 +59,7 @@ AMyCharacter::AMyCharacter()
 	GetCharacterMovement()->MaxAcceleration = 500.f;
 	GetCharacterMovement()->MaxStepHeight = 50.f;
 	GetCharacterMovement()->SetWalkableFloorAngle(90.f);
+	
 
 	/*
 	** CAMERAS
@@ -71,12 +72,11 @@ AMyCharacter::AMyCharacter()
 			// Create a camera boom (pulls in towards the player if there is a collision)
 			mc_DefaultCameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("DefaultCameraBoom"));
 			mc_DefaultCameraBoom->SetupAttachment(RootComponent);
-			mc_DefaultCameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 			// Create a follow camera
 			mc_DefaultFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("DefaultFollowCamera"));
 			mc_DefaultFollowCamera->SetupAttachment(mc_DefaultCameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-			mc_DefaultFollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+			
 
 			// Create Camera Collision
 			mc_DefaultCameraCollision = CreateDefaultSubobject<USphereComponent>(TEXT("DefaultCameraCollision"));
@@ -85,26 +85,13 @@ AMyCharacter::AMyCharacter()
 		/*
 		** WATER CAM
 		*/
-
 			// Create a camera boom (pulls in towards the player if there is a collision)
 			mc_WaterCameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("WaterCameraBoom"));
 			mc_WaterCameraBoom->SetupAttachment(RootComponent);
-			mc_WaterCameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-			mc_WaterCameraBoom->bEnableCameraRotationLag = true;
-			mc_WaterCameraBoom->CameraRotationLagSpeed = 7.f;
-			mc_WaterCameraBoom->bInheritPitch = false;
-			mc_WaterCameraBoom->bInheritRoll = false;
-			mc_WaterCameraBoom->TargetArmLength = 600.f;
-			mc_WaterCameraBoom->SetRelativeLocation(FVector(7.f, 0.f, 40.f));
-			mc_WaterCameraBoom->RelativeRotation = FRotator(0.f, 10.f, 0.f);
-
+			
 			// Create a follow camera
 			mc_WaterFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("WaterFollowCamera"));
 			mc_WaterFollowCamera->SetupAttachment(mc_WaterCameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-			mc_WaterFollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-			mc_WaterFollowCamera->bUsePawnControlRotation = false;
-
-			mc_WaterFollowCamera->Deactivate();
 
 			// Create Camera Collision
 			mc_WaterCameraCollision = CreateDefaultSubobject<USphereComponent>(TEXT("WaterCameraCollision"));
@@ -116,7 +103,6 @@ AMyCharacter::AMyCharacter()
 			mc_CurrentCameraBoom = mc_DefaultCameraBoom;
 			mc_CurrentFollowCamera = mc_DefaultFollowCamera;
 			mc_CurrentCameraCollision = mc_DefaultCameraCollision;
-
 
 	/*
 	** !CAMERAS
@@ -213,6 +199,9 @@ void AMyCharacter::BeginPlay()
 			mc_TerrainManager->mc_InGameUIAttached = mc_InGameUIAttached;
 		}
 	}
+	mc_CurrentCameraBoom = mc_DefaultCameraBoom;
+	mc_CurrentFollowCamera = mc_DefaultFollowCamera;
+	mc_CurrentCameraCollision = mc_DefaultCameraCollision;
 }
 
 void AMyCharacter::Tick(float DeltaTime)
@@ -399,20 +388,34 @@ void AMyCharacter::MoveRight(float Value)
 			float	water_TurnRate(40.f);
 
 			AddMovementInput(Direction, water_value);
-			AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), FMath::Abs(water_value) * 2.f);
+			AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), FMath::Abs(water_value) * 1.7f);
 
-			//Improve turn rate capacities if you are hard turning O-- || --O
-			if (FVector(this->GetVelocity()).Size() < (mc_TerrainManager->mv_WaterSpeed - 50.f))
-			{
-				water_TurnRate *= 3.f;
-			}
-			//48 = 40 * 3 * 0.4
-			mv_LeanPercent = water_value * water_TurnRate / (48.f);
+			water_TurnRate = 120.f * (abs(water_value) / 0.4f);
+
+			mv_LeanPercent = water_value / 0.4f;
+
 			if (GEngine)
 				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::SanitizeFloat(mv_LeanPercent));
 
 			AddControllerYawInput(water_value * water_TurnRate * GetWorld()->GetDeltaSeconds());
 		}
+	}
+	else
+	{
+		mv_LeanPercent = 0.f;
+	}
+	
+	//Smooth Deceleration if high forward speed or if no input has been enter
+	if ((this->GetTerrainSurfaceType() == "WATER") &&
+		(abs(Value) < 0.3f))
+	{
+		GetCharacterMovement()->BrakingDecelerationWalking = 100.f;
+		GetCharacterMovement()->GroundFriction = 0.2f;
+	}
+	else
+	{
+		GetCharacterMovement()->BrakingDecelerationWalking = 2048.f;
+		GetCharacterMovement()->GroundFriction = 8.f;
 	}
 }
 

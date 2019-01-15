@@ -23,12 +23,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Default, meta = (AllowPrivateAccess = "true"))
 		class	UTextRenderComponent* mc_JumpSpeed;
 
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UTerrainManager *mc_TerrainManager;
-
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UCameraManager *mc_CameraManager;
-
 	void	Dash(const bool InitDash);
 
 	float	mv_DebugFlushTime;
@@ -47,6 +41,12 @@ public:
 		TSubclassOf<class UW_InGameUI> mc_InGameUIC;
 
 	UW_InGameUI*	mc_InGameUIAttached;
+
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UTerrainManager *mc_TerrainManager;
+
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UCameraManager *mc_CameraManager;
 
 	/*
 	** CAMERAS

@@ -209,6 +209,10 @@ void UTerrainManager::RockTerrainFirstStep(void)
 	mv_TerrainType = TEXT("ROCK");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_RockSpeed;
 
 	mc_character->mc_WaterFollowCamera->Deactivate();
@@ -232,6 +236,10 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 	mv_TerrainType = TEXT("WATER");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 	mv_MaxSpeed = mv_WaterSpeed;
 
 	mc_character->mc_DefaultFollowCamera->Deactivate();
@@ -255,6 +263,10 @@ void UTerrainManager::SandTerrainFirstStep(void)
 	mv_TerrainType = TEXT("SAND");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_SandSpeed;
 
 	mc_character->mc_WaterFollowCamera->Deactivate();
