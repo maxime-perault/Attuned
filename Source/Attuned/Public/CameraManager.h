@@ -11,6 +11,8 @@
 #include "Public/CollisionQueryParams.h"
 #include "CameraManager.generated.h"
 
+class AMyCharacter;
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ATTUNED_API UCameraManager : public UActorComponent
 {
@@ -23,10 +25,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void Initialize(USpringArmComponent* CameraBoom, UCameraComponent* FollowCamera, USphereComponent* CameraCollision);
+	void	Initialize(void);
+	void	SetOwner(AMyCharacter* owner);
 
 	UPROPERTY(EditDefaultsOnly, Category = Curve)
-		UCurveFloat* ArmLengthCurveFromPitch;
+		UCurveFloat* mc_ArmLengthCurveFromPitch;
 
 	float	mv_CurrentPitch;
 	float	mv_MinPitch;
@@ -37,6 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	AMyCharacter*			mc_character;
 	USpringArmComponent*	mc_CameraBoom;
 	UCameraComponent*		mc_FollowCamera;
 	USphereComponent*		mc_CameraCollision;
@@ -56,7 +60,7 @@ private:
 
 	void	UpdateCameraFromPitch(void);
 	void	UpdatePitch(void);
-	float	getPercentBetweenAB(float x, float a, float b);
+	float	GetPercentBetweenAB(float x, float a, float b);
 	void	CollisionBetweenCameraAndTarget(void);
 	void	ZoomOut(void);
 

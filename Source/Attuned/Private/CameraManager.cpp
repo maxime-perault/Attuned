@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CameraManager.h"
+#include "MyCharacter.h"
 #include "Engine/GameEngine.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/Controller.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values for this component's properties
 UCameraManager::UCameraManager()
@@ -14,11 +17,11 @@ UCameraManager::UCameraManager()
 	mv_debug = false;
 }
 
-void UCameraManager::Initialize(USpringArmComponent* CameraBoom, UCameraComponent* FollowCamera, USphereComponent* CameraCollision)
+void UCameraManager::Initialize(void)
 {
-	mc_CameraBoom = CameraBoom;
-	mc_FollowCamera = FollowCamera;
-	mc_CameraCollision = CameraCollision;
+	mc_CameraBoom = mc_character->mc_CurrentCameraBoom;
+	mc_FollowCamera = mc_character->mc_CurrentFollowCamera;
+	mc_CameraCollision = mc_character->mc_CurrentCameraCollision;
 
 	mc_CameraBoom->bDoCollisionTest = false;
 	mc_CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
@@ -30,7 +33,16 @@ void UCameraManager::Initialize(USpringArmComponent* CameraBoom, UCameraComponen
 	mv_MaxPitch = 0.9f;
 
 	mv_MaxArmLength = mc_CameraBoom->TargetArmLength;
+
+	UE_LOG(LogTemp, Warning, TEXT("Dont forget to set ArmLengthCurveFromPitch"));
+
 	mv_initialized = true;
+}
+
+void	UCameraManager::SetOwner(AMyCharacter* owner)
+{
+	mc_character = owner;
+	this->Initialize();
 }
 
 // Called when the game starts
@@ -61,11 +73,10 @@ void UCameraManager::UpdatePitch(void)
 	FakeCameraArm *= FakeArmLength;
 
 	Pitch = ((TargetPos - FakeCameraArm).Z - mc_CameraBoom->GetComponentLocation().Z) / FakeArmLength;
-
 	mv_CurrentPitch = Pitch;
 }
 
-float UCameraManager::getPercentBetweenAB(float x, float a, float b)
+float UCameraManager::GetPercentBetweenAB(float x, float a, float b)
 {
 	return ((x - a) / (b - a));
 }
@@ -78,20 +89,20 @@ void UCameraManager::UpdateCameraFromPitch(void)
 	this->UpdatePitch();
 
 	//The curve is between 0 and 2 and the pitch is between -1 and 1
-	mv_MaxArmLengthFromPitch = ArmLengthCurveFromPitch->GetFloatValue(mv_CurrentPitch + 1) * mv_MaxArmLength;
-	
+	mv_MaxArmLengthFromPitch = mc_ArmLengthCurveFromPitch->GetFloatValue(mv_CurrentPitch + 1) * mv_MaxArmLength;
+
 	mc_CameraBoom->SetRelativeLocation(
 		FVector(0.f, 0.f,
 			BaseCameraBoomZ + FMath::Lerp(
 				DeltaCameraBoomZ,
 				0.f,
-				this->getPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch))));
-	
+				this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch))));
+
 	mc_FollowCamera->SetFieldOfView(
 		BaseFOV + FMath::Lerp(
 			DeltaFOV,
 			0.f, 
-			this->getPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch)));
+			this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch)));
 
 	mv_NextCameraLocation = mc_FollowCamera->GetForwardVector();
 	mv_NextCameraLocation.Normalize();
@@ -205,8 +216,11 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	if (!mv_initialized)
 		return;
 
-	this->UpdateCameraFromPitch();
-	this->CollisionBetweenCameraAndTarget();
-	this->ZoomOut();
+	if (mc_character->GetTerrainSurfaceType() != "WATER")
+	{
+		this->UpdateCameraFromPitch();
+		this->CollisionBetweenCameraAndTarget();
+		this->ZoomOut();
+	}
 }
 

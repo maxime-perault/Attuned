@@ -6,9 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "Public/CollisionQueryParams.h"
 #include "GameFramework/Character.h"
+//#include "MyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "W_InGameUI.h"
 #include "TerrainManager.generated.h"
+
+class AMyCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ATTUNED_API UTerrainManager : public UActorComponent
@@ -23,6 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void	DashCoolDown(const bool reset);
+	void	SetOwner(AMyCharacter* owner);
 
 	FString		mv_TerrainType;
 	FVector		mv_TerrainNormal;
@@ -55,15 +59,16 @@ private:
 	FCollisionQueryParams	mv_RV_TraceParams;
 	EPhysicalSurface		mv_LastSurfaceType;
 	
-	ACharacter*	mc_character;
+	AMyCharacter*	mc_character;
 	
-	void	RockTerrain(void);
-	void	SandTerrain(void);
-	void	WaterTerrain(void);
-	void	StandardTerrain(void);
+	void	RockTerrainFirstStep(void);
+	void	SandTerrainFirstStep(void);
+	void	WaterTerrainFirstStep(void);
+	void	StandardTerrainFirstStep(void);
 
 	void	CharacterMoveSpeedTransition(const bool InitTransition);
 
+	bool	mv_initialized;
 	bool	mv_IsTransitioningSpeed;
 	float	mv_DeltaTime;
 	float	mv_MaxSpeed;
