@@ -12,6 +12,7 @@
 #include "Widget/STerrainSelector.h"
 
 #include <LevelEditor.h>
+#include <SlateApplication.h>
 
 #include <SBox.h>
 #include <SImage.h>
@@ -45,7 +46,7 @@ void FAttunedToolModule::StartupModule()
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	{
 		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
-
+	
 		// Placing the plugin button right after the play button in the editor (Game hook)
 		ToolbarExtender->AddToolBarExtension("Game", EExtensionHook::After, PluginCommands, 
 			FToolBarExtensionDelegate::CreateRaw(this, &FAttunedToolModule::AddToolbarExtension));
@@ -53,9 +54,9 @@ void FAttunedToolModule::StartupModule()
 		// Adds the plugin button
 		LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
 	}
-	
+
 	// Registers the window
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AttunedToolTabName, 
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(AttunedToolTabName,
 		FOnSpawnTab::CreateRaw(this, &FAttunedToolModule::OnSpawnPluginTab))
 		.SetDisplayName(LOCTEXT("FAttunedToolTabTitle", "Tweak Box"))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
@@ -98,7 +99,15 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 
 void FAttunedToolModule::PluginButtonClicked()
 {
-	FGlobalTabmanager::Get()->InvokeTab(AttunedToolTabName);
+	auto dockTab      = FGlobalTabmanager::Get()->InvokeTab(AttunedToolTabName);
+	auto parentWindow = dockTab->GetParentWindow();
+
+	if (parentWindow.IsValid())
+	{
+		parentWindow->Resize       (FVector2D(335.0f, 600.0f));
+		parentWindow->SetSizingRule(ESizingRule::FixedSize);
+		parentWindow->SetCanTick   (true);
+	}
 }
 
 void FAttunedToolModule::AddMenuExtension(FMenuBuilder& Builder)

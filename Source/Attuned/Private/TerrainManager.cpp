@@ -61,8 +61,8 @@ void UTerrainManager::BeginPlay()
 	mv_RockSpeed = 1000.f;
 
 	mv_WaterJumpZVelocity = 800.f;
-	mv_WaterAcceleration = 2048.f;
-	mv_WaterSpeed = 1000.f;
+	mv_WaterAcceleration = 500.f;
+	mv_WaterSpeed = 1200.f;
 
 	mv_SandJumpZVelocity = 1000.f;
 	mv_SandAcceleration = 1000.f;
@@ -186,6 +186,10 @@ void UTerrainManager::StandardTerrainFirstStep(void)
 	mv_TerrainType = TEXT("DEFAULT");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_DefaultJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_DefaultAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_DefaultSpeed;
 
 	mc_character->mc_WaterFollowCamera->Deactivate();
@@ -209,6 +213,10 @@ void UTerrainManager::RockTerrainFirstStep(void)
 	mv_TerrainType = TEXT("ROCK");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_RockSpeed;
 
 	mc_character->mc_WaterFollowCamera->Deactivate();
@@ -232,6 +240,10 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 	mv_TerrainType = TEXT("WATER");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 	mv_MaxSpeed = mv_WaterSpeed;
 
 	mc_character->mc_DefaultFollowCamera->Deactivate();
@@ -242,6 +254,7 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 	mc_character->mc_CurrentCameraCollision = mc_character->mc_WaterCameraCollision;
 
 	this->CharacterMoveSpeedTransition(true);
+	mc_character->LerpForwardSpeed(mc_character->GetVelocity().Size() / mv_WaterSpeed, 0.f, false);
 
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Water"));
@@ -255,6 +268,10 @@ void UTerrainManager::SandTerrainFirstStep(void)
 	mv_TerrainType = TEXT("SAND");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_SandSpeed;
 
 	mc_character->mc_WaterFollowCamera->Deactivate();

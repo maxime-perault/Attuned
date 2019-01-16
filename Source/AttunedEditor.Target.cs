@@ -9,6 +9,6 @@ public class AttunedEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "Attuned" } );
+		ExtraModuleNames.AddRange( new string[] { "Attuned", "AttunedTool" } );
 	}
 }

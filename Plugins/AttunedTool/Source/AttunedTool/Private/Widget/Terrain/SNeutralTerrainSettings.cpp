@@ -5,7 +5,6 @@
 /// \author     Vincent STEHLY--CALISTO
 
 #include "Widget/Terrain/SNeutralTerrainSettings.h"
-#include "Widget/STerrainCommonSettings.h"
 
 #include <SButton.h>
 #include <STextBlock.h>
@@ -16,14 +15,28 @@
 
 void SNeutralTerrainSettings::Construct(const FArguments& InArgs)
 {
+	m_terrainCommonSettings = SNew(STerrainCommonSettings)
+		.cameraMaxArmLenght        (InArgs._cameraMaxArmLenght)
+		.cameraMaxTimeFromLastInput(InArgs._cameraMaxTimeFromLastInput);
+
 	ChildSlot
 	[
 		SNew(SScrollBox)
 		+ SScrollBox::Slot()
 		[
-			SNew(STerrainCommonSettings)
+			m_terrainCommonSettings.ToSharedRef()
 		]
 	];
+}
+
+void SNeutralTerrainSettings::ApplyChanges()
+{
+	m_terrainCommonSettings->ApplyChanges();
+}
+
+void SNeutralTerrainSettings::ResetChanges()
+{
+	m_terrainCommonSettings->ResetChanges();
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -17,22 +17,46 @@ UCameraManager::UCameraManager()
 	mv_debug = false;
 }
 
+float UCameraManager::GetArmLength(float ArmLength) const
+{
+	return (ArmLength - mc_character->mc_CurrentCameraCollision->GetScaledSphereRadius());
+}
+
 void UCameraManager::Initialize(void)
 {
-	mc_CameraBoom = mc_character->mc_CurrentCameraBoom;
-	mc_FollowCamera = mc_character->mc_CurrentFollowCamera;
-	mc_CameraCollision = mc_character->mc_CurrentCameraCollision;
+	//DEFAULT CAM
 
-	mc_CameraBoom->bDoCollisionTest = false;
-	mc_CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
-	mc_CameraBoom->TargetArmLength = 500.0f;
+	mc_character->mc_DefaultCameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	mc_character->mc_DefaultCameraBoom->bDoCollisionTest = false;
+	mc_character->mc_DefaultCameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
+	mc_character->mc_DefaultCameraBoom->TargetArmLength = 500.0f;
 
-	mc_CameraCollision->SetSphereRadius(40.f),
+	mc_character->mc_DefaultFollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	mc_character->mc_DefaultCameraCollision->SetSphereRadius(40.f),
+
+	//WATER CAM
+
+	mc_character->mc_WaterCameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	mc_character->mc_WaterCameraBoom->bEnableCameraRotationLag = true;
+	mc_character->mc_WaterCameraBoom->CameraRotationLagSpeed = 7.f;
+	mc_character->mc_WaterCameraBoom->bInheritPitch = false;
+	mc_character->mc_WaterCameraBoom->bInheritRoll = false;
+	mc_character->mc_WaterCameraBoom->TargetArmLength = 600.f;
+	mc_character->mc_WaterCameraBoom->SetRelativeLocation(FVector(7.f, 0.f, 40.f));
+	mc_character->mc_WaterCameraBoom->RelativeRotation = FRotator(0.f, 10.f, 0.f);
+
+	mc_character->mc_WaterFollowCamera->Deactivate();
+
+	mc_character->mc_WaterCameraCollision->SetSphereRadius(40.f),
+	
+
+	//GLOBAL PARAMETERS
 
 	mv_MinPitch = -0.5f;
 	mv_MaxPitch = 0.9f;
 
-	mv_MaxArmLength = mc_CameraBoom->TargetArmLength;
+	mv_MaxArmLength = mc_character->mc_CurrentCameraBoom->TargetArmLength;
 
 	UE_LOG(LogTemp, Warning, TEXT("Dont forget to set ArmLengthCurveFromPitch"));
 
@@ -65,14 +89,14 @@ void UCameraManager::UpdatePitch(void)
 	static float	FakeArmLength;
 	static float	Pitch;
 
-	TargetPos = mc_CameraBoom->GetComponentLocation();
+	TargetPos = mc_character->mc_CurrentCameraBoom->GetComponentLocation();
 	FakeArmLength = mv_MaxArmLength;
 
-	FakeCameraArm = mc_FollowCamera->GetForwardVector();
+	FakeCameraArm = mc_character->mc_CurrentFollowCamera->GetForwardVector();
 	FakeCameraArm.Normalize();
 	FakeCameraArm *= FakeArmLength;
 
-	Pitch = ((TargetPos - FakeCameraArm).Z - mc_CameraBoom->GetComponentLocation().Z) / FakeArmLength;
+	Pitch = ((TargetPos - FakeCameraArm).Z - mc_character->mc_CurrentCameraBoom->GetComponentLocation().Z) / FakeArmLength;
 	mv_CurrentPitch = Pitch;
 }
 
@@ -91,23 +115,23 @@ void UCameraManager::UpdateCameraFromPitch(void)
 	//The curve is between 0 and 2 and the pitch is between -1 and 1
 	mv_MaxArmLengthFromPitch = mc_ArmLengthCurveFromPitch->GetFloatValue(mv_CurrentPitch + 1) * mv_MaxArmLength;
 
-	mc_CameraBoom->SetRelativeLocation(
+	mc_character->mc_CurrentCameraBoom->SetRelativeLocation(
 		FVector(0.f, 0.f,
 			BaseCameraBoomZ + FMath::Lerp(
 				DeltaCameraBoomZ,
 				0.f,
 				this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch))));
 
-	mc_FollowCamera->SetFieldOfView(
+	mc_character->mc_CurrentFollowCamera->SetFieldOfView(
 		BaseFOV + FMath::Lerp(
 			DeltaFOV,
 			0.f, 
 			this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch)));
 
-	mv_NextCameraLocation = mc_FollowCamera->GetForwardVector();
+	mv_NextCameraLocation = mc_character->mc_CurrentFollowCamera->GetForwardVector();
 	mv_NextCameraLocation.Normalize();
 	mv_NextCameraLocation *= mv_MaxArmLengthFromPitch;
-	mv_NextCameraLocation = mc_CameraBoom->GetComponentLocation() - mv_NextCameraLocation;
+	mv_NextCameraLocation = mc_character->mc_CurrentCameraBoom->GetComponentLocation() - mv_NextCameraLocation;
 }
 
 void	UCameraManager::CollisionBetweenCameraAndTarget(void)
@@ -119,7 +143,7 @@ void	UCameraManager::CollisionBetweenCameraAndTarget(void)
 	//Raycast from Target to Camera
 	success = GetWorld()->LineTraceSingleByChannel(
 		RV_Hit,									 //result
-		mc_CameraBoom->GetComponentLocation(),   //start
+		mc_character->mc_CurrentCameraBoom->GetComponentLocation(),   //start
 		mv_NextCameraLocation,					 //end
 		ECC_Camera,								 //collision channel
 		mv_RV_TraceParams						 //params
@@ -127,13 +151,13 @@ void	UCameraManager::CollisionBetweenCameraAndTarget(void)
 
 	if (!success)
 	{
-		mc_CameraCollision->SetWorldLocation(mv_NextCameraLocation);
-		mc_CameraCollision->GetOverlappingActors(FoundActors, nullptr);
+		mc_character->mc_CurrentCameraCollision->SetWorldLocation(mv_NextCameraLocation);
+		mc_character->mc_CurrentCameraCollision->GetOverlappingActors(FoundActors, nullptr);
 		if (FoundActors.Num() > 0)
 		{
 			success = GetWorld()->LineTraceSingleByChannel(
 				RV_Hit,									 //result
-				mc_CameraBoom->GetComponentLocation(),   //start
+				mc_character->mc_CurrentCameraBoom->GetComponentLocation(),   //start
 				mv_NextCameraLocation,					 //end
 				ECC_Visibility,							 //collision channel
 				mv_RV_TraceParams						 //params
@@ -171,7 +195,7 @@ void UCameraManager::ZoomOut(void)
 	{
 		IsZoomingOut = true;
 		ZoomOutCurrentDuration = (mv_NextArmLength / mv_MaxArmLengthFromPitch) * ZoomOutMaxDuration;
-		mc_CameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
+		mc_character->mc_CurrentCameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
 		LastArmLength = mv_NextArmLength;
 		if (GEngine && mv_debug)
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString("INIT ZOOM Out : ") + FString::SanitizeFloat(mv_NextArmLength) + FString("; ") + FString::SanitizeFloat(mv_MaxArmLengthFromPitch));
@@ -187,7 +211,7 @@ void UCameraManager::ZoomOut(void)
 
 		const float	ZoomingOutArmLength(FMath::Lerp(0.f, 1.f, ZoomOutCurrentDuration / ZoomOutMaxDuration) * mv_MaxArmLengthFromPitch);
 
-		mc_CameraBoom->TargetArmLength = this->GetArmLength(ZoomingOutArmLength);
+		mc_character->mc_CurrentCameraBoom->TargetArmLength = this->GetArmLength(ZoomingOutArmLength);
 		LastArmLength = ZoomingOutArmLength;
 
 		if (ZoomOutCurrentDuration == ZoomOutMaxDuration)
@@ -202,8 +226,36 @@ void UCameraManager::ZoomOut(void)
 	}
 	else
 	{
-		mc_CameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
+		mc_character->mc_CurrentCameraBoom->TargetArmLength = this->GetArmLength(mv_NextArmLength);
 		LastArmLength = mv_NextArmLength;
+	}
+}
+
+void UCameraManager::UpdateArmFromSpeed(void)
+{
+	static const float WaterArmLength = 600.f;
+	float percent(mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
+
+	mc_character->mc_CurrentCameraBoom->TargetArmLength = FMath::Lerp(
+		400.f,
+		WaterArmLength,
+		percent);
+
+	if (percent > 0.8f)
+	{
+		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = GetPercentBetweenAB(
+			mc_character->GetVelocity().Size(),
+			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.8f,
+			mc_character->mc_TerrainManager->mv_WaterSpeed) * 1.f;
+	}
+
+	if (percent > 0.95)
+	{
+		mc_character->mv_DrawSpeedParticles = true;
+	}
+	else
+	{
+		mc_character->mv_DrawSpeedParticles = false;
 	}
 }
 
@@ -218,9 +270,15 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	if (mc_character->GetTerrainSurfaceType() != "WATER")
 	{
+		mc_character->mv_DrawSpeedParticles = false;
 		this->UpdateCameraFromPitch();
 		this->CollisionBetweenCameraAndTarget();
 		this->ZoomOut();
+		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = 0.f;
+	}
+	else
+	{
+		this->UpdateArmFromSpeed();
 	}
 }
 

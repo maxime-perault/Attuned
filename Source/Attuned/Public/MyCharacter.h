@@ -7,12 +7,11 @@
 #include "TerrainManager.h"
 #include "CameraManager.h"
 #include "W_InGameUI.h"
-#include "DestructibleActor.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "MyCharacter.generated.h"
 
 UCLASS(config = Game)
-class AMyCharacter : public ACharacter
+class ATTUNED_API AMyCharacter : public ACharacter
 {
 private:
 	GENERATED_BODY()
@@ -23,17 +22,12 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Default, meta = (AllowPrivateAccess = "true"))
 		class	UTextRenderComponent* mc_JumpSpeed;
 
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UTerrainManager *mc_TerrainManager;
-
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UCameraManager *mc_CameraManager;
-
 	void	Dash(const bool InitDash);
 
 	float	mv_DebugFlushTime;
 	float	mv_DeltaTime;
 	float	mv_LeanPercent;
+	float	mv_ForwardSpeed;
 	bool	mv_LockControls;
 
 public:
@@ -47,6 +41,12 @@ public:
 		TSubclassOf<class UW_InGameUI> mc_InGameUIC;
 
 	UW_InGameUI*	mc_InGameUIAttached;
+
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UTerrainManager *mc_TerrainManager;
+
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UCameraManager *mc_CameraManager;
 
 	/*
 	** CAMERAS
@@ -96,6 +96,9 @@ public:
 	*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
+		bool mv_DrawSpeedParticles;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class URadialForceComponent* mc_DashRadialForce;
 
 
@@ -124,6 +127,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_isDashing;
+
+	float	LerpForwardSpeed(const float NewSpeed, const float DeltaTime, const bool reset);
 
 protected:
 

@@ -41,9 +41,6 @@ protected:
 
 private:
 	AMyCharacter*			mc_character;
-	USpringArmComponent*	mc_CameraBoom;
-	UCameraComponent*		mc_FollowCamera;
-	USphereComponent*		mc_CameraCollision;
 
 	FCollisionQueryParams	mv_RV_TraceParams;
 
@@ -63,6 +60,7 @@ private:
 	float	GetPercentBetweenAB(float x, float a, float b);
 	void	CollisionBetweenCameraAndTarget(void);
 	void	ZoomOut(void);
+	void	UpdateArmFromSpeed(void);
 
-	FORCEINLINE float GetArmLength(float ArmLength) const { return (ArmLength - mc_CameraCollision->GetScaledSphereRadius()); }
+	float GetArmLength(float ArmLength) const;
 };

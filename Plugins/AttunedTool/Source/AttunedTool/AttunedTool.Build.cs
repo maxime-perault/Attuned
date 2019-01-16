@@ -1,6 +1,7 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class AttunedTool : ModuleRules
 {
@@ -8,10 +9,10 @@ public class AttunedTool : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicIncludePaths.AddRange (new string[] { "Slate" });
-		PrivateIncludePaths.AddRange(new string[] { "Slate" });
-			
-		PublicDependencyModuleNames.AddRange (
+		PublicIncludePaths.AddRange (new string[] { Path.Combine(ModuleDirectory, "Public/")  });
+		PrivateIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Private/") });
+
+        PublicDependencyModuleNames.AddRange (
             new string[]
             {
                 "Core",
@@ -37,5 +38,5 @@ public class AttunedTool : ModuleRules
 			);
 
 		DynamicallyLoadedModuleNames.AddRange(new string[]{});
-	}
+    }
 }
