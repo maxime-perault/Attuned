@@ -23,16 +23,11 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Default, meta = (AllowPrivateAccess = "true"))
 		class	UTextRenderComponent* mc_JumpSpeed;
 
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UTerrainManager *mc_TerrainManager;
-
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
-		UCameraManager *mc_CameraManager;
-
 	void	Dash(const bool InitDash);
 
 	float	mv_DebugFlushTime;
 	float	mv_DeltaTime;
+	float	mv_LeanPercent;
 	bool	mv_LockControls;
 
 public:
@@ -47,17 +42,58 @@ public:
 
 	UW_InGameUI*	mc_InGameUIAttached;
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class	USpringArmComponent* CameraBoom;
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UTerrainManager *mc_TerrainManager;
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class	UCameraComponent* FollowCamera;
+	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+		UCameraManager *mc_CameraManager;
 
-	/** Camera Collision */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class	USphereComponent* CameraCollision;
+	/*
+	** CAMERAS
+	*/
+
+		/*
+		** STANDARD CAMERA
+		*/
+
+			/** Camera boom positioning the camera behind the character */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	USpringArmComponent* mc_DefaultCameraBoom;
+
+			/** Follow camera */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	UCameraComponent* mc_DefaultFollowCamera;
+
+			/** Camera Collision */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	USphereComponent* mc_DefaultCameraCollision;
+
+		/*
+		** WATER CAMERA
+		*/
+
+			/** Camera boom positioning the camera behind the character */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	USpringArmComponent* mc_WaterCameraBoom;
+
+			/** Follow camera */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	UCameraComponent* mc_WaterFollowCamera;
+
+			/** Camera Collision */
+			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+				class	USphereComponent* mc_WaterCameraCollision;
+
+		/*
+		** CURRENT CAM
+		*/
+			class	USpringArmComponent*	mc_CurrentCameraBoom;
+			class	UCameraComponent*		mc_CurrentFollowCamera;
+			class	USphereComponent*		mc_CurrentCameraCollision;
+
+	/*
+	** !END CAMERAS
+	*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class URadialForceComponent* mc_DashRadialForce;
@@ -72,14 +108,19 @@ public:
 		float BaseLookUpRate;
 
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	UFUNCTION(BlueprintCallable, Category = "Get")
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return mc_CurrentCameraBoom; }
 	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	UFUNCTION(BlueprintCallable, Category = "Get")
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return mc_CurrentFollowCamera; }
 
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
-		FString getTerrainSurfaceType();
+		FString GetTerrainSurfaceType();
+
+	UFUNCTION(BlueprintCallable, Category = "Get")
+		float GetLeanDegree();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_isDashing;

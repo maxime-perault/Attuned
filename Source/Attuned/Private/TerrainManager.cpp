@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TerrainManager.h"
+#include "MyCharacter.h"
 #include "Public/CollisionQueryParams.h"
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/GameEngine.h"
 #include "Engine/Classes/PhysicalMaterials/PhysicalMaterial.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
@@ -19,6 +19,13 @@ UTerrainManager::UTerrainManager()
 
 	mv_LastSurfaceType = SurfaceType_Default;
 	mv_TerrainType = TEXT("DEFAULT");
+	mv_initialized = false;
+}
+
+void	UTerrainManager::SetOwner(AMyCharacter* owner)
+{
+	mc_character = owner;
+	mv_initialized = true;
 }
 
 
@@ -38,8 +45,6 @@ void UTerrainManager::BeginPlay()
 	GetWorld()->DebugDrawTraceTag = TraceTag;
 	mv_RV_TraceParams.TraceTag = TraceTag;
 	*/
-
-	mc_character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
 	mv_CanDash = true;
 
@@ -70,6 +75,9 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	mv_DeltaTime = DeltaTime;
+
+	if (!mv_initialized)
+		return;
 
 	if (!mv_CanDash)
 		this->DashCoolDown(false);
@@ -103,22 +111,22 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		{
 			case SurfaceType1:
 			{
-				this->RockTerrain();
+				this->RockTerrainFirstStep();
 				break;
 			}
 			case SurfaceType2:
 			{
-				this->WaterTerrain();
+				this->WaterTerrainFirstStep();
 				break;
 			}
 			case SurfaceType3:
 			{
-				this->SandTerrain();
+				this->SandTerrainFirstStep();
 				break;
 			}
 			default:
 			{
-				this->StandardTerrain();
+				this->StandardTerrainFirstStep();
 				break;
 			}
 		}
@@ -170,35 +178,49 @@ void UTerrainManager::CharacterMoveSpeedTransition(const bool InitTransition)
 		mv_IsTransitioningSpeed = false;
 }
 
-void UTerrainManager::StandardTerrain(void)
+void UTerrainManager::StandardTerrainFirstStep(void)
 {
-	if (mc_InGameUIAttached && mv_TerrainType == "ROCK" &&
-		(mc_InGameUIAttached->GetVisibility() == ESlateVisibility::Visible))
-	{
-		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden);
-	}
+	if (mc_InGameUIAttached)
+		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("DEFAULT");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_DefaultJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_DefaultAcceleration;
 	mv_MaxSpeed = mv_DefaultSpeed;
+
+	mc_character->mc_WaterFollowCamera->Deactivate();
+	mc_character->mc_DefaultFollowCamera->Activate();
+
+	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
+	mc_character->mc_CurrentFollowCamera = mc_character->mc_DefaultFollowCamera;
+	mc_character->mc_CurrentCameraCollision = mc_character->mc_DefaultCameraCollision;
+
 	this->CharacterMoveSpeedTransition(true);
 
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Default"));
 }
 
-void UTerrainManager::RockTerrain(void)
+void UTerrainManager::RockTerrainFirstStep(void)
 {
+	if (mc_InGameUIAttached)
+		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Visible);
+
 	mv_TerrainType = TEXT("ROCK");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_RockSpeed;
 
-	if (mc_InGameUIAttached)
-	{
-		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Visible);
-	}
+	mc_character->mc_WaterFollowCamera->Deactivate();
+	mc_character->mc_DefaultFollowCamera->Activate();
+
+	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
+	mc_character->mc_CurrentFollowCamera = mc_character->mc_DefaultFollowCamera;
+	mc_character->mc_CurrentCameraCollision = mc_character->mc_DefaultCameraCollision;
 
 	this->CharacterMoveSpeedTransition(true);
 
@@ -206,36 +228,54 @@ void UTerrainManager::RockTerrain(void)
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Rock"));
 }
 
-void UTerrainManager::WaterTerrain(void)
+void UTerrainManager::WaterTerrainFirstStep(void)
 {
-	if (mc_InGameUIAttached && mv_TerrainType == "ROCK" &&
-		(mc_InGameUIAttached->GetVisibility() == ESlateVisibility::Visible))
-	{
-		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden);
-	}
+	if (mc_InGameUIAttached)
+		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("WATER");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 	mv_MaxSpeed = mv_WaterSpeed;
+
+	mc_character->mc_DefaultFollowCamera->Deactivate();
+	mc_character->mc_WaterFollowCamera->Activate();
+
+	mc_character->mc_CurrentCameraBoom = mc_character->mc_WaterCameraBoom;
+	mc_character->mc_CurrentFollowCamera = mc_character->mc_WaterFollowCamera;
+	mc_character->mc_CurrentCameraCollision = mc_character->mc_WaterCameraCollision;
+
 	this->CharacterMoveSpeedTransition(true);
 
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Water"));
 }
 
-void UTerrainManager::SandTerrain(void)
+void UTerrainManager::SandTerrainFirstStep(void)
 {
-	if (mc_InGameUIAttached && mv_TerrainType == "ROCK" &&
-		(mc_InGameUIAttached->GetVisibility() == ESlateVisibility::Visible))
-	{
-		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden);
-	}
+	if (mc_InGameUIAttached)
+		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("SAND");
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
+
+	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 	mv_MaxSpeed = mv_SandSpeed;
+
+	mc_character->mc_WaterFollowCamera->Deactivate();
+	mc_character->mc_DefaultFollowCamera->Activate();
+
+	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
+	mc_character->mc_CurrentFollowCamera = mc_character->mc_DefaultFollowCamera;
+	mc_character->mc_CurrentCameraCollision = mc_character->mc_DefaultCameraCollision;
+
 	this->CharacterMoveSpeedTransition(true);
 
 	if (GEngine)
