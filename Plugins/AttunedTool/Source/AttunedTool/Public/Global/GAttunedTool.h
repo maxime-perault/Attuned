@@ -36,7 +36,25 @@ public:
 	/// \brief Returns the current game instance
 	UGameInstance*	GetGameInstance	() const;
 
-	bool UpdateModel(const CameraData& data);
+	/// \brief  Commits all dirty model caches on the disk
+	/// \return True if no error occurs, else false
+	bool CommitModel();
+
+	/// \brief  Reverts all dirty model caches with values from the disk
+	/// \return True if no error occurs, else false
+	bool RevertModel();
+
+	/// \brief  Updates the model depending the current world (Editor or PIE)
+	/// \param  data The data to update the model with
+	void UpdateModel(CameraData& data);
+
+	/// \brief	Returns the current cached model of the wanted data structure
+	/// \return A pointer on the cached model data structure
+	///			(may be null if T is not a valide type)
+	template<class T> const T* GetModel() const
+	{
+		return m_attunedModel->GetCache<T>();
+	}
 
 	/// \brief Engine callback
 	void OnPostWorldCreation		(UWorld* world);

@@ -31,16 +31,20 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 {
 	m_tabIndex = 0;
 
+	// Getting the camera data cache
+	const CameraData* cache = GAttunedTool::Get()->GetModel<CameraData>();
+
 	m_cameraMaxArmLenght = SNew(SSpinBox<float>)
-		.Value         (CameraData::MaxArmLenghtDefaultValue)
+		.Value         (cache->m_maxArmLenghtValue)
 		.MinValue      (CameraData::MaxArmLenghtMinValue)
 		.MaxValue      (CameraData::MaxArmLenghtMaxValue)
+		.Value_Raw	   (this, &STerrainSelector::CameraMaxArmLenghtValue)
 		.OnValueChanged(this, &STerrainSelector::OnCameraMaxArmLenghtChange);
 
 	m_cameraMaxTimeFromLastInput = SNew(SSpinBox<float>)
-		.Value         (CameraData::MaxTimeFromLastInputDefaultValue)
-		.MinValue      (CameraData::MaxTimeFromLastInputMinValue)
-		.MaxValue      (CameraData::MaxTimeFromLastInputMaxValue)
+		.MinValue	   (CameraData::MaxTimeFromLastInputMinValue)
+		.MaxValue	   (CameraData::MaxTimeFromLastInputMaxValue)
+		.Value_Raw	   (this, &STerrainSelector::CameraMaxTimeFromLastInputValue)
 		.OnValueChanged(this, &STerrainSelector::OnCameraMaxTimeFromLastInputChange);
 
 	TSharedPtr<SRockTerrainSettings> rockTerrainWidget = SNew(SRockTerrainSettings)
@@ -176,7 +180,7 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 				.HAlign(EHorizontalAlignment::HAlign_Center)
 				.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonForegroundColor(); })
 				.ButtonColorAndOpacity_Lambda([this](void)->FSlateColor { return GetButtonBackgroundColor(); })
-				.OnClicked_Raw     (this, &STerrainSelector::ResetChanges)
+				.OnClicked_Raw     (this, &STerrainSelector::RevertChanges)
 				.Text_Lambda       ([this](void)->FText { return FText::FromString(TEXT("Reset"));        })
 				.ToolTipText_Lambda([this](void)->FText { return FText::FromString(TEXT(
 					"Resets all values to the values contained in the editor world.")); })
@@ -262,51 +266,44 @@ FLinearColor STerrainSelector::GetButtonForegroundColor() const
 
 FReply STerrainSelector::ApplyChanges()
 {
-	for (auto& widget : m_widgets) {
-		widget.Get()->ApplyChanges();
-	}
-
-	CameraData data;
-	data.m_maxArmLenghtValue	     = m_cameraMaxArmLenght.Get()->GetValue();
-	data.m_maxTimeFromLastInputValue = m_cameraMaxTimeFromLastInput.Get()->GetValue();
-
-	// Commits the camera data changes
-	GAttunedTool::Get()->GetModel()->CommitChanges(data);
-
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Registered : %lf"), data.m_maxArmLenghtValue);
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Registered : %lf"), data.m_maxTimeFromLastInputValue);
-
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Changes applied."));
+	GAttunedTool::Get()->CommitModel();
 	return FReply::Handled();
 }
 
-FReply STerrainSelector::ResetChanges()
+FReply STerrainSelector::RevertChanges()
 {
-	for (auto& widget : m_widgets) {
-		widget.Get()->ResetChanges();
-	}
-
-	CameraData data;
-	GAttunedTool::Get()->GetModel()->DeserializeData<CameraData>(data);
-
-	m_cameraMaxArmLenght.Get()->SetValue(data.m_maxArmLenghtValue);
-	m_cameraMaxTimeFromLastInput.Get()->SetValue(data.m_maxTimeFromLastInputValue);
-
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Changes reset."));
+	GAttunedTool::Get()->RevertModel();
 	return FReply::Handled();
 }
 
 void STerrainSelector::OnCameraMaxArmLenghtChange(float value)
 {
-	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value changes : %lf"), value);
+	CameraData data;
+	data.m_maxArmLenghtValue         = value;
+	data.m_maxTimeFromLastInputValue = m_cameraMaxTimeFromLastInput->GetValue();
 
-	// TODO
+	GAttunedTool::Get()->UpdateModel(data);
 }
 
 void STerrainSelector::OnCameraMaxTimeFromLastInputChange(float value)
 {
-	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value changes : %lf"), value);
+	CameraData data;
+	data.m_maxArmLenghtValue         = m_cameraMaxArmLenght->GetValue();
+	data.m_maxTimeFromLastInputValue = value;
 
-	// TODO
+	GAttunedTool::Get()->UpdateModel(data);
 }
+
+float STerrainSelector::CameraMaxArmLenghtValue() const
+{
+	const CameraData* cache = GAttunedTool::Get()->GetModel<CameraData>();
+	return cache->m_maxArmLenghtValue;
+}
+
+float STerrainSelector::CameraMaxTimeFromLastInputValue() const
+{
+	const CameraData* cache = GAttunedTool::Get()->GetModel<CameraData>();
+	return cache->m_maxTimeFromLastInputValue;
+}
+
 #undef LOCTEXT_NAMESPACE

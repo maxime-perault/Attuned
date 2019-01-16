@@ -51,11 +51,14 @@ private:
 	FLinearColor GetButtonBackgroundColor ()				const;
 	FLinearColor GetButtonForegroundColor ()				const;
 
-	FReply ApplyChanges();
-	FReply ResetChanges();
+	FReply ApplyChanges ();
+	FReply RevertChanges();
 
 	void OnCameraMaxArmLenghtChange        (float value);
 	void OnCameraMaxTimeFromLastInputChange(float value);
+
+	float CameraMaxArmLenghtValue        () const;
+	float CameraMaxTimeFromLastInputValue() const;
 
 private:
 

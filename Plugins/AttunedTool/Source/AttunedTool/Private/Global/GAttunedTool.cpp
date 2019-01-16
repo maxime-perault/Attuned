@@ -38,7 +38,7 @@
 		FWorldDelegates::OnPostWorldInitialization.Add(s_attuned_tool->m_onPostWorldInitializationDelegate);
 		FWorldDelegates::OnWorldPostActorTick.Add	  (s_attuned_tool->m_onPostWorldActorTickDelegate);
 
-		UE_LOG(LogTemp, Log, TEXT("[Attuned] Global tool pointer initialized."));
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] Global tool pointer initialized."));
 	}
 }
 
@@ -70,7 +70,7 @@
 		s_attuned_tool->m_attunedModel.Reset();
 
 		s_attuned_tool.Reset();
-		UE_LOG(LogTemp, Log, TEXT("[Attuned] Global tool pointer destroyed."));
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] Global tool pointer destroyed."));
 	}
 }
 
@@ -185,10 +185,39 @@ void GAttunedTool::OnPostWorldActorTick(UWorld* world, ELevelTick tick, float dt
 	}
 }
 
-bool GAttunedTool::UpdateModel(const CameraData& data)
+/// \brief  Commits all dirty model caches on the disk
+/// \return True if no error occurs, else false
+bool GAttunedTool::CommitModel()
 {
-	// TODO
-	return true;
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Committing model..."));
+
+	bool result = m_attunedModel->CommitChanges();
+	// TODO : Character update ?
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Model committed."));
+	return result;
+}
+
+/// \brief  Reverts all dirty model caches with values from the disk
+/// \return True if no error occurs, else false
+bool GAttunedTool::RevertModel()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Reverting model..."));
+
+	bool result = m_attunedModel->RevertChanges();
+	// TODO : Character update ?
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Model reverted."));
+	return result;
+}
+
+/// \brief  Updates the model depending the current world (Editor or PIE)
+/// \param  data The data to update the model with
+/// \return True if no error occurs, else false
+void GAttunedTool::UpdateModel(CameraData& data)
+{
+	// TODO : Character update ?
+	m_attunedModel->UpdateCache(data);
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -16,29 +16,26 @@
 #include "Archive.h"
 #include "FileHelper.h"
 #include "MemoryReader.h"
-
-#define OFFSET(T, X) ((size_t)&((T*)0)->X)
+#include "BufferArchive.h"
 
 struct Serializable
 {
-	Serializable(int32 offset, int32 componentCount, const TCHAR* archiveName)
-	: m_offset			(offset)
-	, m_componentCount	(componentCount)
-	, m_archiveName		(archiveName)
+	Serializable(const TCHAR* archiveName)
+	: m_archiveName	(archiveName)
+	, m_dirty		(true)
 	{
 		// None
 	}
 
-	const int32  m_offset;
-	const int32  m_componentCount;
 	const TCHAR* m_archiveName;
+	bool		 m_dirty;
 };
 
 struct CameraData : public Serializable
 {
 	CameraData() 
-	: Serializable(OFFSET(CameraData, m_maxArmLenghtValue), 2, TEXT("CameraDataArchive"))
-	, m_maxArmLenghtValue(0.0f)
+	: Serializable				 (TEXT("CameraDataArchive"))
+	, m_maxArmLenghtValue		 (0.0f)
 	, m_maxTimeFromLastInputValue(0.0f)
 	{
 		// None
@@ -62,30 +59,56 @@ class AttunedModel
 {
 public:
 
-	bool CommitChanges(const CameraData& data);
+	template<class T>	const T*			GetCache() const { return nullptr;			  }
+	template<>			const CameraData*	GetCache() const { return &m_cameraDataCache; }
 
-	template<class T> bool SerializeData   (const T& data) const;
-	template<class T> bool DeserializeData (T& data)       const;
+	/// \brief	Updates the internal cache data from a structure
+	///			Marks the structure dirty
+	/// \param  The data structure to update
+	void UpdateCache(const CameraData& data);
+
+	/// \brief	Saves persistently all data marked as dirty on the disk
+	/// \return True if no error occurs, else false
+	bool CommitChanges();
+
+	/// \brief	Reverts all changes stored in the cache to the values on the disk
+	/// \return True if no error occurs, else false
+	bool RevertChanges();
 
 private:
 
-	// Cached model
-	CameraData m_cameraDataCache;
+	/// \brief	Serializes changes from the camera data
+	/// \param  data The camera data to save on disk
+	/// \return True if no error occurs, else false
+	bool SerializeChanges(const CameraData& data);
+
+	/// \brief	Deserializes changes from the camera archive
+	/// \param  data The camera data to save on disk
+	/// \return True if no error occurs, else false
+	bool DeserializeChanges(CameraData& data);
+
+	/// \brief  Saves the archive on disk
+	/// \param  Ar   The archive to save
+	/// \param  Name The name of the archive
+	/// \return True if no error occurs, else false
+	bool WriteArchive(FBufferArchive& Ar, const TCHAR* Name);
+
+	/// \brief	Reads an archive from the disk
+	/// \param  Bytes The bytes array to store the read data
+	/// \param  Name  The name of the archive to read
+	/// \return True if no error occurs, else false
+	bool ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name);
+
+private:
+
+	CameraData m_cameraDataCache; ///< Cached data model
 
 private:
 
 	friend class GAttunedTool;
 
-	/// \brief Initialize the singleton
 	void Initialize	();
-
-	/// \brief Destroy the singleton
 	void Destroy	();
-
-	/// \brief Tests the result of a serialization operation
-	void CheckSerialization(bool ret, const TCHAR* message) const;
 };
-
-#include "Model/AttunedModel.inl"
 
 #endif // ATTUNED_TOOL_ATTUNED_MODEL_H_
