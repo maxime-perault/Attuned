@@ -234,11 +234,29 @@ void UCameraManager::ZoomOut(void)
 void UCameraManager::UpdateArmFromSpeed(void)
 {
 	static const float WaterArmLength = 600.f;
+	float percent(mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
 
 	mc_character->mc_CurrentCameraBoom->TargetArmLength = FMath::Lerp(
 		400.f,
 		WaterArmLength,
-		mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
+		percent);
+
+	if (percent > 0.8f)
+	{
+		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = GetPercentBetweenAB(
+			mc_character->GetVelocity().Size(),
+			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.8f,
+			mc_character->mc_TerrainManager->mv_WaterSpeed) * 1.f;
+	}
+
+	if (percent > 0.95)
+	{
+		mc_character->mv_DrawSpeedParticles = true;
+	}
+	else
+	{
+		mc_character->mv_DrawSpeedParticles = false;
+	}
 }
 
 // Called every frame
@@ -252,9 +270,11 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	if (mc_character->GetTerrainSurfaceType() != "WATER")
 	{
+		mc_character->mv_DrawSpeedParticles = false;
 		this->UpdateCameraFromPitch();
 		this->CollisionBetweenCameraAndTarget();
 		this->ZoomOut();
+		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = 0.f;
 	}
 	else
 	{

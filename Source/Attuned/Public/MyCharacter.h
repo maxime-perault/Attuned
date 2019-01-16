@@ -27,6 +27,7 @@ private:
 	float	mv_DebugFlushTime;
 	float	mv_DeltaTime;
 	float	mv_LeanPercent;
+	float	mv_ForwardSpeed;
 	bool	mv_LockControls;
 
 public:
@@ -95,6 +96,9 @@ public:
 	*/
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
+		bool mv_DrawSpeedParticles;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		class URadialForceComponent* mc_DashRadialForce;
 
 
@@ -123,6 +127,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_isDashing;
+
+	float	LerpForwardSpeed(const float NewSpeed, const float DeltaTime, const bool reset);
 
 protected:
 
