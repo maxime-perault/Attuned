@@ -165,8 +165,14 @@ void GAttunedTool::GetGamePointersFromPIEWorld()
 		AMyCharacter* p_character = *ActorItr;
 		if (p_character)
 		{
-			m_character = p_character;
-			UE_LOG(LogTemp, Warning, TEXT("[Attuned] MyCharacter Found"));
+			m_character      = p_character;
+			m_cameraManager  = m_character->mc_CameraManager;
+			m_terrainManager = m_character->mc_TerrainManager;
+
+			if (!m_cameraManager || m_terrainManager)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[Attuned] The camera and/or the terrain manager are nullptr."));
+			}
 		}
 	}
 }
@@ -177,6 +183,12 @@ void GAttunedTool::OnPostWorldActorTick(UWorld* world, ELevelTick tick, float dt
 	{
 		GetGamePointersFromPIEWorld();
 	}
+}
+
+bool GAttunedTool::UpdateModel(const CameraData& data)
+{
+	// TODO
+	return true;
 }
 
 #undef LOCTEXT_NAMESPACE

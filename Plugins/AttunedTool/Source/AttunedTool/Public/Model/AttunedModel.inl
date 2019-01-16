@@ -29,12 +29,16 @@ bool AttunedModel::SerializeData(const T& data) const
 		return false;
 	}
 
+	// Creating the path
+	FString displayablePath = FString(TEXT("AttunedTool/Resources/Archives/")) + data.m_archiveName;
+	FString fullPath        = FPaths::GamePluginsDir() + displayablePath;
+	
 	// Save binaries to disk
-	bool result = FFileHelper::SaveArrayToFile(Ar, data.m_archiveName, &IFileManager::Get(), true);
+	bool result = FFileHelper::SaveArrayToFile(Ar, *fullPath, &IFileManager::Get(), true);
 
 	if (result)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Attuned] %li bytes were saved."), Ar.TotalSize());
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] %li bytes were saved in %s."), Ar.TotalSize(), *displayablePath);
 	}
 	 
 	// Empty the buffer's contents
@@ -74,6 +78,8 @@ bool AttunedModel::DeserializeData(T& data) const
 	for (int32 i = 0; i < data.m_componentCount; ++i) {
 		binaryData << p_data[i];
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Archive %s deserialized."), data.m_archiveName);
 
 	binaryData.FlushCache();
 	binaryData.Close();

@@ -33,7 +33,10 @@ public:
 	/// \brief Returns a reference on the internal smart pointer
 	static TUniquePtr<GAttunedTool>& Get();
 	
-	UGameInstance*		GetGameInstance	() const;
+	/// \brief Returns the current game instance
+	UGameInstance*	GetGameInstance	() const;
+
+	bool UpdateModel(const CameraData& data);
 
 	/// \brief Engine callback
 	void OnPostWorldCreation		(UWorld* world);

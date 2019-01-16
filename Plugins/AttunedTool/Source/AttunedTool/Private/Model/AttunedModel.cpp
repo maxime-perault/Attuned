@@ -22,7 +22,7 @@ void AttunedModel::Initialize()
 
 void AttunedModel::Destroy()
 {
-	UE_LOG(LogTemp, Log, TEXT("[Attuned] Tool model destroyed."));
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Tool model destroyed."));
 
 	// Saving all cached data on the disk
 	CheckSerialization(SerializeData<CameraData>(m_cameraDataCache), TEXT("CameraDataCache"));
@@ -37,7 +37,7 @@ void AttunedModel::CheckSerialization(bool ret, const TCHAR* message) const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Attuned] Archive %s successfully serialized."), message);
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] Archive %s successfully serialized."), message);
 	}
 }
 
