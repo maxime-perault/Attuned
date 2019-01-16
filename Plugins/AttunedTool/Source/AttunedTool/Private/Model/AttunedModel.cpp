@@ -28,7 +28,11 @@ void AttunedModel::Initialize()
 
 	bool  result  = true;
 	int32 counter = 0;
-	REVERT_IF_DIRTY(m_cameraDataCache, result, counter)
+	REVERT_IF_DIRTY(m_cameraDataCache,        result, counter)
+	REVERT_IF_DIRTY(m_commonDataRockCache,    result, counter)
+	REVERT_IF_DIRTY(m_commonDataSandCache,    result, counter)
+	REVERT_IF_DIRTY(m_commonDataWaterCache,   result, counter)
+	REVERT_IF_DIRTY(m_commonDataNeutralCache, result, counter)
 
 	if (result)
 	{
@@ -63,13 +67,52 @@ void AttunedModel::UpdateCache(const CameraData& data)
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Camera data cache updated."));
 }
 
+void AttunedModel::UpdateCache(const CommonData& in, CommonData& out)
+{
+	out.m_dirty				   = true;
+	out.m_fallingFrictionValue = in.m_fallingFrictionValue;
+	out.m_airControlValue	   = in.m_airControlValue;
+	out.m_jumpZVelocityValue   = in.m_jumpZVelocityValue;
+	out.m_dashCooldownValue    = in.m_dashCooldownValue;
+	out.m_accelerationValue    = in.m_accelerationValue;
+	out.m_maxSpeedValue        = in.m_maxSpeedValue;
+}
+
+void AttunedModel::UpdateCache(const CommonDataRock& data)
+{
+	UpdateCache(data, m_commonDataRockCache);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Common data rock cache updated."));
+}
+
+void AttunedModel::UpdateCache(const CommonDataSand& data)
+{
+	UpdateCache(data, m_commonDataSandCache);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Common data sand cache updated."));
+}
+
+void AttunedModel::UpdateCache(const CommonDataWater& data)
+{
+	UpdateCache(data, m_commonDataWaterCache);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Common data water cache updated."));
+}
+
+void AttunedModel::UpdateCache(const CommonDataNeutral&	data)
+{
+	UpdateCache(data, m_commonDataNeutralCache);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Common data neutral cache updated."));
+}
+
 /// \brief	Saves persistently all data marked as dirty on the disk
 /// \return True if no error occurs, else false
 bool AttunedModel::CommitChanges()
 {
 	bool  result  = true;
 	int32 counter = 0;
-	COMMIT_IF_DIRTY(m_cameraDataCache, result, counter)
+	COMMIT_IF_DIRTY(m_cameraDataCache,        result, counter)
+	COMMIT_IF_DIRTY(m_commonDataRockCache,    result, counter)
+	COMMIT_IF_DIRTY(m_commonDataSandCache,    result, counter)
+	COMMIT_IF_DIRTY(m_commonDataWaterCache,   result, counter)
+	COMMIT_IF_DIRTY(m_commonDataNeutralCache, result, counter)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] %d cache(s) was/were committed."), counter);
 	if (counter == 0)
@@ -86,7 +129,11 @@ bool AttunedModel::RevertChanges()
 {
 	bool  result = true;
 	int32 counter = 0;
-	REVERT_IF_DIRTY(m_cameraDataCache, result, counter)
+	REVERT_IF_DIRTY(m_cameraDataCache,        result, counter)
+	REVERT_IF_DIRTY(m_commonDataRockCache,    result, counter)
+	REVERT_IF_DIRTY(m_commonDataSandCache,    result, counter)
+	REVERT_IF_DIRTY(m_commonDataWaterCache,   result, counter)
+	REVERT_IF_DIRTY(m_commonDataNeutralCache, result, counter)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] %d cache(s) was/were reverted."), counter);
 	if (counter == 0)
@@ -115,6 +162,29 @@ bool AttunedModel::SerializeChanges(const CameraData& data)
 	return WriteArchive(Ar, data.m_archiveName);
 }
 
+bool AttunedModel::SerializeChanges(const CommonData& data)
+{
+	FBufferArchive Ar;
+	Ar.SetIsSaving	  (true);
+	Ar.SetIsPersistent(true);
+
+	Ar << (float)data.m_fallingFrictionValue;
+	Ar << (float)data.m_airControlValue;
+	Ar << (float)data.m_jumpZVelocityValue;
+	Ar << (float)data.m_dashCooldownValue;
+	Ar << (float)data.m_accelerationValue;
+	Ar << (float)data.m_maxSpeedValue;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_fallingFrictionValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_airControlValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_jumpZVelocityValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_dashCooldownValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_accelerationValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_maxSpeedValue);
+
+	return WriteArchive(Ar, data.m_archiveName);
+}
+
 bool AttunedModel::DeserializeChanges(CameraData& data)
 {
 	TArray<uint8> Bytes;
@@ -135,6 +205,36 @@ bool AttunedModel::DeserializeChanges(CameraData& data)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_maxArmLenghtValue);
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_maxTimeFromLastInputValue);
+
+	return true;
+}
+
+bool AttunedModel::DeserializeChanges(CommonData& data)
+{
+	TArray<uint8> Bytes;
+
+	if (!ReadArchive(Bytes, data.m_archiveName))
+	{
+		return false;
+	}
+
+	FMemoryReader Binary = FMemoryReader(Bytes, true);
+	Binary.Seek(0);
+
+	data.m_dirty = false;
+	Binary << data.m_fallingFrictionValue;
+	Binary << data.m_airControlValue;
+	Binary << data.m_jumpZVelocityValue;
+	Binary << data.m_dashCooldownValue;
+	Binary << data.m_accelerationValue;
+	Binary << data.m_maxSpeedValue;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_fallingFrictionValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_airControlValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_jumpZVelocityValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_dashCooldownValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_accelerationValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_maxSpeedValue);
 
 	return true;
 }

@@ -220,4 +220,28 @@ void GAttunedTool::UpdateModel(CameraData& data)
 	m_attunedModel->UpdateCache(data);
 }
 
+void GAttunedTool::UpdateModel(CommonDataRock& data)
+{
+	// TODO : Character update ?
+	m_attunedModel->UpdateCache(data);
+}
+
+void GAttunedTool::UpdateModel(CommonDataSand& data)
+{
+	// TODO : Character update ?
+	m_attunedModel->UpdateCache(data);
+}
+
+void GAttunedTool::UpdateModel(CommonDataWater&	data)
+{
+	// TODO : Character update ?
+	m_attunedModel->UpdateCache(data);
+}
+
+void GAttunedTool::UpdateModel(CommonDataNeutral& data)
+{
+	// TODO : Character update ?
+	m_attunedModel->UpdateCache(data);
+}
+
 #undef LOCTEXT_NAMESPACE

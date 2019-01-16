@@ -16,6 +16,7 @@
 void SWaterTerrainSettings::Construct(const FArguments& InArgs)
 {
 	m_terrainCommonSettings = SNew(STerrainCommonSettings)
+		.terrainType			   (STerrainCommonSettings::ETerrainType::Water)
 		.cameraMaxArmLenght        (InArgs._cameraMaxArmLenght)
 		.cameraMaxTimeFromLastInput(InArgs._cameraMaxTimeFromLastInput);;
 

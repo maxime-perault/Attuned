@@ -46,7 +46,11 @@ public:
 
 	/// \brief  Updates the model depending the current world (Editor or PIE)
 	/// \param  data The data to update the model with
-	void UpdateModel(CameraData& data);
+	void UpdateModel(CameraData&		data);
+	void UpdateModel(CommonDataRock&	data);
+	void UpdateModel(CommonDataSand&	data);
+	void UpdateModel(CommonDataWater&	data);
+	void UpdateModel(CommonDataNeutral& data);
 
 	/// \brief	Returns the current cached model of the wanted data structure
 	/// \return A pointer on the cached model data structure

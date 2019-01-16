@@ -53,19 +53,118 @@ struct CameraData : public Serializable
 	static const constexpr float MaxTimeFromLastInputDefaultValue = 1.0f;
 };
 
+struct CommonData : public Serializable
+{
+	CommonData(const TCHAR* archiveName)
+	: Serializable			(archiveName)
+	, m_fallingFrictionValue(0.0f)
+	, m_airControlValue		(0.0f)
+	, m_jumpZVelocityValue	(0.0f)
+	, m_dashCooldownValue	(0.0f)
+	, m_accelerationValue	(0.0f)
+	, m_maxSpeedValue		(0.0f)
+	{
+		// None
+	}
+
+	float m_fallingFrictionValue;
+	float m_airControlValue;
+	float m_jumpZVelocityValue;
+	float m_dashCooldownValue;
+	float m_accelerationValue;
+	float m_maxSpeedValue;
+
+	// Common limits
+	static const constexpr float FallingFrictionMinValue	= 0.0f;
+	static const constexpr float FallingFrictionMaxValue	= 500.0f;
+	static const constexpr float AirControlMinValue			= 0.0f;
+	static const constexpr float AirControlMaxValue			= 500.0f;
+	static const constexpr float JumpZVelocityMinValue		= 0.0f;
+	static const constexpr float JumpZVelocityMaxValue		= 5000.0f;
+	static const constexpr float DashCooldownMinValue		= 0.0f;
+	static const constexpr float DashCooldownMaxValue		= 20.0f;
+	static const constexpr float AccelerationMinValue		= 0.0f;
+	static const constexpr float AccelerationMaxValue		= 5000.0f;
+	static const constexpr float MaxSpeedMinValue			= 0.0f;
+	static const constexpr float MaxSpeedMaxValue			= 10000.0f;
+
+	static void Copy(const CommonData& in, CommonData& out)
+	{
+		out.m_fallingFrictionValue = in.m_fallingFrictionValue;
+		out.m_airControlValue      = in.m_airControlValue;
+		out.m_jumpZVelocityValue   = in.m_jumpZVelocityValue;
+		out.m_dashCooldownValue    = in.m_dashCooldownValue;
+		out.m_accelerationValue    = in.m_accelerationValue;
+		out.m_maxSpeedValue        = in.m_maxSpeedValue;
+	}
+};
+
+struct CommonDataGeneric : public CommonData
+{
+	CommonDataGeneric()
+	: CommonData(TEXT(""))
+	{
+		// None
+	}
+};
+
+struct CommonDataNeutral : public CommonData
+{
+	CommonDataNeutral()
+	: CommonData	(TEXT("CommonDataNeutralArchive"))
+	{
+		// None
+	}
+};
+
+struct CommonDataRock : public CommonData
+{
+	CommonDataRock()
+	: CommonData  (TEXT("CommonDataRockArchive"))
+	{
+		// None
+	}
+};
+
+struct CommonDataSand : public CommonData
+{
+	CommonDataSand()
+	: CommonData  (TEXT("CommonDataSandArchive"))
+	{
+		// None
+	}
+};
+
+struct CommonDataWater : public CommonData
+{
+	CommonDataWater()
+	: CommonData   (TEXT("CommonDataWaterArchive"))
+	{
+		// None
+	}
+};
+
 /// \brief This is the model of the MVC pattern 
 /// \class AttunedModel
 class AttunedModel
 {
 public:
 
-	template<class T>	const T*			GetCache() const { return nullptr;			  }
-	template<>			const CameraData*	GetCache() const { return &m_cameraDataCache; }
+	template<class T>	const T*					GetCache() const { return nullptr;					 }
+	template<>			const CameraData*			GetCache() const { return &m_cameraDataCache;		 }
+	template<>			const CommonDataRock*		GetCache() const { return &m_commonDataRockCache;	 }
+	template<>			const CommonDataSand*		GetCache() const { return &m_commonDataSandCache;	 }
+	template<>			const CommonDataWater*		GetCache() const { return &m_commonDataWaterCache;	 }
+	template<>			const CommonDataNeutral*	GetCache() const { return &m_commonDataNeutralCache; }
 
 	/// \brief	Updates the internal cache data from a structure
 	///			Marks the structure dirty
 	/// \param  The data structure to update
-	void UpdateCache(const CameraData& data);
+	void UpdateCache(const CameraData&			data);
+	void UpdateCache(const CommonDataRock&		data);
+	void UpdateCache(const CommonDataSand&		data);
+	void UpdateCache(const CommonDataWater&		data);
+	void UpdateCache(const CommonDataNeutral&	data);
 
 	/// \brief	Saves persistently all data marked as dirty on the disk
 	/// \return True if no error occurs, else false
@@ -77,15 +176,21 @@ public:
 
 private:
 
+	/// \brief Helper function to avoid duplicating code for 
+	///		   all common terrain data structures
+	void UpdateCache(const CommonData& in, CommonData& out);
+
 	/// \brief	Serializes changes from the camera data
 	/// \param  data The camera data to save on disk
 	/// \return True if no error occurs, else false
 	bool SerializeChanges(const CameraData& data);
+	bool SerializeChanges(const CommonData& data);
 
 	/// \brief	Deserializes changes from the camera archive
 	/// \param  data The camera data to save on disk
 	/// \return True if no error occurs, else false
 	bool DeserializeChanges(CameraData& data);
+	bool DeserializeChanges(CommonData& data);
 
 	/// \brief  Saves the archive on disk
 	/// \param  Ar   The archive to save
@@ -101,7 +206,11 @@ private:
 
 private:
 
-	CameraData m_cameraDataCache; ///< Cached data model
+	CameraData			m_cameraDataCache;
+	CommonDataRock		m_commonDataRockCache;
+	CommonDataSand		m_commonDataSandCache;
+	CommonDataWater		m_commonDataWaterCache;
+	CommonDataNeutral	m_commonDataNeutralCache;
 
 private:
 

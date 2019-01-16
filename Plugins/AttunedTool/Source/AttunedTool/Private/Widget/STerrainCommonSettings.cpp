@@ -22,8 +22,45 @@
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
+	m_terrainType				 = InArgs._terrainType;
 	m_cameraMaxArmLenght         = InArgs._cameraMaxArmLenght;
 	m_cameraMaxTimeFromLastInput = InArgs._cameraMaxTimeFromLastInput;
+
+	m_fallingFriction = SNew(SSpinBox<float>)
+		.MinValue(CommonData::FallingFrictionMinValue)
+		.MaxValue(CommonData::FallingFrictionMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::FallingFrictionValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnFallingFrictionValueChanged);
+
+	m_airControl = SNew(SSpinBox<float>)
+		.MinValue(CommonData::AirControlMinValue)
+		.MaxValue(CommonData::AirControlMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::AirControlValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnAirControlValueChanged);
+
+	m_jumpZVelocity = SNew(SSpinBox<float>)
+		.MinValue(CommonData::JumpZVelocityMinValue)
+		.MaxValue(CommonData::JumpZVelocityMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::JumpZVelocityValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnJumpZVelocityValueChanged);
+
+	m_dashCooldown = SNew(SSpinBox<float>)
+		.MinValue(CommonData::DashCooldownMinValue)
+		.MaxValue(CommonData::DashCooldownMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::DashCooldownValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnDashCooldownValueChanged);
+
+	m_acceleration = SNew(SSpinBox<float>)
+		.MinValue(CommonData::AccelerationMinValue)
+		.MaxValue(CommonData::AccelerationMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::AccelerationValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnAccelerationValueChanged);
+
+	m_maxSpeed = SNew(SSpinBox<float>)
+		.MinValue(CommonData::MaxSpeedMinValue)
+		.MaxValue(CommonData::MaxSpeedMaxValue)
+		.Value_Raw		(this, &STerrainCommonSettings::MaxSpeedValue)
+		.OnValueChanged	(this, &STerrainCommonSettings::OnMaxSpeedValueChanged);
 
 	ChildSlot
 	[
@@ -100,12 +137,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_fallingFrictionValue;     })
-						.MinValue_Lambda      ([this](void)->float   { return m_fallingFrictionMinValue;  })
-						.MaxValue_Lambda      ([this](void)->float   { return m_fallingFrictionMaxValue;  })
-						.OnValueChanged_Lambda([this](float v)->void { m_fallingFrictionValue = v;        })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO");  })
+						m_fallingFriction.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -119,12 +151,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_airControlValue;         })
-						.MinValue_Lambda      ([this](void)->float   { return m_airControlMinValue;      })
-						.MaxValue_Lambda      ([this](void)->float   { return m_airControlMaxValue;      })
-						.OnValueChanged_Lambda([this](float v)->void { m_airControlValue = v;            })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
+						m_airControl.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -138,12 +165,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_jumpZVelocityValue;      })
-						.MinValue_Lambda      ([this](void)->float   { return m_jumpZVelocityMinValue;   })
-						.MaxValue_Lambda      ([this](void)->float   { return m_jumpZVelocityMaxValue;   })
-						.OnValueChanged_Lambda([this](float v)->void { m_jumpZVelocityValue = v;         })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
+						m_jumpZVelocity.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -157,12 +179,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_dashCooldownValue;        })
-						.MinValue_Lambda      ([this](void)->float   { return m_dashCooldownMinValue;     })
-						.MaxValue_Lambda      ([this](void)->float   { return m_dashCooldownMaxValue;     })
-						.OnValueChanged_Lambda([this](float v)->void { m_dashCooldownValue = v;           })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO");  })
+						m_dashCooldown.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -176,12 +193,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_accelerationValue;       })
-						.MinValue_Lambda      ([this](void)->float   { return m_accelerationMinValue;    })
-						.MaxValue_Lambda      ([this](void)->float   { return m_accelerationMaxValue;    })
-						.OnValueChanged_Lambda([this](float v)->void { m_accelerationValue = v;          })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
+						m_acceleration.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -195,12 +207,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_maxSpeedValue;           })
-						.MinValue_Lambda      ([this](void)->float   { return m_maxSpeedMinValue;        })
-						.MaxValue_Lambda      ([this](void)->float   { return m_maxSpeedMaxValue;        })
-						.OnValueChanged_Lambda([this](float v)->void { m_maxSpeedValue = v;              })
-						.ToolTipText_Lambda   ([this](void)->FText   { return FText::FromString("TODO"); })
+						m_maxSpeed.ToSharedRef()
 					]
 				]
 			]
@@ -213,31 +220,17 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 	const double InCurrentTime, 
 	const float InDeltaTime)
 {
-	// TODO
+	// None
 }
 
 /* virtual */ void STerrainCommonSettings::ApplyChanges()
 {
-	/*CameraData data;
-	data.m_maxArmLenghtValue         = test.Get()->GetValue();
-	data.m_maxTimeFromLastInputValue = test.Get()->GetValue();
-
-	GAttunedTool::Get()->GetModel()->SerializeData<CameraData>(data);
-
-	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value found : %lf"), test.Get()->GetValue());*/
+	// None
 }
 
 /* virtual */ void STerrainCommonSettings::ResetChanges()
 {
-	/*CameraData data;
-	GAttunedTool::Get()->GetModel()->DeserializeData<CameraData>(data);
-
-	m_maxArmLenghtValue         = data.m_maxArmLenghtValue;
-	m_maxTimeFromLastInputValue = data.m_maxTimeFromLastInputValue;
-
-	test.Get()->SetValue(data.m_maxArmLenghtValue);
-
-	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value found : %lf"), data.m_maxArmLenghtValue);*/
+	// None
 }
 
 FSlateColor STerrainCommonSettings::GetExpandableBodyColor  () const
@@ -248,6 +241,161 @@ FSlateColor STerrainCommonSettings::GetExpandableBodyColor  () const
 FSlateColor STerrainCommonSettings::GetExpandableBorderColor() const
 {
 	return FSlateColor(FLinearColor(0.18f, 0.18f, 0.18f, 1.00f));
+}
+
+void STerrainCommonSettings::OnFallingFrictionValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_fallingFrictionValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+void STerrainCommonSettings::OnAirControlValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_airControlValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+void STerrainCommonSettings::OnJumpZVelocityValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_jumpZVelocityValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+void STerrainCommonSettings::OnDashCooldownValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_dashCooldownValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+void STerrainCommonSettings::OnAccelerationValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_accelerationValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+void STerrainCommonSettings::OnMaxSpeedValueChanged(float value)
+{
+	CommonDataGeneric data;
+	BuildCommonDataFromWidget(data);
+	data.m_maxSpeedValue = value;
+
+	UpdateModelFromCommonData(data);
+}
+
+float STerrainCommonSettings::FallingFrictionValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_fallingFrictionValue;
+}
+
+float STerrainCommonSettings::AirControlValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_airControlValue;
+}
+
+float STerrainCommonSettings::JumpZVelocityValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_jumpZVelocityValue;
+}
+
+float STerrainCommonSettings::DashCooldownValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_dashCooldownValue;
+}
+
+float STerrainCommonSettings::AccelerationValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_accelerationValue;
+}
+
+float STerrainCommonSettings::MaxSpeedValue() const
+{
+	const CommonData* cache = GetCommonDataCache();
+	return cache->m_maxSpeedValue;
+}
+
+const CommonData* STerrainCommonSettings::GetCommonDataCache() const
+{
+	switch (m_terrainType)
+	{
+		case ETerrainType::Rock:    { return GAttunedTool::Get()->GetModel<CommonDataRock>();    break; }
+		case ETerrainType::Sand:    { return GAttunedTool::Get()->GetModel<CommonDataSand>();    break; }
+		case ETerrainType::Water:   { return GAttunedTool::Get()->GetModel<CommonDataWater>();   break; }
+		case ETerrainType::Neutral: { return GAttunedTool::Get()->GetModel<CommonDataNeutral>(); break; }
+	}
+
+	return nullptr;
+}
+
+void STerrainCommonSettings::BuildCommonDataFromWidget(CommonDataGeneric& data) const
+{
+	data.m_fallingFrictionValue = m_fallingFriction->GetValue();
+	data.m_airControlValue	    = m_airControl->GetValue();
+	data.m_jumpZVelocityValue   = m_jumpZVelocity->GetValue();
+	data.m_dashCooldownValue    = m_dashCooldown->GetValue();
+	data.m_accelerationValue    = m_acceleration->GetValue();
+	data.m_maxSpeedValue        = m_maxSpeed->GetValue();
+}
+
+void STerrainCommonSettings::UpdateModelFromCommonData(const CommonDataGeneric& data) const
+{
+	switch (m_terrainType)
+	{
+		case ETerrainType::Rock: 
+		{
+			CommonDataRock rockData;
+			CommonData::Copy(data, rockData);
+
+			GAttunedTool::Get()->UpdateModel(rockData);
+			break;
+		}
+
+		case ETerrainType::Sand: 
+		{
+			CommonDataSand sandData;
+			CommonData::Copy(data, sandData);
+
+			GAttunedTool::Get()->UpdateModel(sandData);
+			break;
+		}
+
+		case ETerrainType::Water: 
+		{
+			CommonDataWater waterData;
+			CommonData::Copy(data, waterData);
+
+			GAttunedTool::Get()->UpdateModel(waterData);
+			break;
+		}
+
+		case ETerrainType::Neutral: 
+		{
+			CommonDataNeutral neutralData;
+			CommonData::Copy(data, neutralData);
+
+			GAttunedTool::Get()->UpdateModel(neutralData);
+			break;
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

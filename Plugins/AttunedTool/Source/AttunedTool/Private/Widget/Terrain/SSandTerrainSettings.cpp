@@ -16,6 +16,7 @@
 void SSandTerrainSettings::Construct(const FArguments& InArgs)
 {
 	m_terrainCommonSettings = SNew(STerrainCommonSettings)
+		.terrainType			   (STerrainCommonSettings::ETerrainType::Sand)
 		.cameraMaxArmLenght        (InArgs._cameraMaxArmLenght)
 		.cameraMaxTimeFromLastInput(InArgs._cameraMaxTimeFromLastInput);
 
