@@ -9,6 +9,6 @@ public class AttunedTarget : TargetRules
 	{
 		Type = TargetType.Game;
 
-		ExtraModuleNames.AddRange( new string[] { "Attuned" } );
+		ExtraModuleNames.AddRange( new string[] { "Attuned", "AttunedTool" } );
 	}
 }

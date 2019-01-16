@@ -7,12 +7,11 @@
 #include "TerrainManager.h"
 #include "CameraManager.h"
 #include "W_InGameUI.h"
-#include "DestructibleActor.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "MyCharacter.generated.h"
 
 UCLASS(config = Game)
-class AMyCharacter : public ACharacter
+class ATTUNED_API AMyCharacter : public ACharacter
 {
 private:
 	GENERATED_BODY()

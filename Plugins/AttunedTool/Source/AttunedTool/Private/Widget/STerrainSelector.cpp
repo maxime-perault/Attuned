@@ -22,6 +22,8 @@
 #include <Framework/MultiBox/MultiBoxBuilder.h>
 
 #include "AttunedToolStyle.h"
+#include "Model/AttunedModel.h"
+#include "Global/GAttunedTool.h"
 
 #define LOCTEXT_NAMESPACE "STerrainSelector"
 
@@ -29,10 +31,33 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 {
 	m_tabIndex = 0;
 
-	auto rockTerrainWidget    = SNew(SRockTerrainSettings);
-	auto sandTerrainWidget    = SNew(SSandTerrainSettings);
-	auto waterTerrainWidget   = SNew(SWaterTerrainSettings);
-	auto neutralTerrainWidget = SNew(SNeutralTerrainSettings);
+	m_cameraMaxArmLenght = SNew(SSpinBox<float>)
+		.Value         (CameraData::MaxArmLenghtDefaultValue)
+		.MinValue      (CameraData::MaxArmLenghtMinValue)
+		.MaxValue      (CameraData::MaxArmLenghtMaxValue)
+		.OnValueChanged(this, &STerrainSelector::OnCameraMaxArmLenghtChange);
+
+	m_cameraMaxTimeFromLastInput = SNew(SSpinBox<float>)
+		.Value         (CameraData::MaxTimeFromLastInputDefaultValue)
+		.MinValue      (CameraData::MaxTimeFromLastInputMinValue)
+		.MaxValue      (CameraData::MaxTimeFromLastInputMaxValue)
+		.OnValueChanged(this, &STerrainSelector::OnCameraMaxTimeFromLastInputChange);
+
+	TSharedPtr<SRockTerrainSettings> rockTerrainWidget = SNew(SRockTerrainSettings)
+		.cameraMaxArmLenght		   (m_cameraMaxArmLenght)
+		.cameraMaxTimeFromLastInput(m_cameraMaxTimeFromLastInput);
+
+	TSharedPtr<SSandTerrainSettings> sandTerrainWidget = SNew(SSandTerrainSettings)
+		.cameraMaxArmLenght        (m_cameraMaxArmLenght)
+		.cameraMaxTimeFromLastInput(m_cameraMaxTimeFromLastInput);
+
+	TSharedPtr<SWaterTerrainSettings> waterTerrainWidget = SNew(SWaterTerrainSettings)
+		.cameraMaxArmLenght        (m_cameraMaxArmLenght)
+		.cameraMaxTimeFromLastInput(m_cameraMaxTimeFromLastInput);
+
+	TSharedPtr<SNeutralTerrainSettings> neutralTerrainWidget = SNew(SNeutralTerrainSettings)
+		.cameraMaxArmLenght        (m_cameraMaxArmLenght)
+		.cameraMaxTimeFromLastInput(m_cameraMaxTimeFromLastInput);
 
 	m_widgets.Empty();
 	m_widgets.Add(rockTerrainWidget);
@@ -49,10 +74,12 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
 			.MaxHeight(80.0f)
+			.AutoHeight()
 			[
 				SNew(SHorizontalBox)
 				// The Rock terrain
 				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
@@ -69,6 +96,7 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 				]
 				// The Sand terrain
 				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
@@ -85,6 +113,7 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 				]
 				// The Water terrain
 				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
@@ -101,6 +130,7 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 				]
 				// The Neutral terrain
 				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				.MaxWidth(80.0f)
 				.Padding(FMargin(1.0f, 0.0f, 0.0f, 0.0f))
 				[
@@ -119,9 +149,11 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 			// Slot for the 'Apply' button
 			+ SVerticalBox::Slot()
 			.MaxHeight(40.0f)
+			.AutoHeight()
 			.Padding(FMargin(0.0f, 30.0f, 0.0f, 0.0f))
 			[
 				SNew(SButton)
+				.DesiredSizeScale(FVector2D(50.0f, 40.0f))
 				.VAlign(EVerticalAlignment  ::VAlign_Center)
 				.HAlign(EHorizontalAlignment::HAlign_Center)
 				.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonForegroundColor(); })
@@ -135,9 +167,11 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 			// Slot for the 'Reset' button
 			+ SVerticalBox::Slot()
 			.MaxHeight(40.0f)
+			.AutoHeight()
 			.Padding(FMargin(0.0f, 00.0f, 0.0f, 30.0f))
 			[
 				SNew(SButton)
+				.DesiredSizeScale(FVector2D(50.0f, 40.0f))
 				.VAlign(EVerticalAlignment  ::VAlign_Center)
 				.HAlign(EHorizontalAlignment::HAlign_Center)
 				.ForegroundColor_Lambda      ([this](void)->FSlateColor { return GetButtonForegroundColor(); })
@@ -150,14 +184,14 @@ void STerrainSelector::Construct(const FArguments& InArgs)
 			// All terrain widgets
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.MaxHeight(1000.0f)
+			.MaxHeight(2000.0f)
 			[
 				SNew(SWidgetSwitcher)
 				.WidgetIndex(this, &STerrainSelector::GetCurrentTabIndex)
-				+ SWidgetSwitcher::Slot()[rockTerrainWidget   ]
-				+ SWidgetSwitcher::Slot()[sandTerrainWidget   ]
-				+ SWidgetSwitcher::Slot()[waterTerrainWidget  ]
-				+ SWidgetSwitcher::Slot()[neutralTerrainWidget]
+				+ SWidgetSwitcher::Slot()[rockTerrainWidget.ToSharedRef()    ]
+				+ SWidgetSwitcher::Slot()[sandTerrainWidget.ToSharedRef()    ]
+				+ SWidgetSwitcher::Slot()[waterTerrainWidget.ToSharedRef()   ]
+				+ SWidgetSwitcher::Slot()[neutralTerrainWidget.ToSharedRef() ]
 			]
 		]
 	];
@@ -229,19 +263,50 @@ FLinearColor STerrainSelector::GetButtonForegroundColor() const
 FReply STerrainSelector::ApplyChanges()
 {
 	for (auto& widget : m_widgets) {
-		widget.Get().ApplyChanges();
+		widget.Get()->ApplyChanges();
 	}
 
+	CameraData data;
+	data.m_maxArmLenghtValue	     = m_cameraMaxArmLenght.Get()->GetValue();
+	data.m_maxTimeFromLastInputValue = m_cameraMaxTimeFromLastInput.Get()->GetValue();
+
+	// Commits the camera data changes
+	GAttunedTool::Get()->GetModel()->CommitChanges(data);
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Registered : %lf"), data.m_maxArmLenghtValue);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Registered : %lf"), data.m_maxTimeFromLastInputValue);
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Changes applied."));
 	return FReply::Handled();
 }
 
 FReply STerrainSelector::ResetChanges()
 {
 	for (auto& widget : m_widgets) {
-		widget.Get().ResetChanges();
+		widget.Get()->ResetChanges();
 	}
 
+	CameraData data;
+	GAttunedTool::Get()->GetModel()->DeserializeData<CameraData>(data);
+
+	m_cameraMaxArmLenght.Get()->SetValue(data.m_maxArmLenghtValue);
+	m_cameraMaxTimeFromLastInput.Get()->SetValue(data.m_maxTimeFromLastInputValue);
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Changes reset."));
 	return FReply::Handled();
 }
 
+void STerrainSelector::OnCameraMaxArmLenghtChange(float value)
+{
+	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value changes : %lf"), value);
+
+	// TODO
+}
+
+void STerrainSelector::OnCameraMaxTimeFromLastInputChange(float value)
+{
+	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value changes : %lf"), value);
+
+	// TODO
+}
 #undef LOCTEXT_NAMESPACE
