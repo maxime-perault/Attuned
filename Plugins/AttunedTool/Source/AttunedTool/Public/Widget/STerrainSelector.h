@@ -7,6 +7,7 @@
 #ifndef ATTUNED_TOOL_S_TERRAIN_SELECTOR_H_
 #define ATTUNED_TOOL_S_TERRAIN_SELECTOR_H_
 
+#include "SSpinBox.h"
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
@@ -53,10 +54,16 @@ private:
 	FReply ApplyChanges();
 	FReply ResetChanges();
 
+	void OnCameraMaxArmLenghtChange        (float value);
+	void OnCameraMaxTimeFromLastInputChange(float value);
+
 private:
 
 	int32								m_tabIndex;
-	TArray<TSharedRef<ICustomWidget>>	m_widgets;
+	TArray<TSharedPtr<ICustomWidget>>	m_widgets;
+
+	TSharedPtr<SSpinBox<float>>			m_cameraMaxArmLenght;
+	TSharedPtr<SSpinBox<float>>			m_cameraMaxTimeFromLastInput;
 };
 
 #endif // ATTUNED_TOOL_S_TERRAIN_SELECTOR_H_

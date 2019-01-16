@@ -7,6 +7,7 @@
 #include "Widget/STerrainCommonSettings.h"
 
 #include "Engine.h"
+#include "Editor.h"
 
 #include <SButton.h>
 #include <STextBlock.h>
@@ -15,10 +16,15 @@
 #include <Widgets/Input/SSpinBox.h>
 #include <Widgets/Layout/SScrollBox.h>
 
+#include "Global/GAttunedTool.h"
+
 #define LOCTEXT_NAMESPACE "STerrainCommonSettings"
 
 void STerrainCommonSettings::Construct(const FArguments& InArgs)
 {
+	m_cameraMaxArmLenght         = InArgs._cameraMaxArmLenght;
+	m_cameraMaxTimeFromLastInput = InArgs._cameraMaxTimeFromLastInput;
+
 	ChildSlot
 	[
 		SNew(SVerticalBox)
@@ -48,12 +54,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda          ([this](void)->float   { return m_maxArmLenghtValue;        })
-						.MinValue_Lambda       ([this](void)->float   { return m_maxArmLenghtMinValue;     })
-						.MaxValue_Lambda       ([this](void)->float   { return m_maxArmLenghtMaxValue;     })
-						.OnValueChanged_Lambda ([this](float v)->void { m_maxArmLenghtValue = v;           })
-						.ToolTipText_Lambda    ([this](void)->FText   { return  FText::FromString("TODO"); })
+						m_cameraMaxArmLenght.ToSharedRef()
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -67,12 +68,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SSpinBox<float>)
-						.Value_Lambda         ([this](void)->float   { return m_maxTimeFromLastInputValue;    })
-						.MinValue_Lambda      ([this](void)->float   { return m_maxTimeFromLastInputMinValue; })
-						.MaxValue_Lambda      ([this](void)->float   { return m_maxTimeFromLastInputMaxValue; })
-						.OnValueChanged_Lambda([this](float v)->void { m_maxTimeFromLastInputValue = v;       })
-						.ToolTipText_Lambda   ([this](void)->FText   { return  FText::FromString("TODO");     })
+						m_cameraMaxTimeFromLastInput.ToSharedRef()
 					]
 				]
 			]
@@ -210,6 +206,38 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+}
+
+/* virtual */ void STerrainCommonSettings::Tick(
+	const FGeometry& AllottedGeometry, 
+	const double InCurrentTime, 
+	const float InDeltaTime)
+{
+	// TODO
+}
+
+/* virtual */ void STerrainCommonSettings::ApplyChanges()
+{
+	/*CameraData data;
+	data.m_maxArmLenghtValue         = test.Get()->GetValue();
+	data.m_maxTimeFromLastInputValue = test.Get()->GetValue();
+
+	GAttunedTool::Get()->GetModel()->SerializeData<CameraData>(data);
+
+	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value found : %lf"), test.Get()->GetValue());*/
+}
+
+/* virtual */ void STerrainCommonSettings::ResetChanges()
+{
+	/*CameraData data;
+	GAttunedTool::Get()->GetModel()->DeserializeData<CameraData>(data);
+
+	m_maxArmLenghtValue         = data.m_maxArmLenghtValue;
+	m_maxTimeFromLastInputValue = data.m_maxTimeFromLastInputValue;
+
+	test.Get()->SetValue(data.m_maxArmLenghtValue);
+
+	UE_LOG(LogTemp, Log, TEXT("[Attuned] Value found : %lf"), data.m_maxArmLenghtValue);*/
 }
 
 FSlateColor STerrainCommonSettings::GetExpandableBodyColor  () const

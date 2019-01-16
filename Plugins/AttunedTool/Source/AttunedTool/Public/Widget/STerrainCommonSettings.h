@@ -7,6 +7,7 @@
 #ifndef ATTUNED_TOOL_S_TERRAIN_COMMON_SETTINGS_H_
 #define ATTUNED_TOOL_S_TERRAIN_COMMON_SETTINGS_H_
 
+#include "SSpinBox.h"
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
@@ -22,11 +23,17 @@ class STerrainCommonSettings : public ICustomWidget
 public:
 
 	SLATE_BEGIN_ARGS(STerrainCommonSettings) {}
+		SLATE_ARGUMENT(TSharedPtr<SSpinBox<float>>, cameraMaxArmLenght)
+		SLATE_ARGUMENT(TSharedPtr<SSpinBox<float>>, cameraMaxTimeFromLastInput)
 	SLATE_END_ARGS  ()
 
 public:
 
 	void Construct(const FArguments& InArgs);
+	void Tick     (const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime);
+
+	void ApplyChanges() final;
+	void ResetChanges() final;
 
 private:
 
@@ -66,6 +73,10 @@ private:
 	const float m_accelerationMaxValue    = 5000.0f;
 	const float m_maxSpeedMinValue        = 0.0f;
 	const float m_maxSpeedMaxValue        = 10000.0f;
+
+	//TMap<FString, TSharedRef<SSpinBox<float>>> m_values;
+	TSharedPtr<SSpinBox<float>> m_cameraMaxArmLenght;
+	TSharedPtr<SSpinBox<float>> m_cameraMaxTimeFromLastInput;
 };
 
 #endif // ATTUNED_TOOL_S_TERRAIN_COMMON_SETTINGS_H_
