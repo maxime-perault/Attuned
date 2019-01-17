@@ -3,24 +3,24 @@
 	"EngineAssociation": "4.21",
 	"Category": "",
 	"Description": "",
-  "Modules": [
-    {
-      "Name": "Attuned",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "ApexDestruction",
-        "UMG",
-        "AttunedTool"
-      ]
-    },
-    {
-      "Name": "AttunedTool",
-      "Type": "Editor",
-      "LoadingPhase": "Default"
-    }
-  ],
+	"Modules": [
+		{
+			"Name": "Attuned",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"ApexDestruction",
+				"UMG",
+				"AttunedTool"
+			]
+		},
+		{
+			"Name": "AttunedTool",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ApexDestruction",
@@ -33,6 +33,14 @@
 		{
 			"Name": "NiagaraExtras",
 			"Enabled": true
+		},
+		{
+			"Name": "OculusVR",
+			"Enabled": false
+		},
+		{
+			"Name": "SteamVR",
+			"Enabled": false
 		}
 	]
 }
