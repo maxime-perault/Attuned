@@ -430,9 +430,6 @@ void AMyCharacter::MoveRight(float Value)
 			mv_ForwardSpeed = LerpForwardSpeed(mv_ForwardSpeed, mv_DeltaTime, false);
 			//lerp speed
 
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::SanitizeFloat(mv_ForwardSpeed));
-
 			AddMovementInput(
 				FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X),
 				FMath::Clamp(
