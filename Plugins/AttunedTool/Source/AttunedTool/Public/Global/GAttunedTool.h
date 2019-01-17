@@ -79,6 +79,20 @@ private:
 
 	/// \brief Gets the character actor form the pie world
 	void GetGamePointersFromPIEWorld();
+	void UpdatePIEValues			();
+	void UpdatePIECameraSettings	(const UCameraManager::CameraSettings& settings);
+
+	template<class T>
+	void UpdatePIETerrainSettings(const T& settings)
+	{
+		if (!m_character || !m_pieWorld)
+		{
+			return;
+		}
+
+		m_terrainManager->UpdateTerrainSettings(settings);
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] TerrainSettings Updated."));
+	}
 
 private:
 

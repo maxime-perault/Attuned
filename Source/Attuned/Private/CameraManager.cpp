@@ -282,3 +282,8 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 }
 
+void UCameraManager::UpdateCameraSettings(const CameraSettings& settings)
+{
+	mv_MaxArmLength         = settings.MaxArmLength;
+	mv_MaxTimeFromLastInput = settings.MaxTimeFromLastInput;
+}

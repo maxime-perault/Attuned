@@ -18,6 +18,7 @@
 #include <SImage.h>
 #include <SDockTab.h>
 #include <STextBlock.h>
+#include <STextComboBox.h>
 
 #include <Framework/MultiBox/MultiBoxBuilder.h>
 
@@ -75,6 +76,16 @@ void FAttunedToolModule::ShutdownModule()
 
 TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
+	source.Empty();
+	source.Add(MakeShared<FString>("Paul"));
+	source.Add(MakeShared<FString>("Yannis"));
+	source.Add(MakeShared<FString>("Aredhele"));
+
+	b = FButtonStyle::GetDefault();
+	b = FCoreStyle::Get().GetWidgetStyle< FButtonStyle >("Button");
+	b.Normal.TintColor  = FSlateColor(FLinearColor(0.243f, 0.243f, 0.243f));
+	b.Hovered.TintColor = FSlateColor(FLinearColor(0.343f, 0.343f, 0.343f));
+
 	// To make the code better, the tool has been split up into several
 	// custom widgets.
 	return 
@@ -89,9 +100,47 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 			]
 			+ SOverlay::Slot()
 			[
-				SNew(SBox)
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.MaxHeight(100.0f)
+				.AutoHeight()
 				[
-					SNew(STerrainSelector)
+					SNew(SHorizontalBox) 
+					+ SHorizontalBox::Slot()
+					.Padding(FMargin(4.0f, 0.0f, 0.0f, 0.0f))
+					.VAlign(EVerticalAlignment::VAlign_Center)
+	
+					[
+						SNew(STextBlock)
+						.Text(NSLOCTEXT("AttunedToll", "Profile", "Current profile : "))
+					]
+					+ SHorizontalBox::Slot()
+					.MaxWidth(330.0f)
+					.Padding (FMargin(4.0f, 4.0f, 4.0f, 4.0f))
+					[
+						SNew(STextComboBox)
+						.ButtonStyle		  (&b)
+						.OptionsSource		  (&source)
+						.InitiallySelectedItem(source[0])
+						.ColorAndOpacity	  (FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f)))
+					]
+				]
+				+ SVerticalBox::Slot()
+				.MaxHeight(5.0f)
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 5.0f, 0.0f, 5.0f))
+				[
+					SNew(SSeparator)
+					.Thickness(5.0f)
+			
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					[
+						SNew(STerrainSelector)
+					]
 				]
 			]
 		];
