@@ -28,13 +28,16 @@ void AttunedModel::Initialize()
 
 	bool  result  = true;
 	int32 counter = 0;
+
+	// Reverting preference first
+	REVERT_IF_DIRTY(m_profilePreferenceDataCache, result, counter, true)
+
 	REVERT_IF_DIRTY(m_cameraDataCache,            result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataRockCache,        result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataSandCache,        result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataWaterCache,       result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataNeutralCache,     result, counter, false)
-	REVERT_IF_DIRTY(m_profilePreferenceDataCache, result, counter, true)
-
+	
 	if (result)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Attuned] %d cache(s) was/were reverted."), counter);
