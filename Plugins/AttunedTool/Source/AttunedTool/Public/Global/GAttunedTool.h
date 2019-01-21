@@ -28,7 +28,7 @@ class GAttunedTool
 {
 public:
 
-	TUniquePtr<AttunedModel>& GetModel();
+	TUniquePtr<AttunedModel>& GetRawModel();
 
 	/// \brief Returns a reference on the internal smart pointer
 	static TUniquePtr<GAttunedTool>& Get();
@@ -39,6 +39,10 @@ public:
 	/// \brief  Commits all dirty model caches on the disk
 	/// \return True if no error occurs, else false
 	bool CommitModel();
+	bool CommitProfilePreference();
+
+	/// \brief Marks all caches as dirty
+	void InvalidateAllCaches();
 
 	/// \brief  Reverts all dirty model caches with values from the disk
 	/// \return True if no error occurs, else false
@@ -46,11 +50,12 @@ public:
 
 	/// \brief  Updates the model depending the current world (Editor or PIE)
 	/// \param  data The data to update the model with
-	void UpdateModel(CameraData&		data);
-	void UpdateModel(CommonDataRock&	data);
-	void UpdateModel(CommonDataSand&	data);
-	void UpdateModel(CommonDataWater&	data);
-	void UpdateModel(CommonDataNeutral& data);
+	void UpdateModel(CameraData&			data);
+	void UpdateModel(CommonDataRock&		data);
+	void UpdateModel(CommonDataSand&		data);
+	void UpdateModel(CommonDataWater&		data);
+	void UpdateModel(CommonDataNeutral&		data);
+	void UpdateModel(ProfilePreferenceData& data);
 
 	/// \brief	Returns the current cached model of the wanted data structure
 	/// \return A pointer on the cached model data structure

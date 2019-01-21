@@ -33,6 +33,9 @@ private:
 	
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
+	// TMP
+	void OnSelectionChanged(TSharedPtr<FString> s, ESelectInfo::Type t);
+
 private:
 
 	FButtonStyle b;
