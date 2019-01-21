@@ -77,14 +77,18 @@ void FAttunedToolModule::ShutdownModule()
 TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs)
 {
 	source.Empty();
+	source.Add(MakeShared<FString>("Antoine"));
+	source.Add(MakeShared<FString>("Maxime"));
 	source.Add(MakeShared<FString>("Paul"));
+	source.Add(MakeShared<FString>("Vincent"));
 	source.Add(MakeShared<FString>("Yannis"));
-	source.Add(MakeShared<FString>("Aredhele"));
-
+	
 	b = FButtonStyle::GetDefault();
 	b = FCoreStyle::Get().GetWidgetStyle< FButtonStyle >("Button");
 	b.Normal.TintColor  = FSlateColor(FLinearColor(0.243f, 0.243f, 0.243f));
 	b.Hovered.TintColor = FSlateColor(FLinearColor(0.343f, 0.343f, 0.343f));
+
+	const ProfilePreferenceData* data = GAttunedTool::Get()->GetModel<ProfilePreferenceData>();
 
 	// To make the code better, the tool has been split up into several
 	// custom widgets.
@@ -112,7 +116,7 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 	
 					[
 						SNew(STextBlock)
-						.Text(NSLOCTEXT("AttunedToll", "Profile", "Current profile : "))
+						.Text(NSLOCTEXT("AttunedTool", "Profile", "Current profile : "))
 					]
 					+ SHorizontalBox::Slot()
 					.MaxWidth(330.0f)
@@ -121,8 +125,10 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 						SNew(STextComboBox)
 						.ButtonStyle		  (&b)
 						.OptionsSource		  (&source)
-						.InitiallySelectedItem(source[0])
+						.InitiallySelectedItem(source[data->m_profileIndex])
 						.ColorAndOpacity	  (FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f)))
+						//.OnSelectionChanged   (this, &FAttunedToolModule::OnSelectionChanged)
+						.OnSelectionChanged_Raw(this, &FAttunedToolModule::OnSelectionChanged)
 					]
 				]
 				+ SVerticalBox::Slot()
@@ -144,6 +150,31 @@ TSharedRef<SDockTab> FAttunedToolModule::OnSpawnPluginTab(const FSpawnTabArgs& S
 				]
 			]
 		];
+}
+
+void FAttunedToolModule::OnSelectionChanged(TSharedPtr<FString> s, ESelectInfo::Type t)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] New Selection : %s"), **s);
+
+	int i = 0;
+	for (auto ptr : source)
+	{
+		if (ptr == s)
+		{
+			ProfilePreferenceData data{};
+			data.m_profileIndex = i;
+			data.m_profileName  = *s;
+
+			GAttunedTool::Get()->UpdateModel(data);
+			GAttunedTool::Get()->CommitProfilePreference();
+
+			GAttunedTool::Get()->InvalidateAllCaches();
+			GAttunedTool::Get()->RevertModel();
+	
+			break;
+		}
+		++i;
+	}
 }
 
 void FAttunedToolModule::PluginButtonClicked()

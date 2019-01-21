@@ -84,7 +84,7 @@
 	return s_attuned_tool;
 }
 
-TUniquePtr<AttunedModel>& GAttunedTool::GetModel()
+TUniquePtr<AttunedModel>& GAttunedTool::GetRawModel()
 {
 	return m_attunedModel;
 }
@@ -269,6 +269,17 @@ bool GAttunedTool::CommitModel()
 	return result;
 }
 
+bool GAttunedTool::CommitProfilePreference()
+{
+	return m_attunedModel->CommitProfilePreference();
+}
+
+/// \brief Marks all caches as dirty
+void GAttunedTool::InvalidateAllCaches()
+{
+	m_attunedModel->InvalidateAllCaches();
+}
+
 /// \brief  Reverts all dirty model caches with values from the disk
 /// \return True if no error occurs, else false
 bool GAttunedTool::RevertModel()
@@ -352,6 +363,11 @@ void GAttunedTool::UpdateModel(CommonDataNeutral& data)
 	neutralSettings.DefaultFallingFriction = data.m_fallingFrictionValue;
 
 	UpdatePIETerrainSettings(neutralSettings);
+}
+
+void GAttunedTool::UpdateModel(ProfilePreferenceData& data)
+{
+	m_attunedModel->UpdateCache(data);
 }
 
 #undef LOCTEXT_NAMESPACE
