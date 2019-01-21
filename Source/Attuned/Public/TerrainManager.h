@@ -33,29 +33,83 @@ public:
 
 	UW_InGameUI*	mc_InGameUIAttached;
 
-	float		mv_RockSpeed;
-	float		mv_RockAcceleration;
-	float		mv_RockJumpZVelocity;
+	struct RockTerrainSettings
+	{
+		float RockSpeed;
+		float RockAirControl;
+		float RockAcceleration;
+		float RockJumpZVelocity;
+		float RockFallingFriction;
+	};
 
-	float		mv_SandSpeed;
-	float		mv_SandAcceleration;
-	float		mv_SandJumpZVelocity;
+	struct SandTerrainSettings
+	{
+		float SandSpeed;
+		float SandAirControl;
+		float SandAcceleration;
+		float SandJumpZVelocity;
+		float SandFallingFriction;
+	};
 
-	float		mv_WaterSpeed;
-	float		mv_WaterAcceleration;
-	float		mv_WaterJumpZVelocity;
+	struct WaterTerrainSettings
+	{
+		float WaterSpeed;
+		float WaterAirControl;
+		float WaterAcceleration;
+		float WaterJumpZVelocity;
+		float WaterFallingFriction;
+	};
 
-	float		mv_DefaultSpeed;
-	float		mv_DefaultAcceleration;
-	float		mv_DefaultJumpZVelocity;
+	struct NeutralTerrainSettings
+	{
+		float DefaultSpeed;
+		float DefaultAirControl;
+		float DefaultAcceleration;
+		float DefaultJumpZVelocity;
+		float DefaultFallingFriction;
+	};
 
-	bool		mv_CanDash;
+	float	mv_RockSpeed;
+	float	mv_RockAirControl;
+	float	mv_RockAcceleration;
+	float	mv_RockJumpZVelocity;
+	float	mv_RockFallingFriction;
+
+	float	mv_SandSpeed;
+	float	mv_SandAirControl;
+	float	mv_SandAcceleration;
+	float	mv_SandJumpZVelocity;
+	float	mv_SandFallingFriction;
+
+	float	mv_WaterSpeed;
+	float	mv_WaterAirControl;
+	float	mv_WaterAcceleration;
+	float	mv_WaterJumpZVelocity;
+	float	mv_WaterFallingFriction;
+
+	float	mv_DefaultSpeed;
+	float	mv_DefaultAirControl;
+	float	mv_DefaultAcceleration;
+	float	mv_DefaultJumpZVelocity;
+	float	mv_DefaultFallingFriction;
+
+	bool	mv_CanDash;
+
+public:
+
+	void UpdateTerrainSettings(const RockTerrainSettings&    settings);
+	void UpdateTerrainSettings(const SandTerrainSettings&    settings);
+	void UpdateTerrainSettings(const WaterTerrainSettings&   settings);
+	void UpdateTerrainSettings(const NeutralTerrainSettings& settings);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
+
+	void UpdateCharacterSettings();
+
 	FCollisionQueryParams	mv_RV_TraceParams;
 	EPhysicalSurface		mv_LastSurfaceType;
 	

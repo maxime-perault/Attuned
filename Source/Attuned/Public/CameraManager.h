@@ -35,6 +35,14 @@ public:
 	float	mv_MinPitch;
 	float	mv_MaxPitch;
 
+	struct CameraSettings
+	{
+		float MaxArmLength;
+		float MaxTimeFromLastInput;
+	};
+
+	void UpdateCameraSettings(const CameraSettings& settings);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -48,8 +56,9 @@ private:
 	bool	mv_debug;
 
 	float	mv_MaxArmLength;
+	float   mv_MaxTimeFromLastInput;
 	float	mv_MaxArmLengthFromPitch;
-
+	
 	float	mv_DeltaTime;
 
 	float	mv_NextArmLength;

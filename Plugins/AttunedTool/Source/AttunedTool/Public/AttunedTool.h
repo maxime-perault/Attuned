@@ -10,6 +10,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+#include <STextComboBox.h>
+
 class FMenuBuilder;
 class FToolBarBuilder;
 
@@ -33,6 +35,8 @@ private:
 
 private:
 
+	FButtonStyle b;
+	TArray<TSharedPtr<FString>> source;
 	TSharedPtr<class FUICommandList> PluginCommands;
 };
 

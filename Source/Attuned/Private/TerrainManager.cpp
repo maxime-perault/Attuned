@@ -287,3 +287,95 @@ void UTerrainManager::SandTerrainFirstStep(void)
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("Sand"));
 }
 
+void UTerrainManager::UpdateTerrainSettings(const RockTerrainSettings& settings)
+{
+	mv_RockSpeed              = settings.RockSpeed;
+	mv_RockAirControl         = settings.RockAirControl;
+	mv_RockAcceleration       = settings.RockAcceleration;
+	mv_RockJumpZVelocity      = settings.RockJumpZVelocity;
+	mv_DefaultFallingFriction = settings.RockFallingFriction;
+
+	UpdateCharacterSettings();
+}
+
+void UTerrainManager::UpdateTerrainSettings(const SandTerrainSettings& settings)
+{
+	mv_SandSpeed           = settings.SandSpeed;
+	mv_SandAirControl      = settings.SandAirControl;
+	mv_SandAcceleration    = settings.SandAcceleration;
+	mv_SandJumpZVelocity   = settings.SandJumpZVelocity;
+	mv_SandFallingFriction = settings.SandFallingFriction;
+
+	UpdateCharacterSettings();
+}
+
+void UTerrainManager::UpdateTerrainSettings(const WaterTerrainSettings& settings)
+{
+	mv_WaterSpeed           = settings.WaterSpeed;
+	mv_WaterAirControl      = settings.WaterAirControl;
+	mv_WaterAcceleration    = settings.WaterAcceleration;
+	mv_WaterJumpZVelocity   = settings.WaterJumpZVelocity;
+	mv_WaterFallingFriction = settings.WaterFallingFriction;
+
+	UpdateCharacterSettings();
+}
+
+void UTerrainManager::UpdateTerrainSettings(const NeutralTerrainSettings& settings)
+{
+	mv_DefaultSpeed           = settings.DefaultSpeed;
+	mv_DefaultAirControl      = settings.DefaultAirControl;
+	mv_DefaultAcceleration    = settings.DefaultAcceleration;
+	mv_DefaultJumpZVelocity   = settings.DefaultJumpZVelocity;
+	mv_DefaultFallingFriction = settings.DefaultFallingFriction;
+
+	UpdateCharacterSettings();
+}
+
+void UTerrainManager::UpdateCharacterSettings()
+{
+	float maxSpeed        = 0.0f;
+	float airControl      = 0.0f;
+	float acceleration    = 0.0f;
+	float jumpZVelocity   = 0.0f;
+	float fallingFriction = 0.0f;
+
+	if (mv_TerrainType == "ROCK")
+	{
+		maxSpeed        = mv_RockSpeed;
+		airControl      = mv_RockAirControl;
+		acceleration    = mv_RockAcceleration;
+		jumpZVelocity   = mv_RockJumpZVelocity;
+		fallingFriction = mv_RockFallingFriction;
+	}
+	else if (mv_TerrainType == "SAND")
+	{
+		maxSpeed        = mv_SandSpeed;
+		airControl      = mv_SandAirControl;
+		acceleration    = mv_SandAcceleration;
+		jumpZVelocity   = mv_SandJumpZVelocity;
+		fallingFriction = mv_SandFallingFriction;
+	}
+	else if (mv_TerrainType == "WATER")
+	{
+		maxSpeed        = mv_WaterSpeed;
+		airControl      = mv_WaterAirControl;
+		acceleration    = mv_WaterAcceleration;
+		jumpZVelocity   = mv_WaterJumpZVelocity;
+		fallingFriction = mv_WaterFallingFriction;
+	}
+	else if (mv_TerrainType == "DEFAULT")
+	{
+		maxSpeed        = mv_DefaultSpeed;
+		airControl      = mv_DefaultAirControl;
+		acceleration    = mv_DefaultAcceleration;
+		jumpZVelocity   = mv_DefaultJumpZVelocity;
+		fallingFriction = mv_DefaultFallingFriction;
+	}
+
+	mv_MaxSpeed = maxSpeed;
+	mc_character->GetCharacterMovement()->MaxWalkSpeed           = maxSpeed;
+	mc_character->GetCharacterMovement()->AirControl             = airControl;
+	mc_character->GetCharacterMovement()->JumpZVelocity          = jumpZVelocity;
+	mc_character->GetCharacterMovement()->MaxAcceleration        = acceleration;
+	mc_character->GetCharacterMovement()->FallingLateralFriction = fallingFriction;
+}

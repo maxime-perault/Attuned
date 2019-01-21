@@ -173,8 +173,80 @@ void GAttunedTool::GetGamePointersFromPIEWorld()
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[Attuned] The camera and/or the terrain manager are nullptr."));
 			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[Attuned] Character found.."));
+			}
+			
+			UpdatePIEValues();
 		}
 	}
+}
+
+void GAttunedTool::UpdatePIEValues()
+{
+	if (!m_character || !m_pieWorld)
+	{
+		return;
+	}
+
+	// Gets all cached models
+	const auto* cameraData        = GetModel<CameraData>();
+	const auto* commonDataRock    = GetModel<CommonDataRock>();
+	const auto* commonDataSand    = GetModel<CommonDataSand>();
+	const auto* commonDataWater   = GetModel<CommonDataWater>();
+	const auto* commonDataNeutral = GetModel<CommonDataNeutral>();
+
+	UCameraManager::CameraSettings cameraSettings {};
+	cameraSettings.MaxArmLength         = cameraData->m_maxArmLenghtValue;
+	cameraSettings.MaxTimeFromLastInput = cameraData->m_maxTimeFromLastInputValue;
+
+	// Updating camera
+	m_cameraManager->UpdateCameraSettings(cameraSettings);
+
+	// Updating terrains
+	UTerrainManager::RockTerrainSettings rockSettings {};
+	rockSettings.RockSpeed				   = commonDataRock->m_maxSpeedValue;
+	rockSettings.RockAirControl			   = commonDataRock->m_airControlValue;
+	rockSettings.RockAcceleration		   = commonDataRock->m_accelerationValue;
+	rockSettings.RockJumpZVelocity		   = commonDataRock->m_jumpZVelocityValue;
+	rockSettings.RockFallingFriction	   = commonDataRock->m_fallingFrictionValue;
+
+	UTerrainManager::SandTerrainSettings sandSettings {};
+	sandSettings.SandSpeed				   = commonDataSand->m_maxSpeedValue;
+	sandSettings.SandAirControl			   = commonDataSand->m_airControlValue;
+	sandSettings.SandAcceleration		   = commonDataSand->m_accelerationValue;
+	sandSettings.SandJumpZVelocity		   = commonDataSand->m_jumpZVelocityValue;
+	sandSettings.SandFallingFriction	   = commonDataSand->m_fallingFrictionValue;
+
+	UTerrainManager::WaterTerrainSettings waterSettings {};
+	waterSettings.WaterSpeed			   = commonDataWater->m_maxSpeedValue;
+	waterSettings.WaterAirControl		   = commonDataWater->m_airControlValue;
+	waterSettings.WaterAcceleration		   = commonDataWater->m_accelerationValue;
+	waterSettings.WaterAcceleration		   = commonDataWater->m_jumpZVelocityValue;
+	waterSettings.WaterFallingFriction	   = commonDataWater->m_fallingFrictionValue;
+
+	UTerrainManager::NeutralTerrainSettings neutralSettings {};
+	neutralSettings.DefaultSpeed           = commonDataNeutral->m_maxSpeedValue;
+	neutralSettings.DefaultAirControl      = commonDataNeutral->m_airControlValue;
+	neutralSettings.DefaultAcceleration    = commonDataNeutral->m_accelerationValue;
+	neutralSettings.DefaultJumpZVelocity   = commonDataNeutral->m_jumpZVelocityValue;
+	neutralSettings.DefaultFallingFriction = commonDataNeutral->m_fallingFrictionValue;
+
+	m_terrainManager->UpdateTerrainSettings(rockSettings);
+	m_terrainManager->UpdateTerrainSettings(sandSettings);
+	m_terrainManager->UpdateTerrainSettings(waterSettings);
+	m_terrainManager->UpdateTerrainSettings(neutralSettings);
+}
+
+void GAttunedTool::UpdatePIECameraSettings(const UCameraManager::CameraSettings& settings)
+{
+	if (!m_character || !m_pieWorld)
+	{
+		return;
+	}
+
+	m_cameraManager->UpdateCameraSettings(settings);
 }
 
 void GAttunedTool::OnPostWorldActorTick(UWorld* world, ELevelTick tick, float dt)
@@ -192,7 +264,6 @@ bool GAttunedTool::CommitModel()
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Committing model..."));
 
 	bool result = m_attunedModel->CommitChanges();
-	// TODO : Character update ?
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Model committed."));
 	return result;
@@ -205,7 +276,9 @@ bool GAttunedTool::RevertModel()
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Reverting model..."));
 
 	bool result = m_attunedModel->RevertChanges();
-	// TODO : Character update ?
+	
+	// Applying modifications on the character
+	UpdatePIEValues();
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Model reverted."));
 	return result;
@@ -216,32 +289,69 @@ bool GAttunedTool::RevertModel()
 /// \return True if no error occurs, else false
 void GAttunedTool::UpdateModel(CameraData& data)
 {
-	// TODO : Character update ?
 	m_attunedModel->UpdateCache(data);
+
+	UCameraManager::CameraSettings cameraSettings{};
+	cameraSettings.MaxArmLength         = data.m_maxArmLenghtValue;
+	cameraSettings.MaxTimeFromLastInput = data.m_maxTimeFromLastInputValue;
+
+	UpdatePIECameraSettings(cameraSettings);
 }
 
 void GAttunedTool::UpdateModel(CommonDataRock& data)
 {
-	// TODO : Character update ?
 	m_attunedModel->UpdateCache(data);
+
+	UTerrainManager::RockTerrainSettings rockSettings{};
+	rockSettings.RockSpeed           = data.m_maxSpeedValue;
+	rockSettings.RockAirControl      = data.m_airControlValue;
+	rockSettings.RockAcceleration    = data.m_accelerationValue;
+	rockSettings.RockJumpZVelocity   = data.m_jumpZVelocityValue;
+	rockSettings.RockFallingFriction = data.m_fallingFrictionValue;
+
+	UpdatePIETerrainSettings(rockSettings);
 }
 
 void GAttunedTool::UpdateModel(CommonDataSand& data)
 {
-	// TODO : Character update ?
 	m_attunedModel->UpdateCache(data);
+
+	UTerrainManager::SandTerrainSettings sandSettings{};
+	sandSettings.SandSpeed           = data.m_maxSpeedValue;
+	sandSettings.SandAirControl      = data.m_airControlValue;
+	sandSettings.SandAcceleration    = data.m_accelerationValue;
+	sandSettings.SandJumpZVelocity   = data.m_jumpZVelocityValue;
+	sandSettings.SandFallingFriction = data.m_fallingFrictionValue;
+
+	UpdatePIETerrainSettings(sandSettings);
 }
 
 void GAttunedTool::UpdateModel(CommonDataWater&	data)
 {
-	// TODO : Character update ?
 	m_attunedModel->UpdateCache(data);
+
+	UTerrainManager::WaterTerrainSettings waterSettings{};
+	waterSettings.WaterSpeed           = data.m_maxSpeedValue;
+	waterSettings.WaterAirControl      = data.m_airControlValue;
+	waterSettings.WaterAcceleration    = data.m_accelerationValue;
+	waterSettings.WaterAcceleration    = data.m_jumpZVelocityValue;
+	waterSettings.WaterFallingFriction = data.m_fallingFrictionValue;
+
+	UpdatePIETerrainSettings(waterSettings);
 }
 
 void GAttunedTool::UpdateModel(CommonDataNeutral& data)
 {
-	// TODO : Character update ?
 	m_attunedModel->UpdateCache(data);
+
+	UTerrainManager::NeutralTerrainSettings neutralSettings{};
+	neutralSettings.DefaultSpeed           = data.m_maxSpeedValue;
+	neutralSettings.DefaultAirControl      = data.m_airControlValue;
+	neutralSettings.DefaultAcceleration    = data.m_accelerationValue;
+	neutralSettings.DefaultJumpZVelocity   = data.m_jumpZVelocityValue;
+	neutralSettings.DefaultFallingFriction = data.m_fallingFrictionValue;
+
+	UpdatePIETerrainSettings(neutralSettings);
 }
 
 #undef LOCTEXT_NAMESPACE
