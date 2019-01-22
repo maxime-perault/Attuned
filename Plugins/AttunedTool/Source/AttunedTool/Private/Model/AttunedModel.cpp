@@ -102,7 +102,7 @@ void AttunedModel::UpdateCache(const ProfilePreferenceData& data)
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Profile preference data cache updated."));
 }
 
-void AttunedModel::UpdateCache(const RockMomentumData& data)
+void AttunedModel::UpdateCache(const RockMomemtumData& data)
 {
 	UpdateCache(data, m_rockMomemtumDataCache);
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Rock momemtum data cache updated."));
@@ -126,7 +126,7 @@ void AttunedModel::UpdateCache(const ProfilePreferenceData& in, ProfilePreferenc
 	out.m_profileName  = in.m_profileName;
 }
 
-void AttunedModel::UpdateCache(const RockMomentumData& in, RockMomentumData& out)
+void AttunedModel::UpdateCache(const RockMomemtumData& in, RockMomemtumData& out)
 {
 	out.m_dirty           = true;
 	out.m_bActiveMomemtum = in.m_bActiveMomemtum;
@@ -260,7 +260,7 @@ bool AttunedModel::SerializeChanges(const ProfilePreferenceData& data, bool bUse
 	return WriteArchive(Ar, data.m_archiveName, bUser);
 }
 
-bool AttunedModel::SerializeChanges(const RockMomentumData& data, bool bUser)
+bool AttunedModel::SerializeChanges(const RockMomemtumData& data, bool bUser)
 {
 	FBufferArchive Ar;
 	Ar.SetIsSaving    (true);
@@ -355,7 +355,7 @@ bool AttunedModel::DeserializeChanges(ProfilePreferenceData& data, bool bUser)
 	return true;
 }
 
-bool AttunedModel::DeserializeChanges(RockMomentumData& data, bool bUser)
+bool AttunedModel::DeserializeChanges(RockMomemtumData& data, bool bUser)
 {
 	TArray<uint8> Bytes;
 
