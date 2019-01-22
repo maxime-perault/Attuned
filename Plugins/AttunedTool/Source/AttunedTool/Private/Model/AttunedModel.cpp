@@ -345,12 +345,12 @@ bool AttunedModel::WriteArchive(FBufferArchive& Ar, const TCHAR* Name, bool bUse
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FString(TEXT("AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 
 	// Located in the intermediate folder or in user plugin directory
-	fullPath = FPaths::ProjectPluginsDir() + basePath + userPath;
+	fullPath = basePath + userPath;
 
 	// Save binaries to disk
 	bool result = FFileHelper::SaveArrayToFile(Ar, *fullPath, &IFileManager::Get(), true);
@@ -382,16 +382,19 @@ bool AttunedModel::ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name, bool bUs
 	{
 		basePath = FPaths::ProjectIntermediateDir();
 		userPath = FString(TEXT("Profile/")) + Name;
+
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] Base : %s"), *(basePath));
+		UE_LOG(LogTemp, Warning, TEXT("[Attuned] User : %s"), *(userPath));
 	}
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FString(TEXT("AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 
 	// Located in the intermediate folder or in user plugin directory
-	fullPath = FPaths::ProjectPluginsDir() + basePath + userPath;
+	fullPath = basePath + userPath;
 
 	// Load disk data into the binary array
 	if (!FFileHelper::LoadFileToArray(Bytes, *fullPath, EFileRead::FILEREAD_None))
