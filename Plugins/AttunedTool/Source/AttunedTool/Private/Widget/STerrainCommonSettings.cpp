@@ -69,6 +69,7 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SExpandableArea)
+			.InitiallyCollapsed              (false)
 			.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor { return GetExpandableBorderColor(); })
 			.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor { return GetExpandableBodyColor  (); })
 			.HeaderContent()
@@ -114,9 +115,9 @@ void STerrainCommonSettings::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SExpandableArea)
+			.InitiallyCollapsed              (false)
 			.BorderBackgroundColor_Lambda    ([this](void)->FSlateColor { return GetExpandableBorderColor(); })
 			.BodyBorderBackgroundColor_Lambda([this](void)->FSlateColor { return GetExpandableBodyColor();   })
-			.InitiallyCollapsed(true)
 			.HeaderContent()
 			[
 				SNew(STextBlock)

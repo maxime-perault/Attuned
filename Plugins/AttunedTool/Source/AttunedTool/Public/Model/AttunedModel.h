@@ -168,7 +168,11 @@ struct RockMomemtumData : public Serializable
 
 	bool  m_bActiveMomemtum;
 	bool  m_bSquareMomemtum;
-	float m_minMomemtum;
+	float m_minMomemtumValue;
+
+	static const constexpr bool IsRockMomemtumActivedByDefault = true;
+	static const constexpr bool IsMomemtumSquaredByDefault     = false;
+	static const constexpr float MinMomemtumMinValue           = 0.0f;
 };
 
 /// \brief This is the model of the MVC pattern 
