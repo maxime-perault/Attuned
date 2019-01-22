@@ -413,7 +413,18 @@ void AMyCharacter::MoveRight(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		
+
+		// Speed coef
+		float vel     = GetVelocity().Size();
+		float norm    = vel / GetCharacterMovement()->MaxWalkSpeed;
+		float oppose  = 1.0f - norm;
+		float coef    = FMath::Min(0.5f + oppose, 1.0f);
+
+		BaseTurnRate = coef * 45.0f;
+
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y) * coef * coef;
+		UE_LOG(LogTemp, Warning, TEXT("Velocity : %lf -- Max : %f -- Coef : %lf"), vel, GetCharacterMovement()->MaxWalkSpeed, coef * coef);
 
 		if (mc_TerrainManager->mv_TerrainType != "WATER")
 		{
