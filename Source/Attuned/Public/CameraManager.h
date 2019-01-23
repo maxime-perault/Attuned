@@ -42,10 +42,25 @@ public:
 	};
 
 	void UpdateCameraSettings(const CameraSettings& settings);
+	void OnTerrainChange(int type);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+private:
+
+	void LerpArmLenght	();
+	void LerpFieldOfView();
+
+
+	const float WaterArmLenght   = 600.0f;
+	const float NeutralArmLenght = 600.0f;
+	const float SandArmLenght    = 500.0f;
+	const float RockArmLenght    = 350.0f;
+
+	float previousArmLenght;
+	float currentArmLenght;
 
 private:
 	AMyCharacter*			mc_character;

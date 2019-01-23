@@ -188,6 +188,7 @@ void UTerrainManager::StandardTerrainFirstStep(void)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("DEFAULT");
+	mc_character->mc_CameraManager->OnTerrainChange(0);
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_DefaultJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_DefaultAcceleration;
 
@@ -215,6 +216,7 @@ void UTerrainManager::RockTerrainFirstStep(void)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Visible);
 
 	mv_TerrainType = TEXT("ROCK");
+	mc_character->mc_CameraManager->OnTerrainChange(1);
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
 
@@ -242,6 +244,7 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("WATER");
+	mc_character->mc_CameraManager->OnTerrainChange(2);
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
 
@@ -270,6 +273,7 @@ void UTerrainManager::SandTerrainFirstStep(void)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
 
 	mv_TerrainType = TEXT("SAND");
+	mc_character->mc_CameraManager->OnTerrainChange(3);
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
 
