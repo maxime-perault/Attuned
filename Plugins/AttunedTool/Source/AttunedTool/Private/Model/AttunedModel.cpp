@@ -37,6 +37,7 @@ void AttunedModel::Initialize()
 	REVERT_IF_DIRTY(m_commonDataSandCache,        result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataWaterCache,       result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataNeutralCache,     result, counter, false)
+	REVERT_IF_DIRTY(m_rockMomemtumDataCache,      result, counter, false)
 	
 	if (result)
 	{
@@ -101,6 +102,12 @@ void AttunedModel::UpdateCache(const ProfilePreferenceData& data)
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Profile preference data cache updated."));
 }
 
+void AttunedModel::UpdateCache(const RockMomemtumData& data)
+{
+	UpdateCache(data, m_rockMomemtumDataCache);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Rock momemtum data cache updated."));
+}
+
 void AttunedModel::UpdateCache(const CommonData& in, CommonData& out)
 {
 	out.m_dirty                = true;
@@ -119,6 +126,14 @@ void AttunedModel::UpdateCache(const ProfilePreferenceData& in, ProfilePreferenc
 	out.m_profileName  = in.m_profileName;
 }
 
+void AttunedModel::UpdateCache(const RockMomemtumData& in, RockMomemtumData& out)
+{
+	out.m_dirty            = true;
+	out.m_bActiveMomemtum  = in.m_bActiveMomemtum;
+	out.m_bSquareMomemtum  = in.m_bSquareMomemtum;
+	out.m_minMomemtumValue = in.m_minMomemtumValue;
+}
+
 /// \brief	Saves persistently all data marked as dirty on the disk
 /// \return True if no error occurs, else false
 bool AttunedModel::CommitChanges()
@@ -130,6 +145,7 @@ bool AttunedModel::CommitChanges()
 	COMMIT_IF_DIRTY(m_commonDataSandCache,    result, counter, false)
 	COMMIT_IF_DIRTY(m_commonDataWaterCache,   result, counter, false)
 	COMMIT_IF_DIRTY(m_commonDataNeutralCache, result, counter, false)
+	COMMIT_IF_DIRTY(m_rockMomemtumDataCache,  result, counter, false)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] %d cache(s) was/were committed."), counter);
 	if (counter == 0)
@@ -162,6 +178,7 @@ void AttunedModel::InvalidateAllCaches()
 	m_commonDataSandCache.m_dirty    = true;
 	m_commonDataWaterCache.m_dirty   = true;
 	m_commonDataNeutralCache.m_dirty = true;
+	m_rockMomemtumDataCache.m_dirty  = true;
 }
 
 /// \brief	Reverts all changes stored in the cache to the values on the disk
@@ -175,6 +192,7 @@ bool AttunedModel::RevertChanges()
 	REVERT_IF_DIRTY(m_commonDataSandCache,    result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataWaterCache,   result, counter, false)
 	REVERT_IF_DIRTY(m_commonDataNeutralCache, result, counter, false)
+	REVERT_IF_DIRTY(m_rockMomemtumDataCache,  result, counter, false)
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] %d cache(s) was/were reverted."), counter);
 	if (counter == 0)
@@ -238,6 +256,23 @@ bool AttunedModel::SerializeChanges(const ProfilePreferenceData& data, bool bUse
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %d"),  data.m_profileIndex);
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %s"), *data.m_profileName);
+
+	return WriteArchive(Ar, data.m_archiveName, bUser);
+}
+
+bool AttunedModel::SerializeChanges(const RockMomemtumData& data, bool bUser)
+{
+	FBufferArchive Ar;
+	Ar.SetIsSaving    (true);
+	Ar.SetIsPersistent(true);
+
+	Ar << (bool) data.m_bActiveMomemtum;
+	Ar << (bool) data.m_bSquareMomemtum;
+	Ar << (float)data.m_minMomemtumValue;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %d"),  data.m_bActiveMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %d"),  data.m_bSquareMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_minMomemtumValue);
 
 	return WriteArchive(Ar, data.m_archiveName, bUser);
 }
@@ -320,6 +355,30 @@ bool AttunedModel::DeserializeChanges(ProfilePreferenceData& data, bool bUser)
 	return true;
 }
 
+bool AttunedModel::DeserializeChanges(RockMomemtumData& data, bool bUser)
+{
+	TArray<uint8> Bytes;
+
+	if (!ReadArchive(Bytes, data.m_archiveName, bUser))
+	{
+		return false;
+	}
+
+	FMemoryReader Binary = FMemoryReader(Bytes, true);
+	Binary.Seek(0);
+
+	data.m_dirty = false;
+	Binary << data.m_bActiveMomemtum;
+	Binary << data.m_bSquareMomemtum;
+	Binary << data.m_minMomemtumValue;
+
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %d"),  data.m_bActiveMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %d"),  data.m_bSquareMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_minMomemtumValue);
+
+	return true;
+}
+
 /// \brief  Saves the archive on disk
 /// \param  Ar   The archive to save
 /// \param  Name The name of the archive
@@ -345,7 +404,7 @@ bool AttunedModel::WriteArchive(FBufferArchive& Ar, const TCHAR* Name, bool bUse
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 
@@ -389,7 +448,7 @@ bool AttunedModel::ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name, bool bUs
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 

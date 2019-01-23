@@ -56,6 +56,7 @@ public:
 	void UpdateModel(CommonDataWater&		data);
 	void UpdateModel(CommonDataNeutral&		data);
 	void UpdateModel(ProfilePreferenceData& data);
+	void UpdateModel(RockMomemtumData&		data);
 
 	/// \brief	Returns the current cached model of the wanted data structure
 	/// \return A pointer on the cached model data structure

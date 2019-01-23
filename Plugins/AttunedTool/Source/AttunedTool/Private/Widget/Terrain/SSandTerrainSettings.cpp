@@ -22,10 +22,18 @@ void SSandTerrainSettings::Construct(const FArguments& InArgs)
 
 	ChildSlot
 	[
-		SNew(SScrollBox)
-		+ SScrollBox::Slot()
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
+		.MaxHeight(290.0f)
+		.AutoHeight()
 		[
-			m_terrainCommonSettings.ToSharedRef()
+			SNew(SScrollBox)
+			.AllowOverscroll(EAllowOverscroll::Yes)
+			.IsEnabled(true)
+			+ SScrollBox::Slot()
+			[
+				m_terrainCommonSettings.ToSharedRef()
+			]
 		]
 	];
 }

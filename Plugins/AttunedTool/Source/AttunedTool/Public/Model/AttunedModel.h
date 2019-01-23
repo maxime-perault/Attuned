@@ -158,6 +158,23 @@ struct ProfilePreferenceData : public Serializable
 	FString m_profileName;
 };
 
+struct RockMomemtumData : public Serializable
+{
+	RockMomemtumData()
+	: Serializable(TEXT("RockMomemtumData"))
+	{
+		// None
+	}
+
+	bool  m_bActiveMomemtum;
+	bool  m_bSquareMomemtum;
+	float m_minMomemtumValue;
+
+	static const constexpr bool IsRockMomemtumActivedByDefault = true;
+	static const constexpr bool IsMomemtumSquaredByDefault     = false;
+	static const constexpr float MinMomemtumMinValue           = 0.0f;
+};
+
 /// \brief This is the model of the MVC pattern 
 /// \class AttunedModel
 class AttunedModel
@@ -171,6 +188,7 @@ public:
 	template<>			const CommonDataWater*			GetCache() const { return &m_commonDataWaterCache;			}
 	template<>			const CommonDataNeutral*		GetCache() const { return &m_commonDataNeutralCache;		}
 	template<>			const ProfilePreferenceData*	GetCache() const { return &m_profilePreferenceDataCache;	}
+	template<>			const RockMomemtumData*			GetCache() const { return &m_rockMomemtumDataCache;			}
 
 	/// \brief	Updates the internal cache data from a structure
 	///			Marks the structure dirty
@@ -181,6 +199,7 @@ public:
 	void UpdateCache(const CommonDataWater&			data);
 	void UpdateCache(const CommonDataNeutral&		data);
 	void UpdateCache(const ProfilePreferenceData&	data);
+	void UpdateCache(const RockMomemtumData&		data);
 
 	/// \brief	Saves persistently all data marked as dirty on the disk
 	/// \return True if no error occurs, else false
@@ -198,8 +217,10 @@ private:
 
 	/// \brief Helper function to avoid duplicating code for 
 	///		   all common terrain data structures
-	void UpdateCache(const CommonData& in,	CommonData& out);
+	void UpdateCache(const CommonData&            in, CommonData&            out);
 	void UpdateCache(const ProfilePreferenceData& in, ProfilePreferenceData& out);
+	void UpdateCache(const RockMomemtumData&      in, RockMomemtumData&      out);
+
 
 	/// \brief	Serializes changes from the camera data
 	/// \param  data The camera data to save on disk
@@ -208,6 +229,7 @@ private:
 	bool SerializeChanges(const CameraData& data, bool bUser = false);
 	bool SerializeChanges(const CommonData& data, bool bUser = false);
 	bool SerializeChanges(const ProfilePreferenceData& data, bool bUser = false);
+	bool SerializeChanges(const RockMomemtumData&      data, bool bUser = false);
 
 	/// \brief	Deserializes changes from the camera archive
 	/// \param  data The camera data to save on disk
@@ -216,6 +238,7 @@ private:
 	bool DeserializeChanges(CameraData& data, bool bUser = false);
 	bool DeserializeChanges(CommonData& data, bool bUser = false);
 	bool DeserializeChanges(ProfilePreferenceData& data, bool bUser = false);
+	bool DeserializeChanges(RockMomemtumData&      data, bool bUser = false);
 
 	/// \brief  Saves the archive on disk
 	/// \param  Ar   The archive to save
@@ -239,6 +262,7 @@ private:
 	CommonDataWater			m_commonDataWaterCache;
 	CommonDataNeutral		m_commonDataNeutralCache;
 	ProfilePreferenceData	m_profilePreferenceDataCache;
+	RockMomemtumData		m_rockMomemtumDataCache;
 
 private:
 

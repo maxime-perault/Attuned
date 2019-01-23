@@ -370,4 +370,17 @@ void GAttunedTool::UpdateModel(ProfilePreferenceData& data)
 	m_attunedModel->UpdateCache(data);
 }
 
+void GAttunedTool::UpdateModel(RockMomemtumData& data)
+{
+	m_attunedModel->UpdateCache(data);
+
+	if (!m_character || !m_pieWorld)
+	{
+		return;
+	}
+
+	// TODO
+
+}
+
 #undef LOCTEXT_NAMESPACE
