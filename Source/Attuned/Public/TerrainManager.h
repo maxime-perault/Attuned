@@ -69,6 +69,13 @@ public:
 		float DefaultFallingFriction;
 	};
 
+	struct RockMomemtumSettings
+	{
+		bool  IsActive;
+		bool  IsSquare;
+		float MinValue;
+	};
+
 	float	mv_RockSpeed;
 	float	mv_RockAirControl;
 	float	mv_RockAcceleration;
@@ -93,6 +100,10 @@ public:
 	float	mv_DefaultJumpZVelocity;
 	float	mv_DefaultFallingFriction;
 
+	bool	mv_MomemtumActive;
+	bool	mv_MomemtumSquare;
+	float   mv_MomemtumMinValue;
+
 	bool	mv_CanDash;
 
 public:
@@ -101,6 +112,7 @@ public:
 	void UpdateTerrainSettings(const SandTerrainSettings&    settings);
 	void UpdateTerrainSettings(const WaterTerrainSettings&   settings);
 	void UpdateTerrainSettings(const NeutralTerrainSettings& settings);
+	void UpdateTerrainSettings(const RockMomemtumSettings&   settings);
 
 protected:
 	// Called when the game starts

@@ -67,6 +67,10 @@ void UTerrainManager::BeginPlay()
 	mv_SandJumpZVelocity = 1000.f;
 	mv_SandAcceleration = 1000.f;
 	mv_SandSpeed = 1000.f;
+
+	mv_MomemtumActive   = true;
+	mv_MomemtumSquare   = false;
+	mv_MomemtumMinValue = 0.5f;
 }
 
 
@@ -378,4 +382,11 @@ void UTerrainManager::UpdateCharacterSettings()
 	mc_character->GetCharacterMovement()->JumpZVelocity          = jumpZVelocity;
 	mc_character->GetCharacterMovement()->MaxAcceleration        = acceleration;
 	mc_character->GetCharacterMovement()->FallingLateralFriction = fallingFriction;
+}
+
+void UTerrainManager::UpdateTerrainSettings(const RockMomemtumSettings& settings)
+{
+	mv_MomemtumActive   = settings.IsActive;
+	mv_MomemtumSquare   = settings.IsSquare;
+	mv_MomemtumMinValue = settings.MinValue;
 }

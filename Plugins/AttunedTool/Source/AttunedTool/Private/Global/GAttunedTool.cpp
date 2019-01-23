@@ -196,6 +196,7 @@ void GAttunedTool::UpdatePIEValues()
 	const auto* commonDataSand    = GetModel<CommonDataSand>();
 	const auto* commonDataWater   = GetModel<CommonDataWater>();
 	const auto* commonDataNeutral = GetModel<CommonDataNeutral>();
+	const auto* rockMomemtumData  = GetModel<RockMomemtumData>();
 
 	UCameraManager::CameraSettings cameraSettings {};
 	cameraSettings.MaxArmLength         = cameraData->m_maxArmLenghtValue;
@@ -203,6 +204,14 @@ void GAttunedTool::UpdatePIEValues()
 
 	// Updating camera
 	m_cameraManager->UpdateCameraSettings(cameraSettings);
+
+	// Updating rock momemtum
+	UTerrainManager::RockMomemtumSettings momemtumSettings{};
+	momemtumSettings.IsActive = rockMomemtumData->m_bActiveMomemtum;
+	momemtumSettings.IsSquare = rockMomemtumData->m_bSquareMomemtum;
+	momemtumSettings.MinValue = rockMomemtumData->m_minMomemtumValue;
+
+	m_terrainManager->UpdateTerrainSettings(momemtumSettings);
 
 	// Updating terrains
 	UTerrainManager::RockTerrainSettings rockSettings {};
@@ -379,8 +388,12 @@ void GAttunedTool::UpdateModel(RockMomemtumData& data)
 		return;
 	}
 
-	// TODO
+	UTerrainManager::RockMomemtumSettings momemtumSettings {};
+	momemtumSettings.IsActive = data.m_bActiveMomemtum;
+	momemtumSettings.IsSquare = data.m_bSquareMomemtum;
+	momemtumSettings.MinValue = data.m_minMomemtumValue;
 
+	UpdatePIETerrainSettings(momemtumSettings);
 }
 
 #undef LOCTEXT_NAMESPACE

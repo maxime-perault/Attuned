@@ -128,10 +128,10 @@ void AttunedModel::UpdateCache(const ProfilePreferenceData& in, ProfilePreferenc
 
 void AttunedModel::UpdateCache(const RockMomemtumData& in, RockMomemtumData& out)
 {
-	out.m_dirty           = true;
-	out.m_bActiveMomemtum = in.m_bActiveMomemtum;
-	out.m_bSquareMomemtum = in.m_bSquareMomemtum;
-	out.m_minMomemtum     = in.m_minMomemtum;
+	out.m_dirty            = true;
+	out.m_bActiveMomemtum  = in.m_bActiveMomemtum;
+	out.m_bSquareMomemtum  = in.m_bSquareMomemtum;
+	out.m_minMomemtumValue = in.m_minMomemtumValue;
 }
 
 /// \brief	Saves persistently all data marked as dirty on the disk
@@ -268,11 +268,11 @@ bool AttunedModel::SerializeChanges(const RockMomemtumData& data, bool bUser)
 
 	Ar << (bool) data.m_bActiveMomemtum;
 	Ar << (bool) data.m_bSquareMomemtum;
-	Ar << (float)data.m_minMomemtum;
+	Ar << (float)data.m_minMomemtumValue;
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %d"),  data.m_bActiveMomemtum);
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %d"),  data.m_bSquareMomemtum);
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_minMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Serialized value : %lf"), data.m_minMomemtumValue);
 
 	return WriteArchive(Ar, data.m_archiveName, bUser);
 }
@@ -370,11 +370,11 @@ bool AttunedModel::DeserializeChanges(RockMomemtumData& data, bool bUser)
 	data.m_dirty = false;
 	Binary << data.m_bActiveMomemtum;
 	Binary << data.m_bSquareMomemtum;
-	Binary << data.m_minMomemtum;
+	Binary << data.m_minMomemtumValue;
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %d"),  data.m_bActiveMomemtum);
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %d"),  data.m_bSquareMomemtum);
-	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_minMomemtum);
+	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Deserialized value : %lf"), data.m_minMomemtumValue);
 
 	return true;
 }
@@ -404,7 +404,7 @@ bool AttunedModel::WriteArchive(FBufferArchive& Ar, const TCHAR* Name, bool bUse
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 
@@ -448,7 +448,7 @@ bool AttunedModel::ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name, bool bUs
 	else
 	{
 		// Creating the path (Located in the user plugin folder)
-		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("/AttunedTool/Resources/Archives/"));
+		basePath = FPaths::ProjectPluginsDir() + FString(TEXT("AttunedTool/Resources/Archives/"));
 		userPath = m_profilePreferenceDataCache.m_profileName + FString(TEXT("/")) + Name;
 	}
 
