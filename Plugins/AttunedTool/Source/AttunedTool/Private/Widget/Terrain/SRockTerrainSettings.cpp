@@ -5,6 +5,7 @@
 /// \author     Vincent STEHLY--CALISTO
 
 #include "Widget/Terrain/SRockTerrainSettings.h"
+#include "Widget/Terrain/SRockMomemtumSettings.h"
 
 #include <SButton.h>
 #include <STextBlock.h>
@@ -21,11 +22,23 @@ void SRockTerrainSettings::Construct(const FArguments& InArgs)
 		.cameraMaxTimeFromLastInput(InArgs._cameraMaxTimeFromLastInput);
 
 	ChildSlot
-	[
-		SNew(SScrollBox)
-		+ SScrollBox::Slot()
+	[	
+		SNew(SVerticalBox) 
+		+ SVerticalBox::Slot()
+		.MaxHeight(290.0f)
+		.AutoHeight()
 		[
-			m_terrainCommonSettings.ToSharedRef()
+			SNew(SScrollBox)
+			.AllowOverscroll(EAllowOverscroll::Yes)
+			.IsEnabled(true)
+			+ SScrollBox::Slot()
+			[
+				m_terrainCommonSettings.ToSharedRef()
+			]
+			+ SScrollBox::Slot()
+			[
+				SNew(SRockMomemtumSettings)
+			]
 		]
 	];
 }

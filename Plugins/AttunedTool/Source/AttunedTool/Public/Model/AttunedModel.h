@@ -144,73 +144,125 @@ struct CommonDataWater : public CommonData
 	}
 };
 
+struct ProfilePreferenceData : public Serializable
+{
+	ProfilePreferenceData()
+	: Serializable  (TEXT("ProfilePreferenceData"))
+	, m_profileIndex(0)
+	, m_profileName ("Antoine")
+	{
+		// None
+	}
+
+	int32   m_profileIndex;
+	FString m_profileName;
+};
+
+struct RockMomemtumData : public Serializable
+{
+	RockMomemtumData()
+	: Serializable(TEXT("RockMomemtumData"))
+	{
+		// None
+	}
+
+	bool  m_bActiveMomemtum;
+	bool  m_bSquareMomemtum;
+	float m_minMomemtumValue;
+
+	static const constexpr bool IsRockMomemtumActivedByDefault = true;
+	static const constexpr bool IsMomemtumSquaredByDefault     = false;
+	static const constexpr float MinMomemtumMinValue           = 0.0f;
+};
+
 /// \brief This is the model of the MVC pattern 
 /// \class AttunedModel
 class AttunedModel
 {
 public:
 
-	template<class T>	const T*					GetCache() const { return nullptr;					 }
-	template<>			const CameraData*			GetCache() const { return &m_cameraDataCache;		 }
-	template<>			const CommonDataRock*		GetCache() const { return &m_commonDataRockCache;	 }
-	template<>			const CommonDataSand*		GetCache() const { return &m_commonDataSandCache;	 }
-	template<>			const CommonDataWater*		GetCache() const { return &m_commonDataWaterCache;	 }
-	template<>			const CommonDataNeutral*	GetCache() const { return &m_commonDataNeutralCache; }
+	template<class T>	const T*						GetCache() const { return nullptr;							}
+	template<>			const CameraData*				GetCache() const { return &m_cameraDataCache;				}
+	template<>			const CommonDataRock*			GetCache() const { return &m_commonDataRockCache;			}
+	template<>			const CommonDataSand*			GetCache() const { return &m_commonDataSandCache;			}
+	template<>			const CommonDataWater*			GetCache() const { return &m_commonDataWaterCache;			}
+	template<>			const CommonDataNeutral*		GetCache() const { return &m_commonDataNeutralCache;		}
+	template<>			const ProfilePreferenceData*	GetCache() const { return &m_profilePreferenceDataCache;	}
+	template<>			const RockMomemtumData*			GetCache() const { return &m_rockMomemtumDataCache;			}
 
 	/// \brief	Updates the internal cache data from a structure
 	///			Marks the structure dirty
 	/// \param  The data structure to update
-	void UpdateCache(const CameraData&			data);
-	void UpdateCache(const CommonDataRock&		data);
-	void UpdateCache(const CommonDataSand&		data);
-	void UpdateCache(const CommonDataWater&		data);
-	void UpdateCache(const CommonDataNeutral&	data);
+	void UpdateCache(const CameraData&				data);
+	void UpdateCache(const CommonDataRock&			data);
+	void UpdateCache(const CommonDataSand&			data);
+	void UpdateCache(const CommonDataWater&			data);
+	void UpdateCache(const CommonDataNeutral&		data);
+	void UpdateCache(const ProfilePreferenceData&	data);
+	void UpdateCache(const RockMomemtumData&		data);
 
 	/// \brief	Saves persistently all data marked as dirty on the disk
 	/// \return True if no error occurs, else false
 	bool CommitChanges();
+	bool CommitProfilePreference();
 
 	/// \brief	Reverts all changes stored in the cache to the values on the disk
 	/// \return True if no error occurs, else false
 	bool RevertChanges();
 
+	/// \brief  Marks all caches as dirty
+	void InvalidateAllCaches();
+
 private:
 
 	/// \brief Helper function to avoid duplicating code for 
 	///		   all common terrain data structures
-	void UpdateCache(const CommonData& in, CommonData& out);
+	void UpdateCache(const CommonData&            in, CommonData&            out);
+	void UpdateCache(const ProfilePreferenceData& in, ProfilePreferenceData& out);
+	void UpdateCache(const RockMomemtumData&      in, RockMomemtumData&      out);
+
 
 	/// \brief	Serializes changes from the camera data
 	/// \param  data The camera data to save on disk
+	/// \param  bUser Tells if the file is user specific (false by default)
 	/// \return True if no error occurs, else false
-	bool SerializeChanges(const CameraData& data);
-	bool SerializeChanges(const CommonData& data);
+	bool SerializeChanges(const CameraData& data, bool bUser = false);
+	bool SerializeChanges(const CommonData& data, bool bUser = false);
+	bool SerializeChanges(const ProfilePreferenceData& data, bool bUser = false);
+	bool SerializeChanges(const RockMomemtumData&      data, bool bUser = false);
 
 	/// \brief	Deserializes changes from the camera archive
 	/// \param  data The camera data to save on disk
+	/// \param  bUser Tells if the file is user specific (false by default)
 	/// \return True if no error occurs, else false
-	bool DeserializeChanges(CameraData& data);
-	bool DeserializeChanges(CommonData& data);
+	bool DeserializeChanges(CameraData& data, bool bUser = false);
+	bool DeserializeChanges(CommonData& data, bool bUser = false);
+	bool DeserializeChanges(ProfilePreferenceData& data, bool bUser = false);
+	bool DeserializeChanges(RockMomemtumData&      data, bool bUser = false);
 
 	/// \brief  Saves the archive on disk
 	/// \param  Ar   The archive to save
 	/// \param  Name The name of the archive
+	/// \param  bUser Tells if the file is user specific (false by default)
 	/// \return True if no error occurs, else false
-	bool WriteArchive(FBufferArchive& Ar, const TCHAR* Name);
+	bool WriteArchive(FBufferArchive& Ar, const TCHAR* Name, bool bUser = false);
 
 	/// \brief	Reads an archive from the disk
 	/// \param  Bytes The bytes array to store the read data
 	/// \param  Name  The name of the archive to read
+	/// \param  bUser Tells if the file is user specific (false by default)
 	/// \return True if no error occurs, else false
-	bool ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name);
+	bool ReadArchive(TArray<uint8>& Bytes, const TCHAR* Name, bool bUser = false);
 
 private:
 
-	CameraData			m_cameraDataCache;
-	CommonDataRock		m_commonDataRockCache;
-	CommonDataSand		m_commonDataSandCache;
-	CommonDataWater		m_commonDataWaterCache;
-	CommonDataNeutral	m_commonDataNeutralCache;
+	CameraData				m_cameraDataCache;
+	CommonDataRock			m_commonDataRockCache;
+	CommonDataSand			m_commonDataSandCache;
+	CommonDataWater			m_commonDataWaterCache;
+	CommonDataNeutral		m_commonDataNeutralCache;
+	ProfilePreferenceData	m_profilePreferenceDataCache;
+	RockMomemtumData		m_rockMomemtumDataCache;
 
 private:
 

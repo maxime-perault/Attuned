@@ -84,7 +84,7 @@
 	return s_attuned_tool;
 }
 
-TUniquePtr<AttunedModel>& GAttunedTool::GetModel()
+TUniquePtr<AttunedModel>& GAttunedTool::GetRawModel()
 {
 	return m_attunedModel;
 }
@@ -196,6 +196,7 @@ void GAttunedTool::UpdatePIEValues()
 	const auto* commonDataSand    = GetModel<CommonDataSand>();
 	const auto* commonDataWater   = GetModel<CommonDataWater>();
 	const auto* commonDataNeutral = GetModel<CommonDataNeutral>();
+	const auto* rockMomemtumData  = GetModel<RockMomemtumData>();
 
 	UCameraManager::CameraSettings cameraSettings {};
 	cameraSettings.MaxArmLength         = cameraData->m_maxArmLenghtValue;
@@ -203,6 +204,14 @@ void GAttunedTool::UpdatePIEValues()
 
 	// Updating camera
 	m_cameraManager->UpdateCameraSettings(cameraSettings);
+
+	// Updating rock momemtum
+	UTerrainManager::RockMomemtumSettings momemtumSettings{};
+	momemtumSettings.IsActive = rockMomemtumData->m_bActiveMomemtum;
+	momemtumSettings.IsSquare = rockMomemtumData->m_bSquareMomemtum;
+	momemtumSettings.MinValue = rockMomemtumData->m_minMomemtumValue;
+
+	m_terrainManager->UpdateTerrainSettings(momemtumSettings);
 
 	// Updating terrains
 	UTerrainManager::RockTerrainSettings rockSettings {};
@@ -267,6 +276,17 @@ bool GAttunedTool::CommitModel()
 
 	UE_LOG(LogTemp, Warning, TEXT("[Attuned] Model committed."));
 	return result;
+}
+
+bool GAttunedTool::CommitProfilePreference()
+{
+	return m_attunedModel->CommitProfilePreference();
+}
+
+/// \brief Marks all caches as dirty
+void GAttunedTool::InvalidateAllCaches()
+{
+	m_attunedModel->InvalidateAllCaches();
 }
 
 /// \brief  Reverts all dirty model caches with values from the disk
@@ -352,6 +372,28 @@ void GAttunedTool::UpdateModel(CommonDataNeutral& data)
 	neutralSettings.DefaultFallingFriction = data.m_fallingFrictionValue;
 
 	UpdatePIETerrainSettings(neutralSettings);
+}
+
+void GAttunedTool::UpdateModel(ProfilePreferenceData& data)
+{
+	m_attunedModel->UpdateCache(data);
+}
+
+void GAttunedTool::UpdateModel(RockMomemtumData& data)
+{
+	m_attunedModel->UpdateCache(data);
+
+	if (!m_character || !m_pieWorld)
+	{
+		return;
+	}
+
+	UTerrainManager::RockMomemtumSettings momemtumSettings {};
+	momemtumSettings.IsActive = data.m_bActiveMomemtum;
+	momemtumSettings.IsSquare = data.m_bSquareMomemtum;
+	momemtumSettings.MinValue = data.m_minMomemtumValue;
+
+	UpdatePIETerrainSettings(momemtumSettings);
 }
 
 #undef LOCTEXT_NAMESPACE
