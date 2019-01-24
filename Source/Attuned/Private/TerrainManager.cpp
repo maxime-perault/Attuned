@@ -20,6 +20,9 @@ UTerrainManager::UTerrainManager()
 	mv_LastSurfaceType = SurfaceType_Default;
 	mv_TerrainType = TEXT("DEFAULT");
 	mv_initialized = false;
+
+	bOnWaterEnter = false;
+	bOnWaterExit  = false;
 }
 
 void	UTerrainManager::SetOwner(AMyCharacter* owner)
@@ -106,9 +109,17 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	mv_TerrainNormal = RV_Hit.ImpactNormal;
 	EPhysicalSurface CurrentSurface = RV_Hit.PhysMaterial.Get()->SurfaceType;
 
+	bOnWaterEnter = false;
+	bOnWaterExit  = false;
+
 	if ((mv_LastSurfaceType != CurrentSurface)
 		&& CurrentSurface != SurfaceType4) // DestructibleMeshSurface
 	{
+		if (mv_LastSurfaceType == SurfaceType2)
+		{
+			bOnWaterExit = true;
+		}
+
 		mv_LastSurfaceType = CurrentSurface;
 
 		switch (CurrentSurface)
@@ -121,6 +132,8 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			case SurfaceType2:
 			{
 				this->WaterTerrainFirstStep();
+				UE_LOG(LogTemp, Warning, TEXT("WATER"));
+				bOnWaterEnter = true;
 				break;
 			}
 			case SurfaceType3:
@@ -250,7 +263,7 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 
 	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mc_character->GetCharacterMovement()->bOrientRotationToMovement = false;
-
+	
 	mv_MaxSpeed = mv_WaterSpeed;
 
 	mc_character->mc_DefaultFollowCamera->Deactivate();

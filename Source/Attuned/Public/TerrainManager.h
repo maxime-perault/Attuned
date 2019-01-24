@@ -33,6 +33,13 @@ public:
 
 	UW_InGameUI*	mc_InGameUIAttached;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Terrain, meta = (AllowPrivateAccess = "true"))
+	bool bOnWaterEnter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Terrain, meta = (AllowPrivateAccess = "true"))
+	bool bOnWaterExit;
+
 	struct RockTerrainSettings
 	{
 		float RockSpeed;

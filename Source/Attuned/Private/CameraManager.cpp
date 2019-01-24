@@ -326,7 +326,7 @@ void UCameraManager::LerpFieldOfView()
 	const float offset = abs(currentFOV - previousFOV);
 	const float delta = offset / (fovLerpDuration * 60.0f);
 
-	UE_LOG(LogTemp, Warning, TEXT("Target FOV : %lf -- FOV : %lf"), currentFOV, cfov);
+	//UE_LOG(LogTemp, Warning, TEXT("Target FOV : %lf -- FOV : %lf"), currentFOV, cfov);
 
 	// Adaptative fov depending the fov sign
 	if (abs(cfov - currentFOV) >= 1.0f)

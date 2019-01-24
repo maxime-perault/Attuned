@@ -16,10 +16,10 @@ class ATTUNED_API AMyCharacter : public ACharacter
 private:
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, Category = Default, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
 		class	UTextRenderComponent* mc_MoveSpeed;
 
-	UPROPERTY(VisibleAnywhere, Category = Default, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
 		class	UTextRenderComponent* mc_JumpSpeed;
 
 	void	Dash(const bool InitDash);
@@ -42,7 +42,7 @@ public:
 
 	UW_InGameUI*	mc_InGameUIAttached;
 
-	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Setup, meta = (AllowPrivateAccess = "true"))
 		UTerrainManager *mc_TerrainManager;
 
 	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
