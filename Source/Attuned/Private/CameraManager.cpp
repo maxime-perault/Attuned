@@ -61,6 +61,9 @@ void UCameraManager::Initialize(void)
 	UE_LOG(LogTemp, Warning, TEXT("Dont forget to set ArmLengthCurveFromPitch"));
 
 	mv_initialized = true;
+
+	float previousArmLenght = 500.0f;
+	float currentArmLenght  = 500.0f;
 }
 
 void	UCameraManager::SetOwner(AMyCharacter* owner)
@@ -233,6 +236,8 @@ void UCameraManager::ZoomOut(void)
 
 void UCameraManager::UpdateArmFromSpeed(void)
 {
+	UE_LOG(LogTemp, Warning, TEXT("UpdateArmFromSpeed"));
+
 	static const float WaterArmLength = 600.f;
 	float percent(mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
 
@@ -280,10 +285,64 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	{
 		this->UpdateArmFromSpeed();
 	}
+
+	// TODO
+	//LerpArmLenght  ();
+	//LerpFieldOfView();
 }
 
 void UCameraManager::UpdateCameraSettings(const CameraSettings& settings)
 {
 	mv_MaxArmLength         = settings.MaxArmLength;
 	mv_MaxTimeFromLastInput = settings.MaxTimeFromLastInput;
+}
+
+void UCameraManager::LerpArmLenght()
+{
+	const float offset = currentArmLenght - previousArmLenght;
+	const float delta  = offset / 60.0f;
+
+	if (abs(mv_MaxArmLength - currentArmLenght) >= 1.0f)
+	{
+		mv_MaxArmLength += delta;
+	}
+}
+
+void UCameraManager::LerpFieldOfView()
+{
+
+}
+
+void UCameraManager::OnTerrainChange(int type)
+{
+	previousArmLenght = currentArmLenght;
+
+	switch (type)
+	{
+		case 0 :
+		{
+			currentArmLenght  = NeutralArmLenght;
+			break;
+		}
+		case 1 :
+		{
+			currentArmLenght  = RockArmLenght;
+			break;
+		}
+		case 2 :
+		{
+			currentArmLenght = WaterArmLenght;
+			break;
+		}
+		case 3 : 
+		{
+			currentArmLenght = SandArmLenght;
+			break;
+		}
+		default:
+		{
+			currentArmLenght = NeutralArmLenght;
+			break;
+		}
+	}
 }

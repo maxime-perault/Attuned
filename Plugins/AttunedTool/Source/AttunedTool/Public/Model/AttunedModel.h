@@ -34,15 +34,36 @@ struct Serializable
 struct CameraData : public Serializable
 {
 	CameraData() 
-	: Serializable				 (TEXT("CameraDataArchive"))
-	, m_maxArmLenghtValue		 (0.0f)
-	, m_maxTimeFromLastInputValue(0.0f)
+	: Serializable		    (TEXT("CameraDataArchive"))
+	, m_dynamicFOV			(false)
+	, m_dynamicArmLenght	(false)
+	, m_fovBehavior			(EDynamicBehavior::Increasing)
+	, m_armLenghtBehavior	(EDynamicBehavior::Increasing)
+	, m_startFOVValue ()
+	, m_startArmLenghtValue()
 	{
 		// None
 	}
 
+	enum class EDynamicBehavior : int
+	{
+		Increasing = 0,
+		Decreasing = 1
+	};
+
+	bool		     m_dynamicFOV;
+	bool			 m_dynamicArmLenght;
+	EDynamicBehavior m_fovBehavior;
+	EDynamicBehavior m_armLenghtBehavior;
+	float			 m_startFOVValue;
+	float			 m_startArmLenghtValue;
+	float			 m_dynamicFOVThreshold;
+	float			 m_dynamicArmLenghtThreshold;
+	float			 m_targetFOVValue;
+	float		     m_targetArmLenghtValue;
+	float			 m_maxTimeFromLastInputValue;
+
 	float m_maxArmLenghtValue;
-	float m_maxTimeFromLastInputValue;
 
 	// Limits
 	static const constexpr float MaxArmLenghtMinValue             = 1.0f;
