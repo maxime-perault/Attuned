@@ -62,8 +62,11 @@ void UCameraManager::Initialize(void)
 
 	mv_initialized = true;
 
-	float previousArmLenght = 500.0f;
-	float currentArmLenght  = 500.0f;
+	previousArmLenght = 500.0f;
+	currentArmLenght  = 500.0f;
+
+	previousFOV = 95.0f;
+	currentFOV  = 95.0f;
 }
 
 void	UCameraManager::SetOwner(AMyCharacter* owner)
@@ -125,11 +128,12 @@ void UCameraManager::UpdateCameraFromPitch(void)
 				0.f,
 				this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch))));
 
-	mc_character->mc_CurrentFollowCamera->SetFieldOfView(
+	// TODO : Taking in account the current fov
+/*	mc_character->mc_CurrentFollowCamera->SetFieldOfView(
 		BaseFOV + FMath::Lerp(
 			DeltaFOV,
 			0.f, 
-			this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch)));
+			this->GetPercentBetweenAB(mv_CurrentPitch, mv_MinPitch, mv_MaxPitch)));*/
 
 	mv_NextCameraLocation = mc_character->mc_CurrentFollowCamera->GetForwardVector();
 	mv_NextCameraLocation.Normalize();
@@ -287,8 +291,8 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 
 	// TODO
-	//LerpArmLenght  ();
-	//LerpFieldOfView();
+	LerpArmLenght  ();
+	LerpFieldOfView();
 }
 
 void UCameraManager::UpdateCameraSettings(const CameraSettings& settings)
@@ -299,49 +303,92 @@ void UCameraManager::UpdateCameraSettings(const CameraSettings& settings)
 
 void UCameraManager::LerpArmLenght()
 {
-	const float offset = currentArmLenght - previousArmLenght;
-	const float delta  = offset / 60.0f;
+	const float offset = abs(currentArmLenght - previousArmLenght);
+	const float delta  = offset / (armLenghtLerpDuration * 60.0f);
 
+	// Adaptative arm lenght depending the max arm lenght sign
 	if (abs(mv_MaxArmLength - currentArmLenght) >= 1.0f)
 	{
-		mv_MaxArmLength += delta;
+		if (mv_MaxArmLength > currentArmLenght)
+		{
+			mv_MaxArmLength -= delta;
+		}
+		else
+		{
+			mv_MaxArmLength += delta;
+		}
 	}
 }
 
 void UCameraManager::LerpFieldOfView()
 {
+	float cfov = mc_character->mc_CurrentFollowCamera->FieldOfView;
+	const float offset = abs(currentFOV - previousFOV);
+	const float delta = offset / (fovLerpDuration * 60.0f);
 
+	UE_LOG(LogTemp, Warning, TEXT("Target FOV : %lf -- FOV : %lf"), currentFOV, cfov);
+
+	// Adaptative fov depending the fov sign
+	if (abs(cfov - currentFOV) >= 1.0f)
+	{
+		if (cfov > currentFOV)
+		{
+			cfov -= delta;
+		}
+		else
+		{
+			cfov += delta;
+		}
+
+		mc_character->mc_CurrentFollowCamera->SetFieldOfView(cfov);
+	}
 }
 
 void UCameraManager::OnTerrainChange(int type)
 {
 	previousArmLenght = currentArmLenght;
+	previousFOV       = currentFOV;
 
 	switch (type)
 	{
 		case 0 :
 		{
 			currentArmLenght  = NeutralArmLenght;
+			currentFOV        = NeutralFOV;
 			break;
 		}
 		case 1 :
 		{
 			currentArmLenght  = RockArmLenght;
+			currentFOV        = RockFOV;
 			break;
 		}
 		case 2 :
 		{
 			currentArmLenght = WaterArmLenght;
+			currentFOV       = WaterFOV;
+
+			//mc_character->mc_CurrentFollowCamera->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
+			//mc_character->mc_CurrentCameraBoom->TargetArmLength = previousArmLenght;
+
+			//mc_character->mc_WaterFollowCamera->SetWorldLocation(
+			//	mc_character->mc_DefaultFollowCamera->GetComponentToWorld().GetLocation());
+			//
+			//mc_character->mc_WaterCameraBoom->TargetArmLength =
+			//	mc_character->mc_DefaultCameraBoom->TargetArmLength;
+
 			break;
 		}
 		case 3 : 
 		{
 			currentArmLenght = SandArmLenght;
+			currentFOV       = SandFOV;
 			break;
 		}
 		default:
 		{
 			currentArmLenght = NeutralArmLenght;
+			currentFOV       = NeutralFOV;
 			break;
 		}
 	}

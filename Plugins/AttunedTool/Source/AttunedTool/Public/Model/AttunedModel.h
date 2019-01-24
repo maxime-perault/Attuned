@@ -31,6 +31,23 @@ struct Serializable
 	bool		 m_dirty;
 };
 
+struct CameraCommonData : public Serializable
+{
+	CameraCommonData() 
+	: Serializable(TEXT("CameraCommonDataArchive"))
+	{
+		// None
+	}
+
+	// TODO Rename variables
+	bool  m_smoothFOV;
+	bool  m_smoothArmLenght;
+	float m_lerpDurationFOV;
+	float m_armLenghtLerpDuration;
+
+	// TODO Set limits
+};
+
 struct CameraData : public Serializable
 {
 	CameraData() 

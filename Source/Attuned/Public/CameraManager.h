@@ -50,18 +50,29 @@ protected:
 
 private:
 
+	// TMP
 	void LerpArmLenght	();
 	void LerpFieldOfView();
 
-
-	const float WaterArmLenght   = 600.0f;
+	// TMP
+	const float WaterArmLenght   = 400.0f;
 	const float NeutralArmLenght = 600.0f;
 	const float SandArmLenght    = 500.0f;
 	const float RockArmLenght    = 350.0f;
 
+	const float WaterFOV   = 95.0f;
+	const float NeutralFOV = 95.0f;
+	const float SandFOV    = 95.0f;
+	const float RockFOV    = 98.0f;
+
 	float previousArmLenght;
 	float currentArmLenght;
 
+	float previousFOV;
+	float currentFOV;
+
+	const float armLenghtLerpDuration = 1.5f;
+	const float fovLerpDuration = 2.0f;
 private:
 	AMyCharacter*			mc_character;
 
