@@ -287,8 +287,8 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 
 	// TODO
-	LerpArmLenght  ();
-	LerpFieldOfView();
+	//LerpArmLenght  ();
+	//LerpFieldOfView();
 }
 
 void UCameraManager::UpdateCameraSettings(const CameraSettings& settings)
