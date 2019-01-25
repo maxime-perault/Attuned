@@ -132,7 +132,6 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			case SurfaceType2:
 			{
 				this->WaterTerrainFirstStep();
-				UE_LOG(LogTemp, Warning, TEXT("WATER"));
 				bOnWaterEnter = true;
 				break;
 			}
@@ -315,7 +314,6 @@ void UTerrainManager::UpdateTerrainSettings(const RockTerrainSettings& settings)
 	mv_RockAcceleration       = settings.RockAcceleration;
 	mv_RockJumpZVelocity      = settings.RockJumpZVelocity;
 	mv_DefaultFallingFriction = settings.RockFallingFriction;
-
 	UpdateCharacterSettings();
 }
 
@@ -326,7 +324,6 @@ void UTerrainManager::UpdateTerrainSettings(const SandTerrainSettings& settings)
 	mv_SandAcceleration    = settings.SandAcceleration;
 	mv_SandJumpZVelocity   = settings.SandJumpZVelocity;
 	mv_SandFallingFriction = settings.SandFallingFriction;
-
 	UpdateCharacterSettings();
 }
 
@@ -337,7 +334,6 @@ void UTerrainManager::UpdateTerrainSettings(const WaterTerrainSettings& settings
 	mv_WaterAcceleration    = settings.WaterAcceleration;
 	mv_WaterJumpZVelocity   = settings.WaterJumpZVelocity;
 	mv_WaterFallingFriction = settings.WaterFallingFriction;
-
 	UpdateCharacterSettings();
 }
 
@@ -348,7 +344,6 @@ void UTerrainManager::UpdateTerrainSettings(const NeutralTerrainSettings& settin
 	mv_DefaultAcceleration    = settings.DefaultAcceleration;
 	mv_DefaultJumpZVelocity   = settings.DefaultJumpZVelocity;
 	mv_DefaultFallingFriction = settings.DefaultFallingFriction;
-
 	UpdateCharacterSettings();
 }
 

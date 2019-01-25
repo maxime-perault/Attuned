@@ -232,7 +232,7 @@ void GAttunedTool::UpdatePIEValues()
 	waterSettings.WaterSpeed			   = commonDataWater->m_maxSpeedValue;
 	waterSettings.WaterAirControl		   = commonDataWater->m_airControlValue;
 	waterSettings.WaterAcceleration		   = commonDataWater->m_accelerationValue;
-	waterSettings.WaterAcceleration		   = commonDataWater->m_jumpZVelocityValue;
+	waterSettings.WaterJumpZVelocity	   = commonDataWater->m_jumpZVelocityValue;
 	waterSettings.WaterFallingFriction	   = commonDataWater->m_fallingFrictionValue;
 
 	UTerrainManager::NeutralTerrainSettings neutralSettings {};
