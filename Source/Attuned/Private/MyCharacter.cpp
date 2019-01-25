@@ -139,6 +139,13 @@ AMyCharacter::AMyCharacter()
 	mc_DashRadialForce->Radius = 50.f;
 	mc_DashRadialForce->DestructibleDamage = 2.f;
 
+	// Create RadialJumpForce
+	mc_JumpRadialForce = CreateDefaultSubobject<URadialForceComponent>(TEXT("JumpRadialImpulse"));
+	mc_JumpRadialForce->SetupAttachment(RootComponent);
+	mc_JumpRadialForce->SetRelativeLocation(FVector(0.f, 0.f, -100.f));
+	mc_JumpRadialForce->Radius = 50.f;
+	mc_JumpRadialForce->DestructibleDamage = 2.f;
+
 	// isDashingValue for AnimBlueprint
 	mv_isDashing = false;
 
