@@ -240,7 +240,7 @@ void UCameraManager::ZoomOut(void)
 
 void UCameraManager::UpdateArmFromSpeed(void)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UpdateArmFromSpeed"));
+	//UE_LOG(LogTemp, Warning, TEXT("UpdateArmFromSpeed"));
 
 	static const float WaterArmLength = 600.f;
 	float percent(mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
