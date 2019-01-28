@@ -60,14 +60,15 @@ private:
 	const float SandArmLenght    = 500.0f;
 	const float RockArmLenght    = 350.0f;
 
-	const float WaterFOV   = 95.0f;
-	const float NeutralFOV = 95.0f;
-	const float SandFOV    = 95.0f;
-	const float RockFOV    = 98.0f;
+	const float WaterFOV   = 90.0f;
+	const float NeutralFOV = 90.0f;
+	const float SandFOV    = 90.0f;
+	const float RockFOV    = 90.0f;
 
 	float previousArmLenght;
 	float currentArmLenght;
 
+	float deltaSpeedFOV;
 	float previousFOV;
 	float currentFOV;
 

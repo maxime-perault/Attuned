@@ -67,6 +67,7 @@ void UCameraManager::Initialize(void)
 
 	previousFOV = 95.0f;
 	currentFOV  = 95.0f;
+	deltaSpeedFOV = 0.f;
 }
 
 void	UCameraManager::SetOwner(AMyCharacter* owner)
@@ -252,10 +253,18 @@ void UCameraManager::UpdateArmFromSpeed(void)
 
 	if (percent > 0.8f)
 	{
-		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = GetPercentBetweenAB(
+		const float SpeedPercent = GetPercentBetweenAB(
 			mc_character->GetVelocity().Size(),
 			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.8f,
-			mc_character->mc_TerrainManager->mv_WaterSpeed) * 1.f;
+			mc_character->mc_TerrainManager->mv_WaterSpeed);
+
+		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = SpeedPercent * 4.f;
+		this->deltaSpeedFOV = SpeedPercent * 10.f;
+		
+	}
+	else
+	{
+		this->deltaSpeedFOV = 0.f;
 	}
 
 	if (percent > 0.95)
@@ -291,7 +300,7 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 
 	// TODO
-	LerpArmLenght  ();
+	LerpArmLenght();
 	LerpFieldOfView();
 }
 
@@ -327,7 +336,7 @@ void UCameraManager::LerpFieldOfView()
 	const float delta = offset / (fovLerpDuration * 60.0f);
 
 	//UE_LOG(LogTemp, Warning, TEXT("Target FOV : %lf -- FOV : %lf"), currentFOV, cfov);
-
+	/*
 	// Adaptative fov depending the fov sign
 	if (abs(cfov - currentFOV) >= 1.0f)
 	{
@@ -341,6 +350,10 @@ void UCameraManager::LerpFieldOfView()
 		}
 
 		mc_character->mc_CurrentFollowCamera->SetFieldOfView(cfov);
+	}*/
+	if (mc_character->GetTerrainSurfaceType() == "WATER")
+	{
+		mc_character->mc_CurrentFollowCamera->SetFieldOfView(WaterFOV + this->deltaSpeedFOV);
 	}
 }
 
