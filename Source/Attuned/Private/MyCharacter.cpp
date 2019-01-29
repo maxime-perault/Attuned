@@ -239,15 +239,16 @@ void AMyCharacter::Tick(float DeltaTime)
 
 void AMyCharacter::Dash(const bool InitDash)
 {
-	static float		CurrentDashDuration(0.f); //CurrentTimeValue Needed for the lerp (blueprint timeline like)
-	static const float	MaxDashDuration(0.2f); //The Duration of a dash in seconds
+	static float			CurrentDashDuration(0.f); //CurrentTimeValue Needed for the lerp (blueprint timeline like)
+	static const float		MaxDashDuration(0.2f); //The Duration of a dash in seconds
+	static const float		DashLength(1000.f);
 
+	static FVector	NormalizedForward(0.f, 0.f, 0.f);
 	static FVector	NormalizedNormalRamp(0.f, 0.f, 0.f); //The normal of terrain where the player is at the start
 	static FVector	BasePlayerLocation(0.f, 0.f, 0.f); //Start location of player
 	static FVector	NextLocation(0.f, 0.f, 0.f); //Next location computed each frame
-	static FVector	A; //lerp A
-	static FVector	B; // lerp B
-	static FVector	DashVelocity; //Velocity to not stop movements after dashing
+	static FVector	oA; //lerp A
+	static FVector	oB; // lerp B
 	
 	static TArray<TEnumAsByte<EObjectTypeQuery>>	ObjectTypes; //Types of object to focus on for the collision detection
 	static TArray<AActor*>							ActorsToIgnore; //Actors to not fetch during the dash collision detection
@@ -263,16 +264,12 @@ void AMyCharacter::Dash(const bool InitDash)
 		NormalizedNormalRamp = mc_TerrainManager->mv_TerrainNormal;
 		CurrentDashDuration = 0.f;
 
-		A = BasePlayerLocation;
-		B = NormalizedNormalRamp;
+		oA = BasePlayerLocation;
+		oB = NormalizedNormalRamp;
 
-		B = B.RotateAngleAxis(90.f, FVector(1.f, 0.f, 0.f)) * 1000.f;
-		B = B.RotateAngleAxis(GetCapsuleComponent()->GetComponentRotation().Yaw + 90.f, NormalizedNormalRamp);
-		B += A;
-
-		DashVelocity = (B - A);
-		DashVelocity.Normalize();
-		DashVelocity *= 1000.f;
+		oB = oB.RotateAngleAxis(90.f, FVector(1.f, 0.f, 0.f)) * DashLength;
+		oB = oB.RotateAngleAxis(GetCapsuleComponent()->GetComponentRotation().Yaw + 90.f, NormalizedNormalRamp);
+		oB += oA;
 
 		if (ObjectTypes.Num() == 0)
 			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
@@ -282,6 +279,9 @@ void AMyCharacter::Dash(const bool InitDash)
 			ActorsToIgnore.Add(GetOwner());
 			ActorsToIgnore.Append(FoundDestructibleActors);
 		}
+		NormalizedForward = GetCapsuleComponent()->GetForwardVector();
+		NormalizedForward.Normalize();
+
 		mc_TerrainManager->DashCoolDown(true);
 	}
 	
@@ -289,20 +289,14 @@ void AMyCharacter::Dash(const bool InitDash)
 	if (CurrentDashDuration > MaxDashDuration)
 		CurrentDashDuration = MaxDashDuration;
 
-	NextLocation = FMath::Lerp(
-		A,
-		B,
-		CurrentDashDuration / MaxDashDuration);
-
-	GetCharacterMovement()->Velocity = DashVelocity;
-
-	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), NextLocation, 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
+	
+	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), mc_DashRadialForce->GetComponentLocation(), 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
 	{
 		CurrentDashDuration = MaxDashDuration;
 	}
-	else
+	else if (CurrentDashDuration != MaxDashDuration)
 	{
-		SetActorLocation(NextLocation);
+		GetCharacterMovement()->AddImpulse(NormalizedForward * 1000.f, true);
 		mc_DashRadialForce->FireImpulse();
 	}
 
@@ -310,6 +304,7 @@ void AMyCharacter::Dash(const bool InitDash)
 	{
 		mv_isDashing = false;
 		mv_LockControls = false;
+		GetCharacterMovement()->Velocity = NormalizedForward * 1000.f;
 	}
 }
 

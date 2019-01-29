@@ -106,6 +106,7 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	if (!success)
 		return;
 
+	
 	mv_TerrainNormal = RV_Hit.ImpactNormal;
 	EPhysicalSurface CurrentSurface = RV_Hit.PhysMaterial.Get()->SurfaceType;
 
