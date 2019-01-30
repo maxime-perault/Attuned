@@ -252,14 +252,17 @@ void UCameraManager::UpdateArmFromSpeed(void)
 		percent);
 
 	if (percent > 0.8f)
+		percent = 0.8f;
+
+	if (percent >= 0.7f)
 	{
 		const float SpeedPercent = GetPercentBetweenAB(
 			mc_character->GetVelocity().Size(),
-			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.8f,
-			mc_character->mc_TerrainManager->mv_WaterSpeed);
+			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.7f,
+			mc_character->mc_TerrainManager->mv_WaterSpeed * 0.8f);
 
 		mc_character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = SpeedPercent * 4.f;
-		this->deltaSpeedFOV = SpeedPercent * 10.f;
+		this->deltaSpeedFOV = SpeedPercent * 8.f;
 		
 	}
 	else
@@ -267,7 +270,7 @@ void UCameraManager::UpdateArmFromSpeed(void)
 		this->deltaSpeedFOV = 0.f;
 	}
 
-	if (percent > 0.95)
+	if (percent >= 0.8f)
 	{
 		mc_character->mv_DrawSpeedParticles = true;
 	}
@@ -336,9 +339,9 @@ void UCameraManager::LerpFieldOfView()
 	const float delta = offset / (fovLerpDuration * 60.0f);
 
 	//UE_LOG(LogTemp, Warning, TEXT("Target FOV : %lf -- FOV : %lf"), currentFOV, cfov);
-	/*
+	
 	// Adaptative fov depending the fov sign
-	if (abs(cfov - currentFOV) >= 1.0f)
+	/*if (abs(cfov - currentFOV) >= 1.0f)
 	{
 		if (cfov > currentFOV)
 		{

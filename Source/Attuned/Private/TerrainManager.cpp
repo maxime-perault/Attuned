@@ -65,7 +65,7 @@ void UTerrainManager::BeginPlay()
 
 	mv_WaterJumpZVelocity = 800.f;
 	mv_WaterAcceleration = 500.f;
-	mv_WaterSpeed = 1200.f;
+	mv_WaterSpeed = 1425.f;
 
 	mv_SandJumpZVelocity = 1000.f;
 	mv_SandAcceleration = 1000.f;
