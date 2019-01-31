@@ -164,6 +164,8 @@ AMyCharacter::AMyCharacter()
 
 	mv_DrawSpeedParticles = false;
 
+	mv_MenuPosition = 0;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -312,7 +314,7 @@ void AMyCharacter::Dash(const bool InitDash)
 
 void AMyCharacter::Jump()
 {
-	if (!mv_StartPlay)
+	if (!mv_StartPlay && (mv_MenuPosition == 0))
 		mv_StartPlay = true;
 	
 	if (!mv_CanPlay)
@@ -493,6 +495,14 @@ void	AMyCharacter::UnlockControls(void)
 	mv_LockControls = false;
 }
 
+void	AMyCharacter::lockControls(void)
+{
+	float i(1);
+
+	mv_CanPlay = false;
+	mv_LockControls = true;
+}
+
 FString AMyCharacter::GetTerrainSurfaceType(void)
 {
 	return (mc_TerrainManager->mv_TerrainType);
@@ -506,6 +516,11 @@ float AMyCharacter::GetLeanDegree(void)
 bool AMyCharacter::GetStartPlay(void)
 {
 	return (mv_StartPlay);
+}
+
+bool AMyCharacter::GetCanPlay(void)
+{
+	return (mv_CanPlay);
 }
 
 void AMyCharacter::UpdateDebugTextLocation(void)

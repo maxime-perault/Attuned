@@ -97,6 +97,9 @@ public:
 	** !END CAMERAS
 	*/
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		int mv_MenuPosition;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		bool mv_DrawSpeedParticles;
 
@@ -127,6 +130,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Set")
 		void UnlockControls();
 
+	UFUNCTION(BlueprintCallable, Category = "Set")
+		void lockControls();
+
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		FString GetTerrainSurfaceType();
 
@@ -134,10 +140,16 @@ public:
 		bool GetStartPlay();
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
+		bool GetCanPlay();
+
+	UFUNCTION(BlueprintCallable, Category = "Get")
 		float GetLeanDegree();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_isDashing;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+	bool	mv_Menu;
 
 	float	LerpForwardSpeed(const float NewSpeed, const float DeltaTime, const bool reset);
 
