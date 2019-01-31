@@ -29,7 +29,6 @@ private:
 	float	mv_LeanPercent;
 	float	mv_ForwardSpeed;
 	bool	mv_LockControls;
-	bool	mv_StartPlay;
 	bool	mv_CanPlay;
 
 public:
@@ -138,6 +137,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		bool GetStartPlay();
+		
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		bool GetCanPlay();
@@ -150,6 +150,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_Menu;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+	bool	mv_StartPlay;
 
 	float	LerpForwardSpeed(const float NewSpeed, const float DeltaTime, const bool reset);
 
