@@ -150,7 +150,9 @@ AMyCharacter::AMyCharacter()
 	mv_isDashing = false;
 
 	//If Controllers are locked
-	mv_LockControls = false;
+	mv_LockControls = true;
+	mv_CanPlay = false;
+	mv_StartPlay = false;
 
 	// Create TerrainManager
 	mc_TerrainManager = CreateDefaultSubobject<UTerrainManager>(TEXT("TerrainManager"));
@@ -310,6 +312,12 @@ void AMyCharacter::Dash(const bool InitDash)
 
 void AMyCharacter::Jump()
 {
+	if (!mv_StartPlay)
+		mv_StartPlay = true;
+	
+	if (!mv_CanPlay)
+		return;
+
 	if ((this->GetTerrainSurfaceType() == TEXT("ROCK")) &&
 		!mv_isDashing &&
 		(GetCharacterMovement()->IsFalling() == false))
@@ -478,6 +486,13 @@ void AMyCharacter::MoveRight(float Value)
 	}
 }
 
+//return type cant be void cause of UE4 blueprint functions constraints
+void	AMyCharacter::UnlockControls(void)
+{
+	mv_CanPlay = true;
+	mv_LockControls = false;
+}
+
 FString AMyCharacter::GetTerrainSurfaceType(void)
 {
 	return (mc_TerrainManager->mv_TerrainType);
@@ -486,6 +501,11 @@ FString AMyCharacter::GetTerrainSurfaceType(void)
 float AMyCharacter::GetLeanDegree(void)
 {
 	return (mv_LeanPercent);
+}
+
+bool AMyCharacter::GetStartPlay(void)
+{
+	return (mv_StartPlay);
 }
 
 void AMyCharacter::UpdateDebugTextLocation(void)

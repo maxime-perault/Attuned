@@ -29,6 +29,8 @@ private:
 	float	mv_LeanPercent;
 	float	mv_ForwardSpeed;
 	bool	mv_LockControls;
+	bool	mv_StartPlay;
+	bool	mv_CanPlay;
 
 public:
 	AMyCharacter();
@@ -121,8 +123,15 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+
+	UFUNCTION(BlueprintCallable, Category = "Set")
+		void UnlockControls();
+
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		FString GetTerrainSurfaceType();
+
+	UFUNCTION(BlueprintCallable, Category = "Get")
+		bool GetStartPlay();
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		float GetLeanDegree();
