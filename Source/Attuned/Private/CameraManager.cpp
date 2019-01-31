@@ -246,13 +246,13 @@ void UCameraManager::UpdateArmFromSpeed(void)
 	static const float WaterArmLength = 600.f;
 	float percent(mc_character->GetVelocity().Size() / mc_character->mc_TerrainManager->mv_WaterSpeed);
 
+	if (percent > 0.8f)
+		percent = 0.8f;
+
 	mc_character->mc_CurrentCameraBoom->TargetArmLength = FMath::Lerp(
 		400.f,
 		WaterArmLength,
 		percent);
-
-	if (percent > 0.8f)
-		percent = 0.8f;
 
 	if (percent >= 0.7f)
 	{
