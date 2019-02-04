@@ -55,10 +55,10 @@ private:
 	void LerpFieldOfView();
 
 	// TMP
-	const float WaterArmLenght   = 400.0f;
-	const float NeutralArmLenght = 600.0f;
+	const float WaterArmLenght   = 500.0f;
+	const float NeutralArmLenght = 500.0f;
 	const float SandArmLenght    = 500.0f;
-	const float RockArmLenght    = 350.0f;
+	const float RockArmLenght    = 500.0f;
 
 	const float WaterFOV   = 90.0f;
 	const float NeutralFOV = 90.0f;
