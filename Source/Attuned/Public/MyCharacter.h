@@ -29,6 +29,7 @@ private:
 	float	mv_LeanPercent;
 	float	mv_ForwardSpeed;
 	bool	mv_LockControls;
+	bool	mv_CanPlay;
 
 public:
 	AMyCharacter();
@@ -95,6 +96,12 @@ public:
 	** !END CAMERAS
 	*/
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		float mv_DashPower;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+		int mv_MenuPosition;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 		bool mv_DrawSpeedParticles;
 
@@ -121,14 +128,34 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+
+	UFUNCTION(BlueprintCallable, Category = "Set")
+		void UnlockControls();
+
+	UFUNCTION(BlueprintCallable, Category = "Set")
+		void lockControls();
+
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		FString GetTerrainSurfaceType();
+
+	UFUNCTION(BlueprintCallable, Category = "Get")
+		bool GetStartPlay();
+		
+
+	UFUNCTION(BlueprintCallable, Category = "Get")
+		bool GetCanPlay();
 
 	UFUNCTION(BlueprintCallable, Category = "Get")
 		float GetLeanDegree();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
 	bool	mv_isDashing;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+	bool	mv_Menu;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Character, meta = (AllowPrivateAccess = "true"))
+	bool	mv_StartPlay;
 
 	float	LerpForwardSpeed(const float NewSpeed, const float DeltaTime, const bool reset);
 

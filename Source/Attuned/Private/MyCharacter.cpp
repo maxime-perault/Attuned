@@ -1,7 +1,6 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "MyCharacter.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -150,7 +149,9 @@ AMyCharacter::AMyCharacter()
 	mv_isDashing = false;
 
 	//If Controllers are locked
-	mv_LockControls = false;
+	mv_LockControls = true;
+	mv_CanPlay = false;
+	mv_StartPlay = false;
 
 	// Create TerrainManager
 	mc_TerrainManager = CreateDefaultSubobject<UTerrainManager>(TEXT("TerrainManager"));
@@ -161,6 +162,8 @@ AMyCharacter::AMyCharacter()
 	mc_CameraManager->SetOwner(this);
 
 	mv_DrawSpeedParticles = false;
+
+	mv_MenuPosition = 0;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -244,11 +247,6 @@ void AMyCharacter::Dash(const bool InitDash)
 	static const float		DashLength(1000.f);
 
 	static FVector	NormalizedForward(0.f, 0.f, 0.f);
-	static FVector	NormalizedNormalRamp(0.f, 0.f, 0.f); //The normal of terrain where the player is at the start
-	static FVector	BasePlayerLocation(0.f, 0.f, 0.f); //Start location of player
-	static FVector	NextLocation(0.f, 0.f, 0.f); //Next location computed each frame
-	static FVector	oA; //lerp A
-	static FVector	oB; // lerp B
 	
 	static TArray<TEnumAsByte<EObjectTypeQuery>>	ObjectTypes; //Types of object to focus on for the collision detection
 	static TArray<AActor*>							ActorsToIgnore; //Actors to not fetch during the dash collision detection
@@ -260,16 +258,7 @@ void AMyCharacter::Dash(const bool InitDash)
 		//speed forward TODO
 		mv_isDashing = true;
 		mv_LockControls = true;
-		BasePlayerLocation = this->GetActorLocation();
-		NormalizedNormalRamp = mc_TerrainManager->mv_TerrainNormal;
 		CurrentDashDuration = 0.f;
-
-		oA = BasePlayerLocation;
-		oB = NormalizedNormalRamp;
-
-		oB = oB.RotateAngleAxis(90.f, FVector(1.f, 0.f, 0.f)) * DashLength;
-		oB = oB.RotateAngleAxis(GetCapsuleComponent()->GetComponentRotation().Yaw + 90.f, NormalizedNormalRamp);
-		oB += oA;
 
 		if (ObjectTypes.Num() == 0)
 			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
@@ -283,6 +272,7 @@ void AMyCharacter::Dash(const bool InitDash)
 		NormalizedForward.Normalize();
 
 		mc_TerrainManager->DashCoolDown(true);
+		GetCharacterMovement()->AddImpulse(NormalizedForward * mv_DashPower, true);
 	}
 	
 	CurrentDashDuration += mv_DeltaTime;
@@ -296,7 +286,6 @@ void AMyCharacter::Dash(const bool InitDash)
 	}
 	else if (CurrentDashDuration != MaxDashDuration)
 	{
-		GetCharacterMovement()->AddImpulse(NormalizedForward * 1000.f, true);
 		mc_DashRadialForce->FireImpulse();
 	}
 
@@ -310,6 +299,12 @@ void AMyCharacter::Dash(const bool InitDash)
 
 void AMyCharacter::Jump()
 {
+	if (!mv_StartPlay && (mv_MenuPosition == 0))
+		mv_StartPlay = true;
+	
+	if (!mv_CanPlay)
+		return;
+
 	if ((this->GetTerrainSurfaceType() == TEXT("ROCK")) &&
 		!mv_isDashing &&
 		(GetCharacterMovement()->IsFalling() == false))
@@ -478,6 +473,21 @@ void AMyCharacter::MoveRight(float Value)
 	}
 }
 
+//return type cant be void cause of UE4 blueprint functions constraints
+void	AMyCharacter::UnlockControls(void)
+{
+	mv_CanPlay = true;
+	mv_LockControls = false;
+}
+
+void	AMyCharacter::lockControls(void)
+{
+	float i(1);
+
+	mv_CanPlay = false;
+	mv_LockControls = true;
+}
+
 FString AMyCharacter::GetTerrainSurfaceType(void)
 {
 	return (mc_TerrainManager->mv_TerrainType);
@@ -486,6 +496,16 @@ FString AMyCharacter::GetTerrainSurfaceType(void)
 float AMyCharacter::GetLeanDegree(void)
 {
 	return (mv_LeanPercent);
+}
+
+bool AMyCharacter::GetStartPlay(void)
+{
+	return (mv_StartPlay);
+}
+
+bool AMyCharacter::GetCanPlay(void)
+{
+	return (mv_CanPlay);
 }
 
 void AMyCharacter::UpdateDebugTextLocation(void)
