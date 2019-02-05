@@ -247,11 +247,6 @@ void AMyCharacter::Dash(const bool InitDash)
 	static const float		DashLength(1000.f);
 
 	static FVector	NormalizedForward(0.f, 0.f, 0.f);
-	
-	static TArray<TEnumAsByte<EObjectTypeQuery>>	ObjectTypes; //Types of object to focus on for the collision detection
-	static TArray<AActor*>							ActorsToIgnore; //Actors to not fetch during the dash collision detection
-	static TArray<AActor*>							FoundDestructibleActors; //All destructibleActors in the current world
-	static TArray<UPrimitiveComponent*>				OutComponents; // Components detected during a frame for the next dash position
 
 	if (InitDash == true && mc_TerrainManager->mv_CanDash)
 	{
@@ -260,19 +255,12 @@ void AMyCharacter::Dash(const bool InitDash)
 		mv_LockControls = true;
 		CurrentDashDuration = 0.f;
 
-		if (ObjectTypes.Num() == 0)
-			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
-		if (ActorsToIgnore.Num() == 0)
-		{
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADestructibleActor::StaticClass(), FoundDestructibleActors);
-			ActorsToIgnore.Add(GetOwner());
-			ActorsToIgnore.Append(FoundDestructibleActors);
-		}
 		NormalizedForward = GetCapsuleComponent()->GetForwardVector();
 		NormalizedForward.Normalize();
 
 		mc_TerrainManager->DashCoolDown(true);
 		GetCharacterMovement()->AddImpulse(NormalizedForward * mv_DashPower, true);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Ignore);
 	}
 	
 	CurrentDashDuration += mv_DeltaTime;
@@ -281,10 +269,6 @@ void AMyCharacter::Dash(const bool InitDash)
 	if (CurrentDashDuration > MaxDashDuration)
 		CurrentDashDuration = MaxDashDuration;
 	
-	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), mc_DashRadialForce->GetComponentLocation(), 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
-	{
-		CurrentDashDuration = MaxDashDuration;
-	}
 	else if (CurrentDashDuration != MaxDashDuration)
 	{
 		mc_DashRadialForce->FireImpulse();
@@ -295,6 +279,7 @@ void AMyCharacter::Dash(const bool InitDash)
 		mv_isDashing = false;
 		mv_LockControls = false;
 		GetCharacterMovement()->Velocity = NormalizedForward * 1425.f;
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_MAX);
 	}
 }
 
