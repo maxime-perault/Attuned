@@ -178,7 +178,7 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 void UTerrainManager::DashCoolDown(const bool reset)
 {
 	static float		CurrentTime = 0.f;
-	static const float	DashCoolDown = 0.5f;
+	static const float	DashCoolDown = 1.5f;
 
 	if (reset)
 	{

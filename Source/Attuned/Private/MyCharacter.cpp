@@ -276,9 +276,10 @@ void AMyCharacter::Dash(const bool InitDash)
 	}
 	
 	CurrentDashDuration += mv_DeltaTime;
+
+
 	if (CurrentDashDuration > MaxDashDuration)
 		CurrentDashDuration = MaxDashDuration;
-
 	
 	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), mc_DashRadialForce->GetComponentLocation(), 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
 	{
@@ -293,7 +294,7 @@ void AMyCharacter::Dash(const bool InitDash)
 	{
 		mv_isDashing = false;
 		mv_LockControls = false;
-		GetCharacterMovement()->Velocity = NormalizedForward * 1000.f;
+		GetCharacterMovement()->Velocity = NormalizedForward * 1425.f;
 	}
 }
 
