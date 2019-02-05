@@ -279,7 +279,7 @@ void AMyCharacter::Dash(const bool InitDash)
 		mv_isDashing = false;
 		mv_LockControls = false;
 		GetCharacterMovement()->Velocity = NormalizedForward * 1425.f;
-		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_MAX);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Block);
 	}
 }
 
