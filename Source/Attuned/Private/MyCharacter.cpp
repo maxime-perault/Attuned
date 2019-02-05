@@ -262,9 +262,12 @@ void AMyCharacter::Dash(const bool InitDash)
 		GetCharacterMovement()->AddImpulse(NormalizedForward * mv_DashPower, true);
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Ignore);
 	}
+	else if (InitDash == true)
+	{
+		return;
+	}
 	
 	CurrentDashDuration += mv_DeltaTime;
-
 
 	if (CurrentDashDuration > MaxDashDuration)
 		CurrentDashDuration = MaxDashDuration;
