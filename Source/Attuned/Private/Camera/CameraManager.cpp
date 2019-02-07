@@ -62,7 +62,7 @@ void UCameraManager::Initialize(void)
 	SandProfile.CollisionSettings.SphereRadius           = 40.0f;
 
 	// Water camera profile
-	WaterProfile.Settings.Pitch							 = 0.0f;
+	WaterProfile.Settings.Pitch							 = 0.12f;
 	WaterProfile.Settings.bUsePawnControlRotation        = false;
 	WaterProfile.BoomSettings.bInheritRoll               = false;
 	WaterProfile.BoomSettings.bInheritPitch              = true;
@@ -117,10 +117,11 @@ void UCameraManager::Initialize(void)
 	Character->mc_CurrentCameraCollision->SetSphereRadius(CurrentProfile.CollisionSettings.SphereRadius);
 
 	// Common variables
-	MinPitch        = -0.5f;
-	MaxPitch        =  0.9f;
-	LerpElapsedTime =  0.0f;
-	bIsLerping      = false;
+	MinPitch               = -0.5f;
+	MaxPitch               =  0.9f;
+	LerpElapsedTime        =  0.0f;
+	bIsLerping             = false;
+	ArmFromPitchMultiplier = 1.0f;
 
 	MaxArmLength = Character->mc_CurrentCameraBoom->TargetArmLength;
 
@@ -147,7 +148,7 @@ void UCameraManager::OnTerrainChange(int type)
 
 	PreviousProfile = CurrentProfile;
 	PreviousProfile.Settings.Pitch				  = CurrentPitch;
-	PreviousProfile.BoomSettings.TargetArmLenght  = FMath::Max(MaxArmLength, Character->mc_CurrentCameraBoom->TargetArmLength);
+	PreviousProfile.BoomSettings.TargetArmLenght  = MaxArmLength;
 	PreviousProfile.BoomSettings.RelativeLocation = Character->mc_CurrentCameraBoom->RelativeLocation;
 	PreviousProfile.BoomSettings.RelativeRotation = Character->mc_CurrentCameraBoom->RelativeRotation;
 
@@ -194,7 +195,7 @@ void UCameraManager::LerpCameraValues(void)
 		return;
 	}
 
-	LerpElapsedTime += mv_DeltaTime * 0.5f;
+	LerpElapsedTime += mv_DeltaTime;
 	LerpElapsedTime = FMath::Clamp(LerpElapsedTime, 0.0f, 1.0f);
 
 	Character->mc_CurrentCameraBoom->RelativeLocation = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.RelativeLocation, CurrentProfile.BoomSettings.RelativeLocation, LerpElapsedTime, 2.5f);
@@ -206,7 +207,7 @@ void UCameraManager::LerpCameraValues(void)
 	float MissingInputPitch = delta / 0.043620f;
 	
 	// Sending the input
-	CastChecked<APlayerController>(Character->Controller)->AddPitchInput(MissingInputPitch * mv_DeltaTime * 0.5f);
+	CastChecked<APlayerController>(Character->Controller)->AddPitchInput(MissingInputPitch * mv_DeltaTime);
 
 	// LogTemp : Warning : Current Pitch : 0.000000
 	// LogTemp : Warning : Current Pitch : 0.043620 = 1.0f
@@ -237,22 +238,30 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		UpdateCameraFromPitch();
 		CollisionBetweenCameraAndTarget();
 		ZoomOut();
-
+		
 		Character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = 0.f;
 	}
 	else
 	{
 		this->UpdateArmFromSpeed();
+
+		UpdateCameraFromPitch();
+		CollisionBetweenCameraAndTarget();
+		ZoomOut();
+
+		// ZoomOut();
 	}
 
 	LerpCameraValues();
 	UpdatePitch();
 
-	UE_LOG(LogTemp, Warning, TEXT("A : %lf - B : %lf - X : %lf"), 
-		PreviousProfile.Settings.Pitch,
-		CurrentProfile.Settings.Pitch, CurrentPitch);
+	// UE_LOG(LogTemp, Warning, TEXT("A : %lf - B : %lf - X : %lf"), 
+	// 	PreviousProfile.Settings.Pitch,
+	// 	CurrentProfile.Settings.Pitch, CurrentPitch);
 
-	UE_LOG(LogTemp, Warning, TEXT("Lenght : %lf"),
+	UE_LOG(LogTemp, Warning, TEXT("A : %lf - B : %lf - X : %lf"),
+		PreviousProfile.BoomSettings.TargetArmLenght,
+		CurrentProfile.BoomSettings.TargetArmLenght,
 		Character->mc_CurrentCameraBoom->TargetArmLength);
 }
 
@@ -288,7 +297,11 @@ void UCameraManager::UpdateArmFromSpeed(void)
 	percent = FMath::Min(percent, 0.8f);
 
 	// Lerping the current arm lenght depending the speed on water (Tween 400.0f - water arm lenght)
-	Character->mc_CurrentCameraBoom->TargetArmLength = FMath::Max(Character->mc_CurrentCameraBoom->TargetArmLength, FMath::Lerp(400.f, WaterProfile.BoomSettings.TargetArmLenght, percent));
+	MaxArmLength =
+		FMath::Max(PreviousProfile.BoomSettings.TargetArmLenght,
+			FMath::Lerp(
+				400.0f, 
+				WaterProfile.BoomSettings.TargetArmLenght * 1.2f, percent));
 
 	if (percent >= 0.7f)
 	{
