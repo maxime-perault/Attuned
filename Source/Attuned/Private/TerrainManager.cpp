@@ -195,7 +195,7 @@ void UTerrainManager::DashCoolDown(const bool reset)
 
 	mv_DashCoolDown = CurrentTime / DashCoolDown;
 
-	mc_InGameUIAttached->SetCoolDown(CurrentTime / DashCoolDown);
+	//mc_InGameUIAttached->SetCoolDown(CurrentTime / DashCoolDown);
 
 	if (CurrentTime == DashCoolDown)
 		mv_CanDash = true;
@@ -226,8 +226,10 @@ void UTerrainManager::CharacterMoveSpeedTransition(const bool InitTransition)
 
 void UTerrainManager::StandardTerrainFirstStep(void)
 {
+	/*
 	if (mc_InGameUIAttached)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
+	*/
 
 	mv_TerrainType = TEXT("DEFAULT");
 	mc_character->mc_CameraManager->OnTerrainChange(0);
@@ -254,9 +256,10 @@ void UTerrainManager::StandardTerrainFirstStep(void)
 
 void UTerrainManager::RockTerrainFirstStep(void)
 {
+	/*
 	if (mc_InGameUIAttached)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Visible);
-
+	*/
 	mv_TerrainType = TEXT("ROCK");
 	mc_character->mc_CameraManager->OnTerrainChange(1);
 	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
@@ -282,8 +285,10 @@ void UTerrainManager::RockTerrainFirstStep(void)
 
 void UTerrainManager::WaterTerrainFirstStep(void)
 {
+	/*
 	if (mc_InGameUIAttached)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
+	*/
 
 	mv_TerrainType = TEXT("WATER");
 	mc_character->mc_CameraManager->OnTerrainChange(2);
@@ -311,8 +316,10 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 
 void UTerrainManager::SandTerrainFirstStep(void)
 {
+	/*
 	if (mc_InGameUIAttached)
 		mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden); // If Rock before
+	*/
 
 	mv_TerrainType = TEXT("SAND");
 	mc_character->mc_CameraManager->OnTerrainChange(3);
