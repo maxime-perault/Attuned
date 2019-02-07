@@ -291,6 +291,7 @@ void AMyCharacter::Dash(const bool InitDash)
 			ActorsToIgnore.Append(FoundDestructibleActors);
 		}
 		mc_TerrainManager->DashCoolDown(true);
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Ignore);
 	}
 	else if (InitDash == true)
 	{
@@ -347,6 +348,7 @@ void AMyCharacter::Dash(const bool InitDash)
 
 	if (CurrentDashDuration == MaxDashDuration)
 	{
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Block);
 		mv_isDashing = false;
 		mv_LockControls = false;
 	}
