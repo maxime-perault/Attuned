@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TerrainManager.h"
-#include "CameraManager.h"
+#include "Camera/CameraManager.h"
 #include "W_InGameUI.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "MyCharacter.generated.h"
@@ -49,6 +49,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Setup, meta = (AllowPrivateAccess = "true"))
 		UCameraManager *mc_CameraManager;
 
+	// Camera
+
+
 	/*
 	** CAMERAS
 	*/
@@ -68,22 +71,6 @@ public:
 			/** Camera Collision */
 			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 				class	USphereComponent* mc_DefaultCameraCollision;
-
-		/*
-		** WATER CAMERA
-		*/
-
-			/** Camera boom positioning the camera behind the character */
-			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-				class	USpringArmComponent* mc_WaterCameraBoom;
-
-			/** Follow camera */
-			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-				class	UCameraComponent* mc_WaterFollowCamera;
-
-			/** Camera Collision */
-			UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-				class	USphereComponent* mc_WaterCameraCollision;
 
 		/*
 		** CURRENT CAM

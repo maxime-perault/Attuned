@@ -198,12 +198,13 @@ void GAttunedTool::UpdatePIEValues()
 	const auto* commonDataNeutral = GetModel<CommonDataNeutral>();
 	const auto* rockMomemtumData  = GetModel<RockMomemtumData>();
 
-	UCameraManager::CameraSettings cameraSettings {};
-	cameraSettings.MaxArmLength         = cameraData->m_maxArmLenghtValue;
-	cameraSettings.MaxTimeFromLastInput = cameraData->m_maxTimeFromLastInputValue;
+	// Not UTD anymore since the camera settings is the not the same between terrains
+	// UCameraManager::CameraSettings cameraSettings {};
+	// cameraSettings.MaxArmLength         = cameraData->m_maxArmLenghtValue;
+	// cameraSettings.MaxTimeFromLastInput = cameraData->m_maxTimeFromLastInputValue;
 
 	// Updating camera
-	m_cameraManager->UpdateCameraSettings(cameraSettings);
+	// m_cameraManager->UpdateCameraSettings(cameraSettings);
 
 	// Updating rock momemtum
 	UTerrainManager::RockMomemtumSettings momemtumSettings{};
@@ -248,14 +249,14 @@ void GAttunedTool::UpdatePIEValues()
 	m_terrainManager->UpdateTerrainSettings(neutralSettings);
 }
 
-void GAttunedTool::UpdatePIECameraSettings(const UCameraManager::CameraSettings& settings)
+void GAttunedTool::UpdatePIECameraSettings(/* const UCameraManager::CameraSettings& settings */)
 {
 	if (!m_character || !m_pieWorld)
 	{
 		return;
 	}
 
-	m_cameraManager->UpdateCameraSettings(settings);
+	// m_cameraManager->UpdateCameraSettings(settings);
 }
 
 void GAttunedTool::OnPostWorldActorTick(UWorld* world, ELevelTick tick, float dt)
@@ -310,12 +311,13 @@ bool GAttunedTool::RevertModel()
 void GAttunedTool::UpdateModel(CameraData& data)
 {
 	m_attunedModel->UpdateCache(data);
-
-	UCameraManager::CameraSettings cameraSettings{};
-	cameraSettings.MaxArmLength         = data.m_maxArmLenghtValue;
-	cameraSettings.MaxTimeFromLastInput = data.m_maxTimeFromLastInputValue;
-
-	UpdatePIECameraSettings(cameraSettings);
+	
+	// Note : Disabled because the camera settings doesn't exist anymore
+	// UCameraManager::CameraSettings cameraSettings{};
+	// cameraSettings.MaxArmLength         = data.m_maxArmLenghtValue;
+	// cameraSettings.MaxTimeFromLastInput = data.m_maxTimeFromLastInputValue;
+	// 
+	// UpdatePIECameraSettings(cameraSettings);
 }
 
 void GAttunedTool::UpdateModel(CommonDataRock& data)

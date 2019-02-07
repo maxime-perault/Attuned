@@ -84,18 +84,18 @@ AMyCharacter::AMyCharacter()
 		/*
 		** WATER CAM
 		*/
-			// Create a camera boom (pulls in towards the player if there is a collision)
-			mc_WaterCameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("WaterCameraBoom"));
-			mc_WaterCameraBoom->SetupAttachment(RootComponent);
-			
-			// Create a follow camera
-			mc_WaterFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("WaterFollowCamera"));
-			mc_WaterFollowCamera->SetupAttachment(mc_WaterCameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-
-			// Create Camera Collision
-			mc_WaterCameraCollision = CreateDefaultSubobject<USphereComponent>(TEXT("WaterCameraCollision"));
-			mc_WaterCameraCollision->SetupAttachment(mc_WaterFollowCamera);
-
+		//	// Create a camera boom (pulls in towards the player if there is a collision)
+		//	mc_WaterCameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("WaterCameraBoom"));
+		//	mc_WaterCameraBoom->SetupAttachment(RootComponent);
+		//	
+		//	// Create a follow camera
+		//	mc_WaterFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("WaterFollowCamera"));
+		//	mc_WaterFollowCamera->SetupAttachment(mc_WaterCameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+		//
+		//	// Create Camera Collision
+		//	mc_WaterCameraCollision = CreateDefaultSubobject<USphereComponent>(TEXT("WaterCameraCollision"));
+		//	mc_WaterCameraCollision->SetupAttachment(mc_WaterFollowCamera);
+		//
 		/*
 		** CURRENT CAM
 		*/
@@ -159,7 +159,7 @@ AMyCharacter::AMyCharacter()
 
 	// Create CameraManager
 	mc_CameraManager = CreateDefaultSubobject<UCameraManager>(TEXT("CameraManager"));
-	mc_CameraManager->SetOwner(this);
+	mc_CameraManager->Initialize();
 
 	mv_DrawSpeedParticles = false;
 
@@ -336,13 +336,18 @@ void AMyCharacter::LookUpAtRate(float Rate)
 	{
 		if (mc_TerrainManager->mv_TerrainType != "WATER")
 		{
-			if (!(((mc_CameraManager->mv_CurrentPitch <= mc_CameraManager->mv_MinPitch) && Rate < 0.f) ||
-				((mc_CameraManager->mv_CurrentPitch >= mc_CameraManager->mv_MaxPitch) && Rate > 0.f)))
+			if (!(((mc_CameraManager->GetCurrentPitch() <= mc_CameraManager->GetMinPitch()) && Rate < 0.f) ||
+				((mc_CameraManager->GetCurrentPitch()   >= mc_CameraManager->GetMaxPitch()) && Rate > 0.f)))
 			{
 				AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 			}
 		}
 	}
+
+	APlayerController* const PC = CastChecked<APlayerController>(Controller);
+	// PC->RotationInput.Pitch = 0.0f;
+
+//	UE_LOG(LogTemp, Warning, TEXT("Pitch : %lf"), PC->RotationInput.Pitch);
 }
 
 void AMyCharacter::MoveForward(float Value)

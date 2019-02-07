@@ -8,6 +8,8 @@
 
 CameraSettings::CameraSettings()
 : bUsePawnControlRotation(false)
+, FieldOfView(90.0f)
+, Pitch  (0.0f)
 {
 	// None
 }
