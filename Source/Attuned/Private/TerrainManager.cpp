@@ -99,6 +99,8 @@ void UTerrainManager::BeginPlay()
 	mv_DefaultJumpZVelocity   = 700.0f;
 	mv_DefaultAcceleration    = 850.0f;
 	mv_DefaultSpeed           = 825.0f;
+
+	mv_DashCoolDown = 0.f;
 }
 
 
@@ -178,7 +180,7 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 void UTerrainManager::DashCoolDown(const bool reset)
 {
 	static float		CurrentTime = 0.f;
-	static const float	DashCoolDown = 1.5f;
+	static const float	DashCoolDown = 1.f;
 
 	if (reset)
 	{
@@ -190,6 +192,8 @@ void UTerrainManager::DashCoolDown(const bool reset)
 	CurrentTime += mv_DeltaTime;
 	if (CurrentTime > DashCoolDown)
 		CurrentTime = DashCoolDown;
+
+	mv_DashCoolDown = CurrentTime / DashCoolDown;
 
 	mc_InGameUIAttached->SetCoolDown(CurrentTime / DashCoolDown);
 
