@@ -40,6 +40,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Terrain, meta = (AllowPrivateAccess = "true"))
 	bool bOnWaterExit;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Terrain, meta = (AllowPrivateAccess = "true"))
+	float mv_DashCoolDown;
+
 	struct RockTerrainSettings
 	{
 		float RockSpeed;
@@ -111,6 +114,7 @@ public:
 	bool	mv_MomemtumSquare;
 	float   mv_MomemtumMinValue;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Terrain, meta = (AllowPrivateAccess = "true"))
 	bool	mv_CanDash;
 
 public:

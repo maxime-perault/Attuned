@@ -17,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathVectorCommon.h"
 #include "Math/UnrealMathUtility.h"
+#include "DrawDebugHelpers.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -242,12 +243,17 @@ void AMyCharacter::Tick(float DeltaTime)
 
 void AMyCharacter::Dash(const bool InitDash)
 {
-	static float			CurrentDashDuration(0.f); //CurrentTimeValue Needed for the lerp (blueprint timeline like)
-	static const float		MaxDashDuration(0.2f); //The Duration of a dash in seconds
-	static const float		DashLength(1000.f);
+	static float		CurrentDashDuration(0.f); //CurrentTimeValue Needed for the lerp (blueprint timeline like)
+	static const float	MaxDashDuration(0.3f); //The Duration of a dash in seconds
 
-	static FVector	NormalizedForward(0.f, 0.f, 0.f);
-	
+	static FVector	NormalizedNormalRamp(0.f, 0.f, 0.f); //The normal of terrain where the player is at the start
+	static FVector	BasePlayerLocation(0.f, 0.f, 0.f); //Start location of player
+	static FVector	NextLocation(0.f, 0.f, 0.f); //Next location computed each frame
+	static FVector	A; //lerp A
+	static FVector	B; // lerp B
+	static FVector	DashVelocity; //Velocity to not stop movements after dashing
+	static FVector	NormalizedVelocity;
+
 	static TArray<TEnumAsByte<EObjectTypeQuery>>	ObjectTypes; //Types of object to focus on for the collision detection
 	static TArray<AActor*>							ActorsToIgnore; //Actors to not fetch during the dash collision detection
 	static TArray<AActor*>							FoundDestructibleActors; //All destructibleActors in the current world
@@ -258,34 +264,84 @@ void AMyCharacter::Dash(const bool InitDash)
 		//speed forward TODO
 		mv_isDashing = true;
 		mv_LockControls = true;
+		BasePlayerLocation = this->GetActorLocation();
+		NormalizedNormalRamp = mc_TerrainManager->mv_TerrainNormal;
 		CurrentDashDuration = 0.f;
 
+		A = BasePlayerLocation;
+		B = NormalizedNormalRamp;
+
+		B = B.RotateAngleAxis(90.f, FVector(1.f, 0.f, 0.f)) * 850.f;
+		B = B.RotateAngleAxis(GetCapsuleComponent()->GetComponentRotation().Yaw + 90.f, NormalizedNormalRamp);
+		B += A;
+
+		DashVelocity = (B - A);
+		DashVelocity.Normalize();
+		NormalizedVelocity = DashVelocity;
+		DashVelocity *= 1000.f;
+
 		if (ObjectTypes.Num() == 0)
+		{
 			ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+		}
 		if (ActorsToIgnore.Num() == 0)
 		{
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADestructibleActor::StaticClass(), FoundDestructibleActors);
 			ActorsToIgnore.Add(GetOwner());
 			ActorsToIgnore.Append(FoundDestructibleActors);
 		}
-		NormalizedForward = GetCapsuleComponent()->GetForwardVector();
-		NormalizedForward.Normalize();
-
 		mc_TerrainManager->DashCoolDown(true);
-		GetCharacterMovement()->AddImpulse(NormalizedForward * mv_DashPower, true);
 	}
-	
+	else if (InitDash == true)
+	{
+		return;
+	}
+
 	CurrentDashDuration += mv_DeltaTime;
 	if (CurrentDashDuration > MaxDashDuration)
 		CurrentDashDuration = MaxDashDuration;
 
+	NextLocation = FMath::Lerp(
+		A,
+		B,
+		CurrentDashDuration / MaxDashDuration);
+
+	GetCharacterMovement()->Velocity = DashVelocity;
 	
-	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), mc_DashRadialForce->GetComponentLocation(), 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
+	/*
+	DrawDebugSphere(
+		GetWorld(),
+		NextLocation + NormalizedVelocity * 50.f,
+		10,
+		32,
+		FColor(255, 255, 255)
+	);
+
+	DrawDebugSphere(
+		GetWorld(),
+		FVector(NextLocation.X, NextLocation.Y, NextLocation.Z + 50.f) + NormalizedVelocity * 50.f,
+		10,
+		32,
+		FColor(255, 255, 255)
+	);
+
+	DrawDebugSphere(
+		GetWorld(),
+		FVector(NextLocation.X, NextLocation.Y, NextLocation.Z - 60.f) + NormalizedVelocity * 50.f,
+		10,
+		32,
+		FColor(255, 255, 255)
+	);
+	*/
+	if (UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), NextLocation + NormalizedVelocity * 50.f, 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents) ||
+		UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), FVector(NextLocation.X, NextLocation.Y, NextLocation.Z + 50.f) + NormalizedVelocity * 50.f, 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents) ||
+		UKismetSystemLibrary::SphereOverlapComponents(GetWorld(), FVector(NextLocation.X, NextLocation.Y, NextLocation.Z - 60.f) + NormalizedVelocity * 50.f, 10.f, ObjectTypes, nullptr, ActorsToIgnore, OutComponents))
 	{
 		CurrentDashDuration = MaxDashDuration;
 	}
-	else if (CurrentDashDuration != MaxDashDuration)
+	else
 	{
+		SetActorLocation(NextLocation);
 		mc_DashRadialForce->FireImpulse();
 	}
 
@@ -293,9 +349,10 @@ void AMyCharacter::Dash(const bool InitDash)
 	{
 		mv_isDashing = false;
 		mv_LockControls = false;
-		GetCharacterMovement()->Velocity = NormalizedForward * 1000.f;
 	}
 }
+//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Ignore);
+//GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Block);
 
 void AMyCharacter::Jump()
 {

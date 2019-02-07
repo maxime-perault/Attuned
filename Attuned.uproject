@@ -189,6 +189,10 @@
 		{
 			"Name": "XCodeSourceCodeAccess",
 			"Enabled": false
+		},
+		{
+			"Name": "ActorSequenceEditor",
+			"Enabled": true
 		}
 	]
 }
