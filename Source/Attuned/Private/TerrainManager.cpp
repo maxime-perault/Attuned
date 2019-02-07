@@ -73,7 +73,7 @@ void UTerrainManager::BeginPlay()
 
 	mv_MomemtumActive   = true;
 	mv_MomemtumSquare   = false;
-	mv_MomemtumMinValue = 0.5f;
+	mv_MomemtumMinValue = 0.25f;
 
 
 	mv_RockFallingFriction = 0.5f;
@@ -82,16 +82,16 @@ void UTerrainManager::BeginPlay()
 	mv_RockAcceleration    = 175.0f;
 	mv_RockSpeed           = 1425.0f;
 
-	mv_SandFallingFriction = 400.0f;
-	mv_SandAirControl      = 250.0f;
+	mv_SandFallingFriction = 10.0f;
+	mv_SandAirControl      = 0.2f;
 	mv_SandJumpZVelocity   = 1400.0f;
 	mv_SandAcceleration    = 925.0f;
 	mv_SandSpeed           = 950.0f;
 
 	mv_WaterFallingFriction = 1.0f;
 	mv_WaterAirControl      = 1.0f;
-	mv_WaterJumpZVelocity   = 200.0f;
-	mv_WaterAcceleration    = 300.0f;
+	mv_WaterJumpZVelocity   = 400.0f;
+	mv_WaterAcceleration    = 2.0f;
 	mv_WaterSpeed           = 1425.0f;
 
 	mv_DefaultFallingFriction = 0.5f;
