@@ -91,7 +91,7 @@ void UTerrainManager::BeginPlay()
 	mv_WaterFallingFriction = 1.0f;
 	mv_WaterAirControl      = 1.0f;
 	mv_WaterJumpZVelocity   = 400.0f;
-	mv_WaterAcceleration    = 2.0f;
+	mv_WaterAcceleration    = 500.0f;
 	mv_WaterSpeed           = 1425.0f;
 
 	mv_DefaultFallingFriction = 0.5f;
