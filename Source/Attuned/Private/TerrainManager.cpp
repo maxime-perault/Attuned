@@ -101,6 +101,8 @@ void UTerrainManager::BeginPlay()
 	mv_DefaultSpeed           = 825.0f;
 
 	mv_DashCoolDown = 0.f;
+	mv_ElapsedTime  = 0.0f;
+	mv_lockSpeed    = false;
 }
 
 
@@ -159,8 +161,12 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			}
 			case SurfaceType2:
 			{
-				this->WaterTerrainFirstStep();
+				mv_bufferVelocity = mc_character->GetCharacterMovement()->Velocity;
+				
 				bOnWaterEnter = true;
+				mv_lockSpeed  = true;
+
+				this->WaterTerrainFirstStep();
 				break;
 			}
 			case SurfaceType3:
@@ -174,6 +180,30 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 				break;
 			}
 		}
+	}
+
+	LockVelocity();
+}
+
+void UTerrainManager::LockVelocity(void)
+{
+	if (!mv_lockSpeed)
+	{
+		return;
+	}
+
+	mv_ElapsedTime += mv_DeltaTime;
+	mc_character->GetCharacterMovement()->Velocity = mv_bufferVelocity;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity : %lf %lf %lf"),
+	//	mc_character->GetCharacterMovement()->Velocity.X,
+	//	mc_character->GetCharacterMovement()->Velocity.Y,
+	//	mc_character->GetCharacterMovement()->Velocity.Z);
+
+	if (mv_ElapsedTime >= 0.3f)
+	{
+		mv_ElapsedTime = 0.0f;
+		mv_lockSpeed   = false;
 	}
 }
 

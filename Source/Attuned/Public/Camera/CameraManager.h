@@ -110,6 +110,7 @@ private:
 	float mv_DeltaTime;
 	float DeltaSpeedFOV = 0.f;
 	float NextArmLength;
+	float LastTerrainVelocity;
 	float ArmFromPitchMultiplier;
 	
 private:
