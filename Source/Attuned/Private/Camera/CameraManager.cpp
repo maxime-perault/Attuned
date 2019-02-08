@@ -200,7 +200,11 @@ void UCameraManager::LerpCameraValues(void)
 
 	Character->mc_CurrentCameraBoom->RelativeLocation = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.RelativeLocation, CurrentProfile.BoomSettings.RelativeLocation, LerpElapsedTime, 2.5f);
 	Character->mc_CurrentCameraBoom->RelativeRotation = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.RelativeRotation, CurrentProfile.BoomSettings.RelativeRotation, LerpElapsedTime, 2.5f);
-	MaxArmLength                                      = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.TargetArmLenght,  CurrentProfile.BoomSettings.TargetArmLenght,  LerpElapsedTime, 2.5f);
+
+	if (Character->GetTerrainSurfaceType() != "WATER")
+	{
+		MaxArmLength = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght, LerpElapsedTime, 2.5f);
+	}
 
 	// Compute the amount of pitch to add or remove
 	float delta             = CurrentProfile.Settings.Pitch - PreviousProfile.Settings.Pitch;
@@ -214,7 +218,8 @@ void UCameraManager::LerpCameraValues(void)
 
 	if (LerpElapsedTime >= 1.0f)
 	{
-		bIsLerping = false;
+		bIsLerping                                     = false;
+		LastTerrainVelocity							   = Character->GetVelocity().Size();
 	    Character->mc_CurrentCameraBoom->bInheritPitch = CurrentProfile.BoomSettings.bInheritPitch;
 	}
 }
@@ -243,26 +248,14 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 	else
 	{
-		this->UpdateArmFromSpeed();
-
 		UpdateCameraFromPitch();
 		CollisionBetweenCameraAndTarget();
 		ZoomOut();
-
-		// ZoomOut();
+		UpdateArmFromSpeed();
 	}
 
 	LerpCameraValues();
 	UpdatePitch();
-
-	// UE_LOG(LogTemp, Warning, TEXT("A : %lf - B : %lf - X : %lf"), 
-	// 	PreviousProfile.Settings.Pitch,
-	// 	CurrentProfile.Settings.Pitch, CurrentPitch);
-
-	UE_LOG(LogTemp, Warning, TEXT("A : %lf - B : %lf - X : %lf"),
-		PreviousProfile.BoomSettings.TargetArmLenght,
-		CurrentProfile.BoomSettings.TargetArmLenght,
-		Character->mc_CurrentCameraBoom->TargetArmLength);
 }
 
 void UCameraManager::LerpArmLenght()
@@ -293,15 +286,16 @@ void UCameraManager::UpdatePitch(void)
 void UCameraManager::UpdateArmFromSpeed(void)
 {
 	// TODO : Refactor terrain manager
-	float percent = Character->GetVelocity().Size() / Character->mc_TerrainManager->mv_WaterSpeed;
-	percent = FMath::Min(percent, 0.8f);
-
-	// Lerping the current arm lenght depending the speed on water (Tween 400.0f - water arm lenght)
-	MaxArmLength =
-		FMath::Max(PreviousProfile.BoomSettings.TargetArmLenght,
-			FMath::Lerp(
-				400.0f, 
-				WaterProfile.BoomSettings.TargetArmLenght * 1.2f, percent));
+	float percent = FMath::Clamp(GetPercentBetweenAB(Character->GetVelocity().Size(), LastTerrainVelocity, Character->mc_TerrainManager->mv_WaterSpeed), 0.0f, 1.0f);
+	
+	if (bIsLerping)
+	{
+		MaxArmLength  = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght, LerpElapsedTime, 2.5f);
+	}
+	else
+	{
+		MaxArmLength = FMath::Lerp(CurrentProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght + 150.0f, percent);
+	}
 
 	if (percent >= 0.7f)
 	{
