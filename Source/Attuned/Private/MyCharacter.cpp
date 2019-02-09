@@ -156,7 +156,7 @@ AMyCharacter::AMyCharacter()
 
 	// Create TerrainManager
 	mc_TerrainManager = CreateDefaultSubobject<UTerrainManager>(TEXT("TerrainManager"));
-	mc_TerrainManager->SetOwner(this);
+	mc_TerrainManager->Initialize();
 
 	// Create CameraManager
 	mc_CameraManager = CreateDefaultSubobject<UCameraManager>(TEXT("CameraManager"));
@@ -209,7 +209,7 @@ void AMyCharacter::BeginPlay()
 			mc_InGameUIAttached->AddToViewport();
 			mc_InGameUIAttached->SetCoolDown(100.f);
 			mc_InGameUIAttached->SetVisibility(ESlateVisibility::Hidden);
-			mc_TerrainManager->mc_InGameUIAttached = mc_InGameUIAttached;
+			mc_TerrainManager->SetInGameGUI(mc_InGameUIAttached);
 		}
 	}
 	mc_CurrentCameraBoom = mc_DefaultCameraBoom;
@@ -261,13 +261,13 @@ void AMyCharacter::Dash(const bool InitDash)
 	static TArray<AActor*>							FoundDestructibleActors; //All destructibleActors in the current world
 	static TArray<UPrimitiveComponent*>				OutComponents; // Components detected during a frame for the next dash position
 
-	if (InitDash == true && mc_TerrainManager->mv_CanDash)
+	if (InitDash == true && mc_TerrainManager->CanDash) // TODO : Getter/Setter ?
 	{
 		//speed forward TODO
 		mv_isDashing = true;
 		mv_LockControls = true;
 		BasePlayerLocation = this->GetActorLocation();
-		NormalizedNormalRamp = mc_TerrainManager->mv_TerrainNormal;
+		NormalizedNormalRamp = mc_TerrainManager->GetTerrainNormal();
 		CurrentDashDuration = 0.f;
 
 		A = BasePlayerLocation;
@@ -292,7 +292,7 @@ void AMyCharacter::Dash(const bool InitDash)
 			ActorsToIgnore.Add(GetOwner());
 			ActorsToIgnore.Append(FoundDestructibleActors);
 		}
-		mc_TerrainManager->DashCoolDown(true);
+		mc_TerrainManager->UpdateDashCoolDown(true); ////
 	}
 	else if (InitDash == true)
 	{
@@ -381,7 +381,7 @@ void AMyCharacter::TurnAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	if (!mv_LockControls)
 	{
-		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		if (mc_TerrainManager->GetTerrainType() != UTerrainManager::ETerrainType::Water)
 		{
 			AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 		}
@@ -393,7 +393,7 @@ void AMyCharacter::LookUpAtRate(float Rate)
 	// Pitch Locked between Min and Max Pitch
 	if (!mv_LockControls)
 	{
-		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		if (mc_TerrainManager->GetTerrainType() != UTerrainManager::ETerrainType::Water)
 		{
 			if (!(((mc_CameraManager->GetCurrentPitch() <= mc_CameraManager->GetMinPitch()) && Rate < 0.f) ||
 				((mc_CameraManager->GetCurrentPitch()   >= mc_CameraManager->GetMaxPitch()) && Rate > 0.f)))
@@ -420,7 +420,7 @@ void AMyCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		if (mc_TerrainManager->GetTerrainType() != UTerrainManager::ETerrainType::Water)
 		{
 			AddMovementInput(Direction, Value);
 		}
@@ -474,13 +474,14 @@ void AMyCharacter::MoveRight(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		float coefficient = 1.0f;
-		if (mc_TerrainManager->mv_MomemtumActive && mc_TerrainManager->mv_TerrainType == "ROCK")
+		if (mc_TerrainManager->GetRockMomemtumSettings().IsActive &&
+			mc_TerrainManager->GetTerrainType() == UTerrainManager::ETerrainType::Rock)
 		{
 			// Normalizing the velocity
 			float nVelocity   = GetVelocity().Size() / GetCharacterMovement()->MaxWalkSpeed;
-			coefficient       = FMath::Min(mc_TerrainManager->mv_MomemtumMinValue + (1.0f - nVelocity), 1.0f);
+			coefficient       = FMath::Min(mc_TerrainManager->GetRockMomemtumSettings().MinValue + (1.0f - nVelocity), 1.0f);
 
-			if (mc_TerrainManager->mv_MomemtumSquare)
+			if (mc_TerrainManager->GetRockMomemtumSettings().IsSquare)
 			{
 				coefficient *= coefficient;
 			}
@@ -489,7 +490,7 @@ void AMyCharacter::MoveRight(float Value)
 		BaseTurnRate = 45.0f * coefficient;
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y) * coefficient;
 
-		if (mc_TerrainManager->mv_TerrainType != "WATER")
+		if (mc_TerrainManager->GetTerrainType() != UTerrainManager::ETerrainType::Water)
 		{
 			AddMovementInput(Direction, Value);
 		}
@@ -554,7 +555,7 @@ void	AMyCharacter::lockControls(void)
 
 FString AMyCharacter::GetTerrainSurfaceType(void)
 {
-	return (mc_TerrainManager->mv_TerrainType);
+	return (mc_TerrainManager->GetTerrainTypeStringRepresentation());
 }
 
 float AMyCharacter::GetLeanDegree(void)

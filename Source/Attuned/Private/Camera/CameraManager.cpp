@@ -140,8 +140,8 @@ void UCameraManager::Initialize(void)
 }
 
 /// \brief Called when the character walks on a new terrain
-/// \param type The type of the terrain (TODO : Change for an enum)
-void UCameraManager::OnTerrainChange(int type)
+/// \param type The type of the terrain
+void UCameraManager::OnTerrainChange(UTerrainManager::ETerrainType type)
 {
 	FVector FollowPosition  = Character->mc_CurrentFollowCamera->GetComponentLocation();
 	FVector CapsulePosition = Character->GetCapsuleComponent()->GetComponentLocation();
@@ -154,11 +154,12 @@ void UCameraManager::OnTerrainChange(int type)
 
 	switch (type)
 	{
-		case 0: { CurrentProfile = NeutralProfile; break; }
-		case 1:	{ CurrentProfile = RockProfile;    break; }
-		case 2: { CurrentProfile = WaterProfile;   break; }
-		case 3: { CurrentProfile = NeutralProfile; break; }
-		
+		case UTerrainManager::ETerrainType::Rock:     { CurrentProfile = RockProfile;    break; }
+		case UTerrainManager::ETerrainType::Sand:     { CurrentProfile = SandProfile;    break; }
+		case UTerrainManager::ETerrainType::Water:    { CurrentProfile = WaterProfile;   break; }
+		case UTerrainManager::ETerrainType::Corridor: { CurrentProfile = NeutralProfile; break; }
+		case UTerrainManager::ETerrainType::Neutral:  { CurrentProfile = NeutralProfile; break; }
+
 		default:
 		{
 			CurrentProfile = NeutralProfile;
@@ -286,7 +287,7 @@ void UCameraManager::UpdatePitch(void)
 void UCameraManager::UpdateArmFromSpeed(void)
 {
 	// TODO : Refactor terrain manager
-	float percent = FMath::Clamp(GetPercentBetweenAB(Character->GetVelocity().Size(), LastTerrainVelocity, Character->mc_TerrainManager->mv_WaterSpeed), 0.0f, 1.0f);
+	float percent = FMath::Clamp(GetPercentBetweenAB(Character->GetVelocity().Size(), LastTerrainVelocity, Character->mc_TerrainManager->GetWaterTerrainSettings().Speed), 0.0f, 1.0f);
 	
 	if (bIsLerping)
 	{
@@ -301,8 +302,8 @@ void UCameraManager::UpdateArmFromSpeed(void)
 	{
 		const float SpeedPercent = GetPercentBetweenAB(
 			Character->GetVelocity().Size(),
-			Character->mc_TerrainManager->mv_WaterSpeed * 0.7f,
-			Character->mc_TerrainManager->mv_WaterSpeed * 0.8f);
+			Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 0.7f,
+			Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 0.8f);
 
 		// Chromatic aberration
 		Character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = SpeedPercent * 4.0f;

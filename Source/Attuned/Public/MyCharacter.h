@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "TerrainManager.h"
+#include "Terrain/TerrainManager.h"
 #include "Camera/CameraManager.h"
 #include "W_InGameUI.h"
 #include "PhysicsEngine/RadialForceComponent.h"
