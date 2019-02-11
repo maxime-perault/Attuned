@@ -161,18 +161,34 @@ void UTerrainManager::BeginPlay()
 ///		   is kept durint 0.3 seconds in order to avoid a brutal deceleration
 void UTerrainManager::LockVelocity(void)
 {
+	static const float TotalTime = 0.8f;
+
 	if (!m_lockSpeed)
 	{
 		return;
 	}
 
 	m_elapsedTime += m_deltaTime;
-	m_character->GetCharacterMovement()->Velocity = m_bufferVelocity; 
 
-	if (m_elapsedTime >= 0.3f)
+	if ((m_bufferVelocity.Size() + this->GetPercentBetweenAB(m_elapsedTime, 0.f, TotalTime) * 500.f) < m_waterSettings.Speed)
+	{
+		m_character->GetCharacterMovement()->Velocity =
+			m_bufferVelocity
+			+ UKismetMathLibrary::GetForwardVector(m_character->Controller->GetControlRotation())
+			* (this->GetPercentBetweenAB(m_elapsedTime, 0.f, TotalTime) * 500.f);
+	}
+	else
+	{
+		m_character->GetCharacterMovement()->Velocity =
+			UKismetMathLibrary::GetForwardVector(m_character->Controller->GetControlRotation())
+			* m_waterSettings.Speed;
+	}
+
+	if (m_elapsedTime >= TotalTime)
 	{
 		m_elapsedTime = 0.0f;
 		m_lockSpeed   = false;
+		m_character->UnlockControls();
 
 		UE_LOG(LogTemp, Warning, TEXT("Velocity Unlokced"));
 	}
@@ -270,6 +286,8 @@ void UTerrainManager::SandTerrainFirstStep(void)
 void UTerrainManager::WaterTerrainFirstStep(void)
 {
 	m_lockSpeed      = true;
+
+	m_character->lockControls();
 	m_bufferVelocity = m_character->GetCharacterMovement()->Velocity;
 
 	m_terrainType = ETerrainType::Water;
