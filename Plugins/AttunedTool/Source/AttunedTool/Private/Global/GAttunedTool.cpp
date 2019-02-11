@@ -207,46 +207,46 @@ void GAttunedTool::UpdatePIEValues()
 	// m_cameraManager->UpdateCameraSettings(cameraSettings);
 
 	// Updating rock momemtum
-	UTerrainManager::RockMomemtumSettings momemtumSettings{};
+	RockMomemtumSettings momemtumSettings{};
 	momemtumSettings.IsActive = rockMomemtumData->m_bActiveMomemtum;
 	momemtumSettings.IsSquare = rockMomemtumData->m_bSquareMomemtum;
 	momemtumSettings.MinValue = rockMomemtumData->m_minMomemtumValue;
 
-	m_terrainManager->UpdateTerrainSettings(momemtumSettings);
+	m_terrainManager->SetRockMomemtumSettings(momemtumSettings);
 
 	// Updating terrains
-	UTerrainManager::RockTerrainSettings rockSettings {};
-	rockSettings.RockSpeed				   = commonDataRock->m_maxSpeedValue;
-	rockSettings.RockAirControl			   = commonDataRock->m_airControlValue;
-	rockSettings.RockAcceleration		   = commonDataRock->m_accelerationValue;
-	rockSettings.RockJumpZVelocity		   = commonDataRock->m_jumpZVelocityValue;
-	rockSettings.RockFallingFriction	   = commonDataRock->m_fallingFrictionValue;
+	TerrainSettings rockSettings {};
+	rockSettings.Speed				   = commonDataRock->m_maxSpeedValue;
+	rockSettings.AirControl			   = commonDataRock->m_airControlValue;
+	rockSettings.Acceleration		   = commonDataRock->m_accelerationValue;
+	rockSettings.JumpZVelocity		   = commonDataRock->m_jumpZVelocityValue;
+	rockSettings.FallingFriction	   = commonDataRock->m_fallingFrictionValue;
 
-	UTerrainManager::SandTerrainSettings sandSettings {};
-	sandSettings.SandSpeed				   = commonDataSand->m_maxSpeedValue;
-	sandSettings.SandAirControl			   = commonDataSand->m_airControlValue;
-	sandSettings.SandAcceleration		   = commonDataSand->m_accelerationValue;
-	sandSettings.SandJumpZVelocity		   = commonDataSand->m_jumpZVelocityValue;
-	sandSettings.SandFallingFriction	   = commonDataSand->m_fallingFrictionValue;
+	TerrainSettings sandSettings {};
+	sandSettings.Speed				   = commonDataSand->m_maxSpeedValue;
+	sandSettings.AirControl			   = commonDataSand->m_airControlValue;
+	sandSettings.Acceleration		   = commonDataSand->m_accelerationValue;
+	sandSettings.JumpZVelocity		   = commonDataSand->m_jumpZVelocityValue;
+	sandSettings.FallingFriction	   = commonDataSand->m_fallingFrictionValue;
 
-	UTerrainManager::WaterTerrainSettings waterSettings {};
-	waterSettings.WaterSpeed			   = commonDataWater->m_maxSpeedValue;
-	waterSettings.WaterAirControl		   = commonDataWater->m_airControlValue;
-	waterSettings.WaterAcceleration		   = commonDataWater->m_accelerationValue;
-	waterSettings.WaterJumpZVelocity	   = commonDataWater->m_jumpZVelocityValue;
-	waterSettings.WaterFallingFriction	   = commonDataWater->m_fallingFrictionValue;
+	TerrainSettings waterSettings {};
+	waterSettings.Speed			       = commonDataWater->m_maxSpeedValue;
+	waterSettings.AirControl		   = commonDataWater->m_airControlValue;
+	waterSettings.Acceleration		   = commonDataWater->m_accelerationValue;
+	waterSettings.JumpZVelocity	       = commonDataWater->m_jumpZVelocityValue;
+	waterSettings.FallingFriction	   = commonDataWater->m_fallingFrictionValue;
 
-	UTerrainManager::NeutralTerrainSettings neutralSettings {};
-	neutralSettings.DefaultSpeed           = commonDataNeutral->m_maxSpeedValue;
-	neutralSettings.DefaultAirControl      = commonDataNeutral->m_airControlValue;
-	neutralSettings.DefaultAcceleration    = commonDataNeutral->m_accelerationValue;
-	neutralSettings.DefaultJumpZVelocity   = commonDataNeutral->m_jumpZVelocityValue;
-	neutralSettings.DefaultFallingFriction = commonDataNeutral->m_fallingFrictionValue;
+	TerrainSettings neutralSettings {};
+	neutralSettings.Speed           = commonDataNeutral->m_maxSpeedValue;
+	neutralSettings.AirControl      = commonDataNeutral->m_airControlValue;
+	neutralSettings.Acceleration    = commonDataNeutral->m_accelerationValue;
+	neutralSettings.JumpZVelocity   = commonDataNeutral->m_jumpZVelocityValue;
+	neutralSettings.FallingFriction = commonDataNeutral->m_fallingFrictionValue;
 
-	m_terrainManager->UpdateTerrainSettings(rockSettings);
-	m_terrainManager->UpdateTerrainSettings(sandSettings);
-	m_terrainManager->UpdateTerrainSettings(waterSettings);
-	m_terrainManager->UpdateTerrainSettings(neutralSettings);
+	m_terrainManager->SetRockTerrainSettings   (rockSettings);
+	m_terrainManager->SetSandTerrainSettings   (sandSettings);
+	m_terrainManager->SetWaterTerrainSettings  (waterSettings);
+	m_terrainManager->SetNeutralTerrainSettings(neutralSettings);
 }
 
 void GAttunedTool::UpdatePIECameraSettings(/* const UCameraManager::CameraSettings& settings */)
@@ -324,56 +324,64 @@ void GAttunedTool::UpdateModel(CommonDataRock& data)
 {
 	m_attunedModel->UpdateCache(data);
 
-	UTerrainManager::RockTerrainSettings rockSettings{};
-	rockSettings.RockSpeed           = data.m_maxSpeedValue;
-	rockSettings.RockAirControl      = data.m_airControlValue;
-	rockSettings.RockAcceleration    = data.m_accelerationValue;
-	rockSettings.RockJumpZVelocity   = data.m_jumpZVelocityValue;
-	rockSettings.RockFallingFriction = data.m_fallingFrictionValue;
+	TerrainSettings rockSettings{};
+	rockSettings.Speed           = data.m_maxSpeedValue;
+	rockSettings.AirControl      = data.m_airControlValue;
+	rockSettings.Acceleration    = data.m_accelerationValue;
+	rockSettings.JumpZVelocity   = data.m_jumpZVelocityValue;
+	rockSettings.FallingFriction = data.m_fallingFrictionValue;
 
-	UpdatePIETerrainSettings(rockSettings);
+	if (m_character && m_pieWorld) {
+		m_terrainManager->SetRockTerrainSettings(rockSettings);
+	}
 }
 
 void GAttunedTool::UpdateModel(CommonDataSand& data)
 {
 	m_attunedModel->UpdateCache(data);
 
-	UTerrainManager::SandTerrainSettings sandSettings{};
-	sandSettings.SandSpeed           = data.m_maxSpeedValue;
-	sandSettings.SandAirControl      = data.m_airControlValue;
-	sandSettings.SandAcceleration    = data.m_accelerationValue;
-	sandSettings.SandJumpZVelocity   = data.m_jumpZVelocityValue;
-	sandSettings.SandFallingFriction = data.m_fallingFrictionValue;
+	TerrainSettings sandSettings{};
+	sandSettings.Speed           = data.m_maxSpeedValue;
+	sandSettings.AirControl      = data.m_airControlValue;
+	sandSettings.Acceleration    = data.m_accelerationValue;
+	sandSettings.JumpZVelocity   = data.m_jumpZVelocityValue;
+	sandSettings.FallingFriction = data.m_fallingFrictionValue;
 
-	UpdatePIETerrainSettings(sandSettings);
+	if (m_character && m_pieWorld) {
+		m_terrainManager->SetSandTerrainSettings(sandSettings);
+	}
 }
 
 void GAttunedTool::UpdateModel(CommonDataWater&	data)
 {
 	m_attunedModel->UpdateCache(data);
 
-	UTerrainManager::WaterTerrainSettings waterSettings{};
-	waterSettings.WaterSpeed           = data.m_maxSpeedValue;
-	waterSettings.WaterAirControl      = data.m_airControlValue;
-	waterSettings.WaterAcceleration    = data.m_accelerationValue;
-	waterSettings.WaterAcceleration    = data.m_jumpZVelocityValue;
-	waterSettings.WaterFallingFriction = data.m_fallingFrictionValue;
+	TerrainSettings waterSettings{};
+	waterSettings.Speed           = data.m_maxSpeedValue;
+	waterSettings.AirControl      = data.m_airControlValue;
+	waterSettings.Acceleration    = data.m_accelerationValue;
+	waterSettings.Acceleration    = data.m_jumpZVelocityValue;
+	waterSettings.FallingFriction = data.m_fallingFrictionValue;
 
-	UpdatePIETerrainSettings(waterSettings);
+	if (m_character && m_pieWorld) {
+		m_terrainManager->SetWaterTerrainSettings(waterSettings);
+	}
 }
 
 void GAttunedTool::UpdateModel(CommonDataNeutral& data)
 {
 	m_attunedModel->UpdateCache(data);
 
-	UTerrainManager::NeutralTerrainSettings neutralSettings{};
-	neutralSettings.DefaultSpeed           = data.m_maxSpeedValue;
-	neutralSettings.DefaultAirControl      = data.m_airControlValue;
-	neutralSettings.DefaultAcceleration    = data.m_accelerationValue;
-	neutralSettings.DefaultJumpZVelocity   = data.m_jumpZVelocityValue;
-	neutralSettings.DefaultFallingFriction = data.m_fallingFrictionValue;
+	TerrainSettings neutralSettings{};
+	neutralSettings.Speed           = data.m_maxSpeedValue;
+	neutralSettings.AirControl      = data.m_airControlValue;
+	neutralSettings.Acceleration    = data.m_accelerationValue;
+	neutralSettings.JumpZVelocity   = data.m_jumpZVelocityValue;
+	neutralSettings.FallingFriction = data.m_fallingFrictionValue;
 
-	UpdatePIETerrainSettings(neutralSettings);
+	if (m_character && m_pieWorld) {
+		m_terrainManager->SetNeutralTerrainSettings(neutralSettings);
+	}
 }
 
 void GAttunedTool::UpdateModel(ProfilePreferenceData& data)
@@ -390,12 +398,14 @@ void GAttunedTool::UpdateModel(RockMomemtumData& data)
 		return;
 	}
 
-	UTerrainManager::RockMomemtumSettings momemtumSettings {};
+	RockMomemtumSettings momemtumSettings {};
 	momemtumSettings.IsActive = data.m_bActiveMomemtum;
 	momemtumSettings.IsSquare = data.m_bSquareMomemtum;
 	momemtumSettings.MinValue = data.m_minMomemtumValue;
 
-	UpdatePIETerrainSettings(momemtumSettings);
+	if (m_character && m_pieWorld) {
+		m_terrainManager->SetRockMomemtumSettings(momemtumSettings);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

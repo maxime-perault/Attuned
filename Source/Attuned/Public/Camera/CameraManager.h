@@ -15,7 +15,9 @@
 #include "Public/CollisionQueryParams.h"
 
 #include "Camera/CameraProfile.h"
+#include "Terrain/TerrainManager.h"
 #include "CameraManager.generated.h"
+
 
 class AMyCharacter;
 
@@ -36,8 +38,8 @@ public:
 	void Initialize	(void);
 
 	/// \brief Called when the character walks on a new terrain
-	/// \param type The type of the terrain (TODO : Change for an enum)
-	void OnTerrainChange(int type);
+	/// \param type The type of the terrain
+	void OnTerrainChange(UTerrainManager::ETerrainType type);
 
 	/// \brief  Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

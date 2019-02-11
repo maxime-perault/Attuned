@@ -20,7 +20,7 @@
 
 #include "Attuned/Public/MyCharacter.h"
 #include "Attuned/Public/Camera/CameraManager.h"
-#include "Attuned/Public/TerrainManager.h"
+#include "Attuned/Public/Terrain/TerrainManager.h"
 
 /// \brief Global 
 /// \class GAttunedTool
@@ -87,18 +87,6 @@ private:
 	void GetGamePointersFromPIEWorld();
 	void UpdatePIEValues			();
 	void UpdatePIECameraSettings	(/* const UCameraManager::CameraSettings& settings */);
-
-	template<class T>
-	void UpdatePIETerrainSettings(const T& settings)
-	{
-		if (!m_character || !m_pieWorld)
-		{
-			return;
-		}
-
-		m_terrainManager->UpdateTerrainSettings(settings);
-		UE_LOG(LogTemp, Warning, TEXT("[Attuned] TerrainSettings Updated."));
-	}
 
 private:
 
