@@ -8,12 +8,13 @@
 #define ATTUNED_CAMERA_COLLISION_SETTINGS_H
 
 #include "CoreMinimal.h"
+#include "Kismet/KismetMathLibrary.h"
 
 struct CameraCollisionSettings
 {
 	CameraCollisionSettings	();
 
-	float SphereRadius;
+	float		SphereRadius;
 };
 
 #endif // ATTUNED_CAMERA_COLLISION_SETTINGS_H

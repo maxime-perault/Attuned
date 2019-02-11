@@ -17,9 +17,11 @@ struct CameraBoomSettings
 	bool		bInheritPitch;
 	bool		bDoCollisionTest;
 	bool		bUserPawnControlRotation;
+	bool		bEnableCameraLag;
 	bool		bEnableCameraRotationLag;
 
 	float		TargetArmLenght;
+	float		CameraLagSpeed;
 	float		CameraRotationLagSpeed;
 
 	FVector		RelativeLocation;

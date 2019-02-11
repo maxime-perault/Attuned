@@ -73,7 +73,7 @@ void UTerrainManager::BeginPlay()
 
 	mv_MomemtumActive   = true;
 	mv_MomemtumSquare   = false;
-	mv_MomemtumMinValue = 0.5f;
+	mv_MomemtumMinValue = 0.25f;
 
 
 	mv_RockFallingFriction = 0.5f;
@@ -82,16 +82,16 @@ void UTerrainManager::BeginPlay()
 	mv_RockAcceleration    = 175.0f;
 	mv_RockSpeed           = 1425.0f;
 
-	mv_SandFallingFriction = 400.0f;
-	mv_SandAirControl      = 250.0f;
+	mv_SandFallingFriction = 10.0f;
+	mv_SandAirControl      = 0.2f;
 	mv_SandJumpZVelocity   = 1400.0f;
 	mv_SandAcceleration    = 925.0f;
 	mv_SandSpeed           = 950.0f;
 
 	mv_WaterFallingFriction = 1.0f;
 	mv_WaterAirControl      = 1.0f;
-	mv_WaterJumpZVelocity   = 200.0f;
-	mv_WaterAcceleration    = 300.0f;
+	mv_WaterJumpZVelocity   = 400.0f;
+	mv_WaterAcceleration    = 500.0f;
 	mv_WaterSpeed           = 1425.0f;
 
 	mv_DefaultFallingFriction = 0.5f;
@@ -101,6 +101,8 @@ void UTerrainManager::BeginPlay()
 	mv_DefaultSpeed           = 825.0f;
 
 	mv_DashCoolDown = 0.f;
+	mv_ElapsedTime  = 0.0f;
+	mv_lockSpeed    = false;
 }
 
 
@@ -159,8 +161,12 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			}
 			case SurfaceType2:
 			{
-				this->WaterTerrainFirstStep();
+				mv_bufferVelocity = mc_character->GetCharacterMovement()->Velocity;
+				
 				bOnWaterEnter = true;
+				mv_lockSpeed  = true;
+
+				this->WaterTerrainFirstStep();
 				break;
 			}
 			case SurfaceType3:
@@ -174,6 +180,30 @@ void UTerrainManager::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 				break;
 			}
 		}
+	}
+
+	LockVelocity();
+}
+
+void UTerrainManager::LockVelocity(void)
+{
+	if (!mv_lockSpeed)
+	{
+		return;
+	}
+
+	mv_ElapsedTime += mv_DeltaTime;
+	mc_character->GetCharacterMovement()->Velocity = mv_bufferVelocity;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Velocity : %lf %lf %lf"),
+	//	mc_character->GetCharacterMovement()->Velocity.X,
+	//	mc_character->GetCharacterMovement()->Velocity.Y,
+	//	mc_character->GetCharacterMovement()->Velocity.Z);
+
+	if (mv_ElapsedTime >= 0.3f)
+	{
+		mv_ElapsedTime = 0.0f;
+		mv_lockSpeed   = false;
 	}
 }
 
@@ -233,15 +263,18 @@ void UTerrainManager::StandardTerrainFirstStep(void)
 
 	mv_TerrainType = TEXT("DEFAULT");
 	mc_character->mc_CameraManager->OnTerrainChange(0);
-	mc_character->GetCharacterMovement()->JumpZVelocity = mv_DefaultJumpZVelocity;
-	mc_character->GetCharacterMovement()->MaxAcceleration = mv_DefaultAcceleration;
 
+	UpdateCharacterSettings();
+
+	// mc_character->GetCharacterMovement()->JumpZVelocity = mv_DefaultJumpZVelocity;
+	// mc_character->GetCharacterMovement()->MaxAcceleration = mv_DefaultAcceleration;
+	
 	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	mv_MaxSpeed = mv_DefaultSpeed;
+	//mv_MaxSpeed = mv_DefaultSpeed;
 
-	mc_character->mc_WaterFollowCamera->Deactivate();
+	//mc_character->mc_WaterFollowCamera->Deactivate();
 	mc_character->mc_DefaultFollowCamera->Activate();
 
 	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
@@ -262,15 +295,17 @@ void UTerrainManager::RockTerrainFirstStep(void)
 	*/
 	mv_TerrainType = TEXT("ROCK");
 	mc_character->mc_CameraManager->OnTerrainChange(1);
-	mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
-	mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
+	UpdateCharacterSettings();
+
+	//mc_character->GetCharacterMovement()->JumpZVelocity = mv_RockJumpZVelocity; //Not Used
+	//mc_character->GetCharacterMovement()->MaxAcceleration = mv_RockAcceleration;
 
 	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	mv_MaxSpeed = mv_RockSpeed;
+	//mv_MaxSpeed = mv_RockSpeed;
 
-	mc_character->mc_WaterFollowCamera->Deactivate();
+	//mc_character->mc_WaterFollowCamera->Deactivate();
 	mc_character->mc_DefaultFollowCamera->Activate();
 
 	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
@@ -292,20 +327,22 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 
 	mv_TerrainType = TEXT("WATER");
 	mc_character->mc_CameraManager->OnTerrainChange(2);
-	mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
-	mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
+	UpdateCharacterSettings();
+
+	//mc_character->GetCharacterMovement()->JumpZVelocity = mv_WaterJumpZVelocity;
+	//mc_character->GetCharacterMovement()->MaxAcceleration = mv_WaterAcceleration;
 
 	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	mc_character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	
-	mv_MaxSpeed = mv_WaterSpeed;
+	//mv_MaxSpeed = mv_WaterSpeed;
 
-	mc_character->mc_DefaultFollowCamera->Deactivate();
-	mc_character->mc_WaterFollowCamera->Activate();
+	//mc_character->mc_DefaultFollowCamera->Deactivate();
+	mc_character->mc_DefaultFollowCamera->Activate();
 
-	mc_character->mc_CurrentCameraBoom = mc_character->mc_WaterCameraBoom;
-	mc_character->mc_CurrentFollowCamera = mc_character->mc_WaterFollowCamera;
-	mc_character->mc_CurrentCameraCollision = mc_character->mc_WaterCameraCollision;
+	//mc_character->mc_CurrentCameraBoom = mc_character->mc_WaterCameraBoom;
+	//mc_character->mc_CurrentFollowCamera = mc_character->mc_WaterFollowCamera;
+	//mc_character->mc_CurrentCameraCollision = mc_character->mc_WaterCameraCollision;
 
 	this->CharacterMoveSpeedTransition(true);
 	mc_character->LerpForwardSpeed(mc_character->GetVelocity().Size() / mv_WaterSpeed, 0.f, false);
@@ -323,15 +360,17 @@ void UTerrainManager::SandTerrainFirstStep(void)
 
 	mv_TerrainType = TEXT("SAND");
 	mc_character->mc_CameraManager->OnTerrainChange(3);
-	mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
-	mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
+	UpdateCharacterSettings();
+
+	//mc_character->GetCharacterMovement()->JumpZVelocity = mv_SandJumpZVelocity;
+	//mc_character->GetCharacterMovement()->MaxAcceleration = mv_SandAcceleration;
 
 	mc_character->GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	mc_character->GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	mv_MaxSpeed = mv_SandSpeed;
+	//mv_MaxSpeed = mv_SandSpeed;
 
-	mc_character->mc_WaterFollowCamera->Deactivate();
+	//mc_character->mc_WaterFollowCamera->Deactivate();
 	mc_character->mc_DefaultFollowCamera->Activate();
 
 	mc_character->mc_CurrentCameraBoom = mc_character->mc_DefaultCameraBoom;
@@ -351,7 +390,7 @@ void UTerrainManager::UpdateTerrainSettings(const RockTerrainSettings& settings)
 	mv_RockAcceleration       = settings.RockAcceleration;
 	mv_RockJumpZVelocity      = settings.RockJumpZVelocity;
 	mv_DefaultFallingFriction = settings.RockFallingFriction;
-	UpdateCharacterSettings();
+	// UpdateCharacterSettings();
 }
 
 void UTerrainManager::UpdateTerrainSettings(const SandTerrainSettings& settings)
@@ -361,7 +400,7 @@ void UTerrainManager::UpdateTerrainSettings(const SandTerrainSettings& settings)
 	mv_SandAcceleration    = settings.SandAcceleration;
 	mv_SandJumpZVelocity   = settings.SandJumpZVelocity;
 	mv_SandFallingFriction = settings.SandFallingFriction;
-	UpdateCharacterSettings();
+	// UpdateCharacterSettings();
 }
 
 void UTerrainManager::UpdateTerrainSettings(const WaterTerrainSettings& settings)
@@ -371,7 +410,7 @@ void UTerrainManager::UpdateTerrainSettings(const WaterTerrainSettings& settings
 	mv_WaterAcceleration    = settings.WaterAcceleration;
 	mv_WaterJumpZVelocity   = settings.WaterJumpZVelocity;
 	mv_WaterFallingFriction = settings.WaterFallingFriction;
-	UpdateCharacterSettings();
+	// UpdateCharacterSettings();
 }
 
 void UTerrainManager::UpdateTerrainSettings(const NeutralTerrainSettings& settings)
@@ -381,7 +420,7 @@ void UTerrainManager::UpdateTerrainSettings(const NeutralTerrainSettings& settin
 	mv_DefaultAcceleration    = settings.DefaultAcceleration;
 	mv_DefaultJumpZVelocity   = settings.DefaultJumpZVelocity;
 	mv_DefaultFallingFriction = settings.DefaultFallingFriction;
-	UpdateCharacterSettings();
+	// UpdateCharacterSettings();
 }
 
 void UTerrainManager::UpdateCharacterSettings()

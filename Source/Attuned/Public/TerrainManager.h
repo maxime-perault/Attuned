@@ -138,15 +138,19 @@ private:
 	
 	AMyCharacter*	mc_character;
 	
-	void	RockTerrainFirstStep(void);
-	void	SandTerrainFirstStep(void);
-	void	WaterTerrainFirstStep(void);
-	void	StandardTerrainFirstStep(void);
+	void	LockVelocity				(void);
+	void	RockTerrainFirstStep		(void);
+	void	SandTerrainFirstStep		(void);
+	void	WaterTerrainFirstStep		(void);
+	void	StandardTerrainFirstStep	(void);
 
 	void	CharacterMoveSpeedTransition(const bool InitTransition);
 
 	bool	mv_initialized;
 	bool	mv_IsTransitioningSpeed;
+	bool    mv_lockSpeed;
 	float	mv_DeltaTime;
 	float	mv_MaxSpeed;
+	float	mv_ElapsedTime;
+	FVector mv_bufferVelocity;
 };

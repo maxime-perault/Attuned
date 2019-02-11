@@ -13,7 +13,9 @@ struct CameraSettings
 {
 	CameraSettings();
 
-	bool bUsePawnControlRotation;
+	bool  bUsePawnControlRotation;
+	float FieldOfView;
+	float Pitch;
 };
 
 #endif // ATTUNED_CAMERA_SETTINGS_H
