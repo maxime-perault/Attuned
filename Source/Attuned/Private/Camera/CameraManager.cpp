@@ -31,6 +31,7 @@ void UCameraManager::Initialize(void)
 	// Initializing all camera profiles
 	// Rock camera profile
 	RockProfile.Settings.Pitch					      	 = 0.24f;
+	RockProfile.Settings.FieldOfView                     = 90.0f;
 	RockProfile.Settings.bUsePawnControlRotation	     = false;
 	RockProfile.BoomSettings.bInheritRoll			     = false;
 	RockProfile.BoomSettings.bInheritPitch			     = true;
@@ -47,6 +48,7 @@ void UCameraManager::Initialize(void)
 													     
 	// Sand camera profile							     
 	SandProfile.Settings.Pitch							 = 0.24f;
+	SandProfile.Settings.FieldOfView                     = 90.0f;
 	SandProfile.Settings.bUsePawnControlRotation         = false;
 	SandProfile.BoomSettings.bInheritRoll                = false;
 	SandProfile.BoomSettings.bInheritPitch               = true;
@@ -63,14 +65,15 @@ void UCameraManager::Initialize(void)
 
 	// Water camera profile
 	WaterProfile.Settings.Pitch							 = 0.12f;
+	WaterProfile.Settings.FieldOfView                    = 95.0f;
 	WaterProfile.Settings.bUsePawnControlRotation        = false;
 	WaterProfile.BoomSettings.bInheritRoll               = false;
 	WaterProfile.BoomSettings.bInheritPitch              = true;
 	WaterProfile.BoomSettings.bDoCollisionTest           = false;
 	WaterProfile.BoomSettings.bUserPawnControlRotation   = true;
 	WaterProfile.BoomSettings.bEnableCameraLag		     = false;
-	WaterProfile.BoomSettings.bEnableCameraRotationLag   = true;
-	WaterProfile.BoomSettings.TargetArmLenght            = 600.0f;
+	WaterProfile.BoomSettings.bEnableCameraRotationLag   = false;
+	WaterProfile.BoomSettings.TargetArmLenght            = 620.0f;
 	WaterProfile.BoomSettings.CameraLagSpeed		     = 0.f;
 	WaterProfile.BoomSettings.CameraRotationLagSpeed     = 7.0f;
 	WaterProfile.BoomSettings.RelativeLocation           = FVector (7.0f,  0.0f, 60.0f);
@@ -79,6 +82,7 @@ void UCameraManager::Initialize(void)
 
 	// Neutral camera profile
 	NeutralProfile.Settings.Pitch						 = 0.24f;
+	NeutralProfile.Settings.FieldOfView                  = 90.0f;
 	NeutralProfile.Settings.bUsePawnControlRotation      = false;
 	NeutralProfile.BoomSettings.bInheritRoll             = false;
 	NeutralProfile.BoomSettings.bInheritPitch            = true;
@@ -100,6 +104,7 @@ void UCameraManager::Initialize(void)
 	Character = StaticCast<AMyCharacter*>(GetOwner());
 
 	// Initial settings
+	Character->mc_CurrentFollowCamera->FieldOfView             = CurrentProfile.Settings.FieldOfView;
 	Character->mc_CurrentFollowCamera->bUsePawnControlRotation = CurrentProfile.Settings.bUsePawnControlRotation;
 	Character->mc_CurrentCameraBoom->bInheritRoll              = CurrentProfile.BoomSettings.bInheritRoll;
 	Character->mc_CurrentCameraBoom->bInheritPitch             = CurrentProfile.BoomSettings.bInheritPitch;
@@ -122,6 +127,7 @@ void UCameraManager::Initialize(void)
 	LerpElapsedTime        =  0.0f;
 	bIsLerping             = false;
 	ArmFromPitchMultiplier = 1.0f;
+	FOVLerpCoef            = 1.25f;
 
 	MaxArmLength = Character->mc_CurrentCameraBoom->TargetArmLength;
 
@@ -146,8 +152,13 @@ void UCameraManager::OnTerrainChange(UTerrainManager::ETerrainType type)
 	FVector FollowPosition  = Character->mc_CurrentFollowCamera->GetComponentLocation();
 	FVector CapsulePosition = Character->GetCapsuleComponent()->GetComponentLocation();
 
+	// Saving the current character yaw
+	CameraYaw    = Character->mc_CurrentFollowCamera->GetComponentRotation().Yaw;
+	CharacterYaw = Character->GetCapsuleComponent()->GetComponentRotation().Yaw;
+
 	PreviousProfile = CurrentProfile;
 	PreviousProfile.Settings.Pitch				  = CurrentPitch;
+	PreviousProfile.Settings.FieldOfView          = Character->mc_CurrentFollowCamera->FieldOfView;
 	PreviousProfile.BoomSettings.TargetArmLenght  = MaxArmLength;
 	PreviousProfile.BoomSettings.RelativeLocation = Character->mc_CurrentCameraBoom->RelativeLocation;
 	PreviousProfile.BoomSettings.RelativeRotation = Character->mc_CurrentCameraBoom->RelativeRotation;
@@ -196,7 +207,9 @@ void UCameraManager::LerpCameraValues(void)
 		return;
 	}
 
-	LerpElapsedTime += mv_DeltaTime;
+	float coef = 1.25f;
+
+	LerpElapsedTime += mv_DeltaTime * coef;
 	LerpElapsedTime = FMath::Clamp(LerpElapsedTime, 0.0f, 1.0f);
 
 	Character->mc_CurrentCameraBoom->RelativeLocation = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.RelativeLocation, CurrentProfile.BoomSettings.RelativeLocation, LerpElapsedTime, 2.5f);
@@ -211,11 +224,34 @@ void UCameraManager::LerpCameraValues(void)
 	float delta             = CurrentProfile.Settings.Pitch - PreviousProfile.Settings.Pitch;
 	float MissingInputPitch = delta / 0.043620f;
 	
-	// Sending the input
-	CastChecked<APlayerController>(Character->Controller)->AddPitchInput(MissingInputPitch * mv_DeltaTime);
+	// Sending the pitch Input
+	CastChecked<APlayerController>(Character->Controller)->AddPitchInput(MissingInputPitch * mv_DeltaTime * coef);
 
-	// LogTemp : Warning : Current Pitch : 0.000000
-	// LogTemp : Warning : Current Pitch : 0.043620 = 1.0f
+	if (Character->GetTerrainSurfaceType() == "WATER")
+	{
+		float deltaYaw  = CameraYaw - CharacterYaw;
+		
+		if (deltaYaw > 0.0f && deltaYaw < 180.0f)
+		{
+			deltaYaw = -deltaYaw;
+		}
+		else if (deltaYaw > 0.0f && deltaYaw > 180.0f)
+		{
+			deltaYaw = 360.0f - deltaYaw;
+		}
+		else if (deltaYaw < 0.0f && deltaYaw < -180.0f)
+		{
+			deltaYaw = 360.0f + deltaYaw;
+			deltaYaw = -deltaYaw;
+		}
+		else if (deltaYaw < 0.0f && deltaYaw > -180.0f)
+		{
+			deltaYaw = -deltaYaw;
+		}
+
+		float MissingInputYaw = deltaYaw * 0.43620f;
+		CastChecked<APlayerController>(Character->Controller)->AddYawInput(MissingInputYaw * mv_DeltaTime * coef);
+	}
 
 	if (LerpElapsedTime >= 1.0f)
 	{
@@ -256,7 +292,8 @@ void UCameraManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	}
 
 	LerpCameraValues();
-	UpdatePitch();
+	UpdatePitch     ();
+	LerpFieldOfView ();
 }
 
 void UCameraManager::LerpArmLenght()
@@ -266,7 +303,38 @@ void UCameraManager::LerpArmLenght()
 
 void UCameraManager::LerpFieldOfView()
 {
-	// TODO
+	float cfov         = Character->mc_CurrentFollowCamera->FieldOfView;
+	const float offset = abs(CurrentProfile.Settings.FieldOfView - PreviousProfile.Settings.FieldOfView);
+	const float delta  = offset * mv_DeltaTime * FOVLerpCoef;
+
+	 if (abs(cfov - CurrentProfile.Settings.FieldOfView) >= 1.0f)
+	 {
+		 if (cfov > CurrentProfile.Settings.FieldOfView)
+		 {
+			 cfov -= delta;
+		 }
+		 else
+		 {
+			 cfov += delta;
+		 }
+
+		 Character->mc_CurrentFollowCamera->SetFieldOfView(cfov);
+	 }
+
+	 if (Character->GetTerrainSurfaceType() == "WATER")
+	 {
+		 float SpeedPercent = GetPercentBetweenAB(
+			 Character->GetVelocity().Size(),
+			 Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 0.0f,
+			 Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 1.00f);
+
+		 SpeedPercent = FMath::Clamp(SpeedPercent, 0.0f, 1.0f);
+
+		 SpeedPercent   = -(SpeedPercent - 0.5f);
+		 float deltaFov = SpeedPercent * 12.0f * mv_DeltaTime * 1.3f;
+		 float finalFov = FMath::Clamp(cfov + deltaFov, 93.0f, 101.0f);
+	 	 Character->mc_CurrentFollowCamera->SetFieldOfView(finalFov);
+	 }
 }
 
 /// \brief Compute the current pitch between -1 and 1
@@ -291,11 +359,18 @@ void UCameraManager::UpdateArmFromSpeed(void)
 	
 	if (bIsLerping)
 	{
-		MaxArmLength  = FMath::InterpEaseInOut(PreviousProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght, LerpElapsedTime, 2.5f);
+		MaxArmLength  = FMath::Lerp(PreviousProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght, LerpElapsedTime);
 	}
 	else
 	{
-		MaxArmLength = FMath::Lerp(CurrentProfile.BoomSettings.TargetArmLenght, CurrentProfile.BoomSettings.TargetArmLenght + 150.0f, percent);
+		float SpeedPercent = GetPercentBetweenAB(
+			Character->GetVelocity().Size(),
+			Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 0.33f,
+			Character->mc_TerrainManager->GetWaterTerrainSettings().Speed * 1.00f);
+
+		SpeedPercent  = SpeedPercent - 0.5f;
+		MaxArmLength += SpeedPercent * 150.0f * mv_DeltaTime * 1.3f;
+		MaxArmLength = FMath::Clamp(MaxArmLength, CurrentProfile.BoomSettings.TargetArmLenght - 120.0f, CurrentProfile.BoomSettings.TargetArmLenght + 150.0f);
 	}
 
 	if (percent >= 0.7f)
@@ -308,7 +383,6 @@ void UCameraManager::UpdateArmFromSpeed(void)
 		// Chromatic aberration
 		Character->mc_CurrentFollowCamera->PostProcessSettings.SceneFringeIntensity = SpeedPercent * 4.0f;
 		DeltaSpeedFOV = SpeedPercent * 8.0f;
-
 	}
 	else
 	{
@@ -324,7 +398,7 @@ void UCameraManager::UpdateCameraFromPitch(void)
 	UpdatePitch();
 
 	// TODO : Move the following variables into the appropriate profiles
-	static const float BaseFOV (90.0f);
+	static const float BaseFOV (Character->mc_CurrentFollowCamera->FieldOfView);
 	static const float DeltaFOV(10.0f);
 	static const float BaseCameraBoomZ (60.0f);
 	static const float DeltaCameraBoomZ(40.0f);
@@ -340,12 +414,16 @@ void UCameraManager::UpdateCameraFromPitch(void)
 				this->GetPercentBetweenAB(CurrentPitch, MinPitch, MaxPitch))));
 
 	// Updates the FOV when the camera is near of the character
-	Character->mc_CurrentFollowCamera->SetFieldOfView(
-		BaseFOV + FMath::Lerp(
-			DeltaFOV,
-			0.f,
-			this->GetPercentBetweenAB(CurrentPitch, MinPitch, MaxPitch)));
 
+	if (Character->GetTerrainSurfaceType() != "WATER")
+	{
+		Character->mc_CurrentFollowCamera->SetFieldOfView(
+			BaseFOV + FMath::Lerp(
+				DeltaFOV,
+				0.f,
+				this->GetPercentBetweenAB(CurrentPitch, MinPitch, MaxPitch)));
+	}
+	
 	NextCameraLocation  = Character->mc_CurrentFollowCamera->GetForwardVector();
 	NextCameraLocation.Normalize();
 	NextCameraLocation *= MaxArmLengthFromPitch;

@@ -79,6 +79,7 @@ private:
 	void UpdateCameraValues				(void);
 	void UpdateCameraFromPitch			(void);
 	void LerpCameraValues               (void);
+	// void LerpCameraYaw					(void);
 	
 	/// \brief Called after a camera boom to zoom out progressively instead of warping the camera
 	void  ZoomOut							(void);
@@ -114,6 +115,10 @@ private:
 	float NextArmLength;
 	float LastTerrainVelocity;
 	float ArmFromPitchMultiplier;
+	float FOVLerpCoef;
+
+	float CameraYaw;
+	float CharacterYaw;
 	
 private:
 
