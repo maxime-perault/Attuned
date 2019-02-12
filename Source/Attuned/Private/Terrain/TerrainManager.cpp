@@ -13,6 +13,7 @@
 #include "Engine/Classes/PhysicalMaterials/PhysicalMaterial.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 
 /// \brief Sets default values for this component's properties
 UTerrainManager::UTerrainManager()
@@ -57,7 +58,7 @@ void UTerrainManager::BeginPlay()
 
 	m_waterSettings.FallingFriction    = 1.0f;
 	m_waterSettings.AirControl	       = 1.0f;
-	m_waterSettings.JumpZVelocity      = 400.0f;
+	m_waterSettings.JumpZVelocity      = 500.0f;
 	m_waterSettings.Acceleration       = 500.0f;
 	m_waterSettings.Speed              = 1425.0f;
 
@@ -85,6 +86,9 @@ void UTerrainManager::BeginPlay()
 
 	m_elapsedTime          = 0.0f;
 	m_isTransitioningSpeed = false;
+
+	m_lerpWater        = false;
+	m_waterElapsedTime = 0.0f;
 }
 
 /// \brief Called every frame
@@ -155,6 +159,7 @@ void UTerrainManager::BeginPlay()
 	}
 
 	LockVelocity();
+	WaterLerp();
 }
 
 /// \brief When the player enters the water terrain, his velocity
@@ -168,29 +173,17 @@ void UTerrainManager::LockVelocity(void)
 		return;
 	}
 
-	m_elapsedTime += m_deltaTime;
+	m_elapsedTime    += m_deltaTime;
+	FVector nVelocity = m_bufferVelocity;
+	nVelocity.Normalize();
 
-	if ((m_bufferVelocity.Size() + this->GetPercentBetweenAB(m_elapsedTime, 0.f, TotalTime) * 500.f) < m_waterSettings.Speed)
-	{
-		m_character->GetCharacterMovement()->Velocity =
-			m_bufferVelocity
-			+ UKismetMathLibrary::GetForwardVector(m_character->Controller->GetControlRotation())
-			* (this->GetPercentBetweenAB(m_elapsedTime, 0.f, TotalTime) * 500.f);
-	}
-	else
-	{
-		m_character->GetCharacterMovement()->Velocity =
-			UKismetMathLibrary::GetForwardVector(m_character->Controller->GetControlRotation())
-			* m_waterSettings.Speed;
-	}
+	m_character->AddMovementInput(nVelocity);
 
 	if (m_elapsedTime >= TotalTime)
 	{
 		m_elapsedTime = 0.0f;
 		m_lockSpeed   = false;
 		m_character->UnlockControls();
-
-		UE_LOG(LogTemp, Warning, TEXT("Velocity Unlokced"));
 	}
 }
 
@@ -249,6 +242,23 @@ void UTerrainManager::CharacterMoveSpeedTransition(const bool InitTransition)
 		m_isTransitioningSpeed = false;
 }
 
+void UTerrainManager::WaterLerp(void)
+{
+	if (!m_lerpWater)
+		return;
+
+	m_waterElapsedTime += m_deltaTime;
+
+	if (m_waterElapsedTime >= 0.8f)
+	{
+		m_lerpWater = false;
+		m_waterElapsedTime = 0.0f;
+
+		m_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		m_character->GetCharacterMovement()->bOrientRotationToMovement     = false;
+	}
+}
+
 void UTerrainManager::RockTerrainFirstStep(void)
 {
 	m_terrainType = ETerrainType::Rock;
@@ -264,6 +274,8 @@ void UTerrainManager::RockTerrainFirstStep(void)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("ROCK"));
 	}	
+
+	m_lerpWater = false;
 }
 
 void UTerrainManager::SandTerrainFirstStep(void)
@@ -281,6 +293,8 @@ void UTerrainManager::SandTerrainFirstStep(void)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("SAND"));
 	}
+
+	m_lerpWater = false;
 }
 
 void UTerrainManager::WaterTerrainFirstStep(void)
@@ -288,7 +302,7 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 	m_lockSpeed      = true;
 
 	m_character->lockControls();
-	m_bufferVelocity = m_character->GetCharacterMovement()->Velocity;
+	m_bufferVelocity = m_character->GetCapsuleComponent()->GetForwardVector() * m_character->GetCharacterMovement()->Velocity.Size();
 
 	m_terrainType = ETerrainType::Water;
 	m_character->mc_CameraManager->OnTerrainChange(m_terrainType);
@@ -296,14 +310,16 @@ void UTerrainManager::WaterTerrainFirstStep(void)
 	UpdateCharacterSettings		();
 	CharacterMoveSpeedTransition(true);
 
-	m_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	m_character->GetCharacterMovement()->bOrientRotationToMovement     = false;
+	// m_character->GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	// m_character->GetCharacterMovement()->bOrientRotationToMovement     = false;
 	m_character->LerpForwardSpeed    (m_character->GetVelocity().Size() / m_waterSettings.Speed, 0.0f, false);
 
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("WATER"));
 	}	
+
+	m_lerpWater = true;
 }
 
 void UTerrainManager::CorridorTerrainFirstStep(void)
@@ -321,6 +337,8 @@ void UTerrainManager::CorridorTerrainFirstStep(void)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("CORRIDOR"));
 	}
+
+	m_lerpWater = false;
 }
 
 void UTerrainManager::NeutralTerrainFirstStep(void)
@@ -338,6 +356,8 @@ void UTerrainManager::NeutralTerrainFirstStep(void)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("NEUTRAL"));
 	}
+
+	m_lerpWater = false;
 }
 
 void UTerrainManager::SetInGameGUI(UW_InGameUI* inGameGUI) {

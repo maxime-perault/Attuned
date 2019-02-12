@@ -112,10 +112,12 @@ private:
 	bool    m_lockSpeed;
 	bool	m_initialized;
 	bool	m_isTransitioningSpeed;
-	
+	bool	m_lerpWater;
+
 	float	m_maxSpeed;
 	float	m_deltaTime;
 	float	m_elapsedTime;
+	float   m_waterElapsedTime;
 
 	FVector m_bufferVelocity;
 
@@ -123,6 +125,7 @@ private:
 
 	/// \brief TODO
 	void LockVelocity				(void);
+	void WaterLerp					(void);
 
 	/// \brief TODO
 	void RockTerrainFirstStep		(void);
