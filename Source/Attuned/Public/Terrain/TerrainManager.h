@@ -137,4 +137,6 @@ private:
 
 	/// \brief TODO
 	void CharacterMoveSpeedTransition(const bool InitTransition);
+
+	float GetPercentBetweenAB(float x, float a, float b) const { return ((x - a) / (b - a)); }
 };
