@@ -216,8 +216,8 @@ void AMyCharacter::BeginPlay()
 	mc_CurrentFollowCamera = mc_DefaultFollowCamera;
 	mc_CurrentCameraCollision = mc_DefaultCameraCollision;
 	mv_ForwardSpeed = 0.f;
-	mc_MoveSpeed->SetVisibility(true);
-	mc_JumpSpeed->SetVisibility(true);
+	mc_MoveSpeed->SetVisibility(false);
+	mc_JumpSpeed->SetVisibility(false);
 }
 
 void AMyCharacter::Tick(float DeltaTime)
