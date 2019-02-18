@@ -427,7 +427,7 @@ void AMyCharacter::MoveForward(float Value)
 		else
 		{
 			const float	water_value(FMath::Clamp(Value, 0.f, 1.f));
-
+			AddMovementInput(Direction, water_value);
 			mv_ForwardSpeed = water_value;
 		}
 	}
