@@ -28,8 +28,8 @@ private:
 	float	mv_DeltaTime;
 	float	mv_LeanPercent;
 	float	mv_ForwardSpeed;
-	bool	mv_LockControls;
-	bool	mv_CanPlay;
+	bool	mv_LockControls = true;
+	bool	mv_CanPlay      = false;
 
 public:
 	AMyCharacter();
