@@ -360,8 +360,8 @@ void AMyCharacter::Dash(const bool InitDash)
 
 void AMyCharacter::Jump()
 {
-	if (!mv_StartPlay && (mv_MenuPosition == 0))
-		mv_StartPlay = true;
+	//if (!mv_StartPlay && (mv_MenuPosition == 0))
+	//	mv_StartPlay = true;
 	
 	if (!mv_CanPlay)
 		return;
